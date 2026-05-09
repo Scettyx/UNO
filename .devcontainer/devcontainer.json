@@ -1,11 +1,16 @@
 {
   "name": "Java",
   "image": "mcr.microsoft.com/devcontainers/java:21",
+  "features": {
+    "ghcr.io/devcontainers/features/java:1": {
+      "version": "22"
+    }
+  },
   "customizations": {
     "vscode": {
-      "extensions":[
+      "extensions": [
         "vscjava.vscode-java-pack"
       ]
     }
   }
-}      
+}
