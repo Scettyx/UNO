@@ -11,13 +11,15 @@ public abstract class Card {
     private final CardType type;
     private final CardColor color;
     private final int number;
+    private final int value;
     
-    protected Card(CardType type, CardColor color, int number) {
+    protected Card(CardType type, CardColor color, int number, int value) {
         Objects.requireNonNull(type);
         Objects.requireNonNull(color);
         this.type = type;
         this.color = color;
         this.number = number;
+        this.value = value;
     }
     /**
      * Ritorna il tipo di una carta
@@ -31,6 +33,11 @@ public abstract class Card {
      * Ritorna il numero di una carta
      */
     public int getNumber() {return number;}
+    
+    /**
+     * Ritorna il valore di una carta
+     */
+    public int getValue() {return value;}
     
     // fratm ma a che serve sto metodo ?
     public CardColor getActiveColor() {
