@@ -4,36 +4,49 @@ import java.util.Objects;
 
 /**
  * @author Cosmin Florea    (M.2241398)
+ * @author Massimo Giorgini (M.2234123)
  */
 
 public abstract class Card {
     private final CardType type;
-    private final CardColor originalColor;
-    private CardColor chosenColor;          // Colore da giocare dopo
+    private final CardColor color;
+    private final int number;
     
-    protected Card(CardType type, CardColor color) {
+    protected Card(CardType type, CardColor color, int number) {
         Objects.requireNonNull(type);
         Objects.requireNonNull(color);
         this.type = type;
-        this.originalColor = color;
-        this.chosenColor = null;
+        this.color = color;
+        this.number = number;
     }
-
+    /**
+     * Ritorna il tipo di una carta
+     */
     public CardType getType() { return type; }
-    public CardColor getOriginalColor() { return originalColor; }
-
-    // Da verificare
+    /**
+     * Ritorna il colore di una carta
+     */
+    public CardColor getColor() { return color; }
+    /**
+     * Ritorna il numero di una carta
+     */
+    public int getNumber() {return number;}
+    
+    // fratm ma a che serve sto metodo ?
     public CardColor getActiveColor() {
-        if (type.isWild() && chosenColor != null) {
-            return chosenColor;
-        } return originalColor;
+        if (type.isWild() && color != null) {
+            return color;
+        } return null;
     }
-
-    public void setChosenColor(CardColor color) {
-        if (!type.isWild()) {
-            // Check sui cambio colore da finire
-        }
-        // Check sul colore da fare
-        this.chosenColor = color;
+      
+    /**
+     * Verifica se si può giocare la carta scelta paragonandola 
+     * alla carta messa in precedenza
+     */
+    public boolean canPlayOn (Card previousCard) {
+    	if (color == previousCard.color ||
+    		type.isWild() ||
+    		getNumber() == previousCard.getNumber()) { return true;
+    	} return false;
     }
 }
