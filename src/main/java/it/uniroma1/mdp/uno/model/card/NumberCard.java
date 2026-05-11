@@ -12,9 +12,6 @@ public class NumberCard extends Card{
 
 	}
 	
-	/**
-	 * ritorna il valore di una carta numerica
-	 * 
-	 */
+	
 
 }
