@@ -8,10 +8,10 @@ import java.util.Objects;
  */
 
 public abstract class Card {
-    private final CardType type;
-    private final CardColor color;
+    protected final CardType type;
+    protected final CardColor color;
     private final CardNumber number;
-    private final int value;
+    protected final int value;
     
     protected Card(CardType type, CardColor color, CardNumber number, int value) {
         Objects.requireNonNull(type);
