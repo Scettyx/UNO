@@ -1,0 +1,30 @@
+package it.uniroma1.mdp.uno.model.deck;
+
+import it.uniroma1.mdp.uno.model.card.Card;
+
+/**
+ * @author Massimo Giorgini
+ */
+
+public class DiscardPile extends CardCollection{
+	public DiscardPile() {
+		//super, non serve il costruttore qua
+	}
+	
+	/**
+	 * Aggiunge una carta in cima alla discard pile
+	 */
+	public boolean addCard(Card card) {
+		return cardList.add(card);
+	}
+	
+	/**
+	 * Ritorna la carta in cima alla discard pile
+	 */
+	public Card getTopCard() {
+		if (this.isEmpty() == false) {
+			return cardList.get(cardList.size()-1);
+		} return null;
+	}
+
+}

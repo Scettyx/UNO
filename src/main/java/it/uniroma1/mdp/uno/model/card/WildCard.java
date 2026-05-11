@@ -6,8 +6,8 @@ package it.uniroma1.mdp.uno.model.card;
 
 public class WildCard extends Card{
 
-	protected WildCard(CardType type, CardColor color, CardNumber number, int value) {
-		super(type.WILD, null, number.NONE, 50);
+	public WildCard(CardColor color) {
+		super(CardType.WILD, null, CardNumber.NONE, 50);
 	}
 
 }
