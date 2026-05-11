@@ -9,47 +9,87 @@ import java.util.Objects;
 
 public abstract class Card {
     protected final CardType type;
-    protected final CardColor color;
-    private final CardNumber number;
-    protected final int value;
+    protected final CardColor originalColor;
+    private CardColor chosenColor;
+
+
     
-    protected Card(CardType type, CardColor color, CardNumber number, int value) {
+    protected Card(CardType type, CardColor color) {
         Objects.requireNonNull(type);
         Objects.requireNonNull(color);
         this.type = type;
-        this.color = color;
-        this.number = number;
-        this.value = value;
+        this.originalColor = color;
+        this.chosenColor = null;
     }
+
     /**
      * Ritorna il tipo di una carta
      */
     public CardType getType() { return type; }
+
     /**
      * Ritorna il colore di una carta
      */
-    public CardColor getColor() { return color; }
-    
+    public CardColor getOriginalColor() { return originalColor; }
+
     /**
-     * Ritorna il valore di una carta
+     * Ritorna il colore attivo in gioco
      */
-    public int getValue() {return value;}
-    
-    // fratm ma a che serve sto metodo ?
     public CardColor getActiveColor() {
-        if (type.isWild() && color != null) {
-            return color;
+        if (type.isWild() && chosenColor != null) {
+            return chosenColor;
         } return null;
     }
-      
+
+    /**
+     * Il metodo definisce il colore della prossima carta dopo una Wild
+     */
+    public void setChosenColor(CardColor color) {
+        if (!type.isWild()) {
+            throw new IllegalArgumentException("Solo le carte normali hanno un colore");
+        }
+        if (color == null || !color.isRealColor()) {
+            throw new IllegalArgumentException("Va scelto un colore");
+        }
+        this.chosenColor = color;
+    }
+
+    /**
+     * Annulla il colore per piazzare una carta Wild
+     */
+    public void resetChosenColor() {
+        if (type.isWild()) { this.chosenColor = null; }
+    }
+
+    public abstract int getPointsValue();    // Restituirà il valore delle carte rimaste in mano alla fine
+
     /**
      * Verifica se si può giocare la carta scelta paragonandola 
      * alla carta messa in precedenza
      */
-    public boolean canPlayOn (Card previousCard) {
-    	if (color == previousCard.color ||
-    		type.isWild() ||
-    		number.getNumber() == previousCard.number.getNumber()) { return true;
-    	} return false;
+    public boolean isPlayableOn (Card topCard) {
+        Objects.requireNonNull(topCard);
+    	if (this.type.isWild()) { return true; }                                                // I vincoli non li stabiliamo qui
+        if (this.originalColor == topCard.getActiveColor()) { return true; }                    // Stesso colore
+        if (this.type == topCard.getType() && !topCard.getType().isWild()) { return true; }     // Stesso tipo, speciali inclusi
+        return false;
+    }
+
+    @Override
+    public String toString() {
+        return type.name() + "-" + originalColor.name();
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) return true;
+        if (!(obj instanceof Card other)) return false;
+        return this.type == other.type && this.originalColor == other.originalColor;
+    }
+
+    // Non fare domande qua so solo che serve con equals 
+    @Override
+    public int hashCode() {
+        return Objects.hash(type, originalColor);
     }
 }

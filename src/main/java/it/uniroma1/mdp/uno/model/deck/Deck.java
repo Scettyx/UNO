@@ -4,18 +4,19 @@ import java.util.ArrayList;
 
 import it.uniroma1.mdp.uno.model.card.Card;
 import it.uniroma1.mdp.uno.model.card.CardColor;
-import it.uniroma1.mdp.uno.model.card.CardNumber;
-import it.uniroma1.mdp.uno.model.card.DrawTwoCard;
+import it.uniroma1.mdp.uno.model.card.CardType;
+import it.uniroma1.mdp.uno.model.card.ActionCard;
+import it.uniroma1.mdp.uno.model.card.WildCard;
 import it.uniroma1.mdp.uno.model.card.NumberCard;
-import it.uniroma1.mdp.uno.model.card.ReverseCard;
-import it.uniroma1.mdp.uno.model.card.SkipCard;
 
 
 /**
  * @author Massimo Giorgini (M.2234123)
+ * @author Cosmin Florea 	(M.2241398)
  */
+
 public class Deck extends CardCollection {
-	
+
 	public final static int LENGTH = 108;
 	
 	public Deck(ArrayList<Card> cardList) {
@@ -38,20 +39,28 @@ public class Deck extends CardCollection {
 	 * Crea il mazzo e aggiunge tutte e 108 le carte di UNO al suo interno
 	 */
 	public void createDeck() {
-		CardColor[] colors = CardColor.values();
-		for (int i = 0; i < colors.length-1; i++) {
-			cardList.add(new NumberCard(CardColor.values()[i], CardNumber.ZERO));
-			cardList.add(new SkipCard(CardColor.values()[i]));
-			cardList.add(new SkipCard(CardColor.values()[i]));
-			cardList.add(new ReverseCard(CardColor.values()[i]));
-			cardList.add(new ReverseCard(CardColor.values()[i]));
-			cardList.add(new DrawTwoCard(CardColor.values()[i]));
-			cardList.add(new DrawTwoCard(CardColor.values()[i]));
-			for (int j = 0; j < 9; j++) {
-				cardList.add(new NumberCard(CardColor.values()[i], CardNumber.values()[j]));
-				cardList.add(new NumberCard(CardColor.values()[i], CardNumber.values()[j]));
+		// Ciclo per carte colorate
+		for (CardColor color : CardColor.values()) {
+			if (!color.isRealColor()) continue;
+
+			cardList.add(new NumberCard(color, 0));
+
+			// Da vedere quante doppioni triploni etc per carta
+			for (int i = 0; i <= 9; i++) {
+				cardList.add(new NumberCard(color, i));
+				cardList.add(new NumberCard(color, i));
+			}
+
+			for (int j = 0; j < 2; j++) {
+				cardList.add(new ActionCard(CardType.DRAW_TWO, color));
+				cardList.add(new ActionCard(CardType.REVERSE, color));
+				cardList.add(new ActionCard(CardType.SKIP, color));
 			}
 		}
-	}
 
+		for (int k = 0; k < 2; k++) {
+			cardList.add(new WildCard(CardType.WILD));
+			cardList.add(new WildCard(CardType.WILD_DRAW_FOUR));
+		}
+	}
 }

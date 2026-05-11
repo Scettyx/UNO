@@ -25,5 +25,4 @@ public abstract class CardCollection {
 			return true;
 		} return false;
 	}
-
 }
