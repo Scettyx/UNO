@@ -10,10 +10,10 @@ import java.util.Objects;
 public abstract class Card {
     private final CardType type;
     private final CardColor color;
-    private final int number;
+    private final CardNumber number;
     private final int value;
     
-    protected Card(CardType type, CardColor color, int number, int value) {
+    protected Card(CardType type, CardColor color, CardNumber number, int value) {
         Objects.requireNonNull(type);
         Objects.requireNonNull(color);
         this.type = type;
@@ -29,10 +29,6 @@ public abstract class Card {
      * Ritorna il colore di una carta
      */
     public CardColor getColor() { return color; }
-    /**
-     * Ritorna il numero di una carta
-     */
-    public int getNumber() {return number;}
     
     /**
      * Ritorna il valore di una carta
@@ -53,7 +49,7 @@ public abstract class Card {
     public boolean canPlayOn (Card previousCard) {
     	if (color == previousCard.color ||
     		type.isWild() ||
-    		getNumber() == previousCard.getNumber()) { return true;
+    		number.getNumber() == previousCard.number.getNumber()) { return true;
     	} return false;
     }
 }

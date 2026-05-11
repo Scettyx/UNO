@@ -6,8 +6,8 @@ package it.uniroma1.mdp.uno.model.card;
 
 public class SkipCard extends Card {
 
-	protected SkipCard(CardType type, CardColor color, int number) {
-		super(type.SKIP, color, number, 20);
+	protected SkipCard(CardType type, CardColor color, CardNumber number, int value) {
+		super(type.SKIP, color, number.NONE, 20);
 		
 	}
 
