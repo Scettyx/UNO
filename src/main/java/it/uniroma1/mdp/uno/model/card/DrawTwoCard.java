@@ -6,8 +6,8 @@ package it.uniroma1.mdp.uno.model.card;
 
 public class DrawTwoCard extends Card {
 
-	protected DrawTwoCard(CardType type, CardColor color, int number, int value) {
-		super(type.DRAW_TWO, color, number, 20);
+	public DrawTwoCard(CardColor color) {
+		super(CardType.DRAW_TWO, color, CardNumber.NONE, 20);
 		
 	}
 

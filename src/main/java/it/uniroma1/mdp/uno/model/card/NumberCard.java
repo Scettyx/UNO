@@ -6,12 +6,8 @@ package it.uniroma1.mdp.uno.model.card;
 
 public class NumberCard extends Card{
 
-
-	protected NumberCard(CardType type, CardColor color, int number, int value) {
-		super(type.NUMBER, color, number, number);
-
+	public NumberCard(CardColor color, CardNumber number) {
+		super(CardType.NUMBER, color, number, number.getNumber() );
 	}
-	
-	
 
 }

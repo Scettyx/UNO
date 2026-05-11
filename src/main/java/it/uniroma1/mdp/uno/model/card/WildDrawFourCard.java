@@ -6,8 +6,8 @@ package it.uniroma1.mdp.uno.model.card;
 
 public class WildDrawFourCard extends Card {
 
-	protected WildDrawFourCard(CardType type, CardColor color, int number, int value) {
-		super(type.WILD_DRAW_FOUR, null, number, value);
+	public WildDrawFourCard(CardColor color) {
+		super(CardType.WILD_DRAW_FOUR, null, CardNumber.NONE, 50);
 	
 	}
 
