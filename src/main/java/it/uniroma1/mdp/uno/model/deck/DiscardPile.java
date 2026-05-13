@@ -12,19 +12,19 @@ public class DiscardPile extends CardCollection{
 	}
 	
 	/**
-	 * Aggiunge una carta in cima alla discard pile
-	 */
-	public boolean addCard(Card card) {
-		return cardList.add(card);
-	}
-	
-	/**
-	 * Ritorna la carta in cima alla discard pile
+	 * Ritorna la carta in cima alla collezione di carte
 	 */
 	public Card getTopCard() {
 		if (this.isEmpty() == false) {
 			return cardList.get(cardList.size()-1);
 		} return null;
 	}
+	/**
+	 * Aggiunge una carta in cima alla discard pile
+	 */
+	public boolean addCard(Card card) {
+		return cardList.add(card);
+	}
+	
 
 }
