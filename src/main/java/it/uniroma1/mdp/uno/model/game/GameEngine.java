@@ -45,4 +45,8 @@ public class GameEngine {
 	}
 	
 	//aggiungi metodo per mettere la prima carta del mazzo sul discardPile
+	public void start (GameEngine game) {
+		
+	}
+	
 }

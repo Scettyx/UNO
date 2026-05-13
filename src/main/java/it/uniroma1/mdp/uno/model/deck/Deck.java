@@ -4,6 +4,7 @@ import it.uniroma1.mdp.uno.model.card.Card;
 import it.uniroma1.mdp.uno.model.card.CardColor;
 import it.uniroma1.mdp.uno.model.card.CardType;
 
+import java.util.ArrayList;
 import java.util.Random;
 
 import it.uniroma1.mdp.uno.model.card.ActionCard;
@@ -21,6 +22,7 @@ public class Deck extends CardCollection {
 	
 	public Deck() {
 		createDeck();
+		shuffleDeck();
 	}
 	
 	/**
@@ -71,5 +73,12 @@ public class Deck extends CardCollection {
 			cardList.add(new WildCard(CardType.WILD));
 			cardList.add(new WildCard(CardType.WILD_DRAW_FOUR));
 		}
+	}
+	
+	/**
+	 * mescola il mazzo
+	 */
+	public void shuffleDeck() {
+		java.util.Collections.shuffle(cardList);
 	}
 }
