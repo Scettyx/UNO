@@ -2,6 +2,10 @@ package it.uniroma1.mdp.uno.model.deck;
 
 import it.uniroma1.mdp.uno.model.card.Card;
 
+/**
+ * @author Massimo Giorgini (M.2234123)
+ */
+
 public class Hand extends CardCollection{
 	public Hand() {
 		
@@ -12,7 +16,7 @@ public class Hand extends CardCollection{
 	}
 	
 	/**
-	 * Rimuove una carta dal mazzo all'indice dato, e la ritorna. Forse questa da spostare alla classe del mazzo del giocatore
+	 * Rimuove una carta dal mazzo all'indice dato, e la ritorna. 
 	 */
 	public Card getCardAtIndex(int index) {
 		try {

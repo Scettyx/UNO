@@ -1,10 +1,11 @@
 package it.uniroma1.mdp.uno.model.deck;
 
-import java.util.ArrayList;
-
 import it.uniroma1.mdp.uno.model.card.Card;
 import it.uniroma1.mdp.uno.model.card.CardColor;
 import it.uniroma1.mdp.uno.model.card.CardType;
+
+import java.util.Random;
+
 import it.uniroma1.mdp.uno.model.card.ActionCard;
 import it.uniroma1.mdp.uno.model.card.WildCard;
 import it.uniroma1.mdp.uno.model.card.NumberCard;
@@ -16,11 +17,9 @@ import it.uniroma1.mdp.uno.model.card.NumberCard;
  */
 
 public class Deck extends CardCollection {
-
 	public final static int LENGTH = 108;
 	
-	public Deck(ArrayList<Card> cardList) {
-		this.cardList = cardList;
+	public Deck() {
 		createDeck();
 	}
 	
@@ -31,6 +30,18 @@ public class Deck extends CardCollection {
 		if (this.isEmpty() == false) {
 			return cardList.get(cardList.size()-1);
 		} return null;
+	}
+	
+	/**
+	 * Dal deck principale pesca un numero (cardAmount) di carte e lo aggiunge ad una collezione di carte qualsiasi c
+	 */
+	public void drawCard(CardCollection c, int cardAmount) {
+		Random r = new Random();
+		for (int i = 0; i < cardAmount; i++) {
+			int cardToWithdraw = r.nextInt(cardList.size());
+			c.cardList.add(cardList.get(cardToWithdraw));
+			cardList.remove(cardToWithdraw);
+		}
 	}
 	
 	/**
