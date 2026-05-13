@@ -25,14 +25,12 @@ public class Deck extends CardCollection {
 	}
 	
 	/**
-	 * Rimuove una carta dal mazzo all'indice dato, e la ritorna. Forse questa da spostare alla classe del mazzo del giocatore
+	 * Ritorna la carta in cima alla collezione di carte
 	 */
-	public Card getCard(int index) {
-		try {
-			return this.cardList.remove(index);
-		} catch(IndexOutOfBoundsException e) {
-			return null;
-		}
+	public Card getTopCard() {
+		if (this.isEmpty() == false) {
+			return cardList.get(cardList.size()-1);
+		} return null;
 	}
 	
 	/**

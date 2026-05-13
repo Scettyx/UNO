@@ -20,6 +20,7 @@ public abstract class CardCollection {
 		return cardList.size();
 	}
 	
+	
 	public boolean isEmpty() {
 		if(cardList.size() == 0) {
 			return true;
