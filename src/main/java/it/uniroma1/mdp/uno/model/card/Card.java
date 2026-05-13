@@ -12,8 +12,6 @@ public abstract class Card {
     protected final CardColor originalColor;
     private CardColor chosenColor;
 
-
-    
     protected Card(CardType type, CardColor color) {
         Objects.requireNonNull(type);
         Objects.requireNonNull(color);
