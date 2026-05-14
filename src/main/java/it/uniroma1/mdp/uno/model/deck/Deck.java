@@ -8,8 +8,9 @@ import java.util.ArrayList;
 /**
  * @author Massimo Giorgini (M.2234123)
  * @author Cosmin Florea (M.2241398)
+ * 
+ * 
  */
-
 public class Deck extends CardCollection {
 	public final static int LENGTH = 108;
 

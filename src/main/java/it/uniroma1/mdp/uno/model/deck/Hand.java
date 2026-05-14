@@ -4,26 +4,26 @@ import it.uniroma1.mdp.uno.model.card.Card;
 
 /**
  * @author Massimo Giorgini (M.2234123)
+ * 
  */
-
-public class Hand extends CardCollection{
+public class Hand extends CardCollection {
 	public Hand() {
-		
+
 	}
-	
+
 	public boolean addCardToHand(Card card) {
 		return cardList.add(card);
 	}
-	
+
 	/**
-	 * Rimuove una carta dal mazzo all'indice dato, e la ritorna. 
+	 * Rimuove una carta dal mazzo all'indice dato, e la ritorna.
 	 */
 	public Card getCardAtIndex(int index) {
 		try {
 			return this.cardList.remove(index);
-		} catch(IndexOutOfBoundsException e) {
+		} catch (IndexOutOfBoundsException e) {
 			return null;
 		}
 	}
-	
+
 }
