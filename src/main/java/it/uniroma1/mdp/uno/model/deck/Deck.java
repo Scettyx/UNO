@@ -1,54 +1,51 @@
 package it.uniroma1.mdp.uno.model.deck;
 
-import it.uniroma1.mdp.uno.model.card.Card;
-import it.uniroma1.mdp.uno.model.card.CardColor;
-import it.uniroma1.mdp.uno.model.card.CardType;
+import it.uniroma1.mdp.uno.model.card.*;
 
-import java.util.ArrayList;
 import java.util.Random;
-
-import it.uniroma1.mdp.uno.model.card.ActionCard;
-import it.uniroma1.mdp.uno.model.card.WildCard;
-import it.uniroma1.mdp.uno.model.card.NumberCard;
-
+import java.util.ArrayList;
 
 /**
  * @author Massimo Giorgini (M.2234123)
- * @author Cosmin Florea 	(M.2241398)
+ * @author Cosmin Florea (M.2241398)
  */
 
 public class Deck extends CardCollection {
 	public final static int LENGTH = 108;
-	
+
 	public Deck() {
 		createDeck();
 		shuffleDeck();
 	}
-	
+
 	/**
 	 * Ritorna la carta in cima alla collezione di carte
 	 */
 	public Card getTopCard() {
 		if (this.isEmpty() == false) {
-			return cardList.get(cardList.size()-1);
-		} return null;
+			return cardList.get(cardList.size() - 1);
+		}
+		return null;
 	}
-	
+
 	/**
-	 * mette in una CardCollection c la carta in posizione i dalla cima (i = 1 è la carta in cima)
+	 * mette in una CardCollection c la carta in posizione i dalla cima (i = 1 è la
+	 * carta in cima)
 	 */
-	
+
 	public Card drawFromTopCard(CardCollection c, int i) {
 		if (this.isEmpty() == false) {
-			Card temp = cardList.get(cardList.size()-i+1);
-			c.cardList.add(cardList.get(cardList.size()-i+1));
-			cardList.remove(cardList.size()-i+1);
+			Card temp = cardList.get(cardList.size() - i + 1);
+			c.cardList.add(cardList.get(cardList.size() - i + 1));
+			cardList.remove(cardList.size() - i + 1);
 			return temp;
-		} return null;
+		}
+		return null;
 	}
-	
+
 	/**
-	 * Dal deck principale pesca un numero (cardAmount) di carte e lo aggiunge ad una collezione di carte qualsiasi c
+	 * Dal deck principale pesca un numero (cardAmount) di carte e lo aggiunge ad
+	 * una collezione di carte qualsiasi c
 	 */
 	public void drawCardRandom(CardCollection c, int cardAmount) {
 		Random r = new Random();
@@ -56,16 +53,17 @@ public class Deck extends CardCollection {
 			int cardToWithdraw = r.nextInt(cardList.size());
 			c.cardList.add(cardList.get(cardToWithdraw));
 			cardList.remove(cardToWithdraw);
-		} 
+		}
 	}
-	
+
 	/**
 	 * Crea il mazzo e aggiunge tutte e 108 le carte di UNO al suo interno
 	 */
 	public void createDeck() {
 		// Ciclo per carte colorate
 		for (CardColor color : CardColor.values()) {
-			if (!color.isRealColor()) continue;
+			if (!color.isRealColor())
+				continue;
 
 			cardList.add(new NumberCard(color, 0));
 
@@ -87,7 +85,7 @@ public class Deck extends CardCollection {
 			cardList.add(new WildCard(CardType.WILD_DRAW_FOUR));
 		}
 	}
-	
+
 	/**
 	 * mescola il mazzo
 	 */
