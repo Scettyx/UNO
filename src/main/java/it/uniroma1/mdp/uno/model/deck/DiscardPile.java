@@ -25,6 +25,5 @@ public class DiscardPile extends CardCollection{
 	public boolean addCard(Card card) {
 		return cardList.add(card);
 	}
-	
 
 }

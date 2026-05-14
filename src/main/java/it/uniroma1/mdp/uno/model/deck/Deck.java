@@ -35,15 +35,28 @@ public class Deck extends CardCollection {
 	}
 	
 	/**
+	 * mette in una CardCollection c la carta in posizione i dalla cima (i = 1 è la carta in cima)
+	 */
+	
+	public Card drawFromTopCard(CardCollection c, int i) {
+		if (this.isEmpty() == false) {
+			Card temp = cardList.get(cardList.size()-i+1);
+			c.cardList.add(cardList.get(cardList.size()-i+1));
+			cardList.remove(cardList.size()-i+1);
+			return temp;
+		} return null;
+	}
+	
+	/**
 	 * Dal deck principale pesca un numero (cardAmount) di carte e lo aggiunge ad una collezione di carte qualsiasi c
 	 */
-	public void drawCard(CardCollection c, int cardAmount) {
+	public void drawCardRandom(CardCollection c, int cardAmount) {
 		Random r = new Random();
 		for (int i = 0; i < cardAmount; i++) {
 			int cardToWithdraw = r.nextInt(cardList.size());
 			c.cardList.add(cardList.get(cardToWithdraw));
 			cardList.remove(cardToWithdraw);
-		}
+		} 
 	}
 	
 	/**

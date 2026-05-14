@@ -1,5 +1,6 @@
 package it.uniroma1.mdp.uno.model.game;
 
+import it.uniroma1.mdp.uno.model.card.CardType;
 import it.uniroma1.mdp.uno.model.deck.Deck;
 import it.uniroma1.mdp.uno.model.deck.DiscardPile;
 import it.uniroma1.mdp.uno.model.player.Player;
@@ -40,13 +41,20 @@ public class GameEngine {
 		 * distribuisce le 7 carte iniziali ad ogni giocatore. 
 		 */
 		for (int i = 0; i < plist.length; i++) {
-			deck.drawCard(plist[i].getHand(), 7);
+			deck.drawCardRandom(plist[i].getHand(), 7);
 		}
 	}
 	
-	//aggiungi metodo per mettere la prima carta del mazzo sul discardPile
+	/**
+	 * Funzione per mettere la prima carta del deck nel discardPile (vedi se funge bene l'ho scritta con 2 min di fretta)
+	 */
 	public void start (GameEngine game) {
-		
+		int i = 0;
+		while (discardPile.isEmpty()) {
+			if (deck.getTopCard().getType() == CardType.NUMBER) {
+				deck.drawFromTopCard(discardPile, i);
+			} i++;
+		}
 	}
 	
 }
