@@ -68,8 +68,7 @@ public class Deck extends CardCollection {
 
 			cardList.add(new NumberCard(color, 0));
 
-			// Da vedere quante doppioni triploni etc per carta
-			for (int i = 0; i <= 9; i++) {
+			for (int i = 1; i <= 9; i++) {
 				cardList.add(new NumberCard(color, i));
 				cardList.add(new NumberCard(color, i));
 			}
@@ -81,7 +80,7 @@ public class Deck extends CardCollection {
 			}
 		}
 
-		for (int k = 0; k < 2; k++) {
+		for (int k = 0; k < 4; k++) {
 			cardList.add(new WildCard(CardType.WILD));
 			cardList.add(new WildCard(CardType.WILD_DRAW_FOUR));
 		}
