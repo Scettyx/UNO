@@ -49,7 +49,7 @@ public class GameEngine {
 	}
 	
 	/**
-	 * Funzione per mettere la prima carta del deck nel discardPile 
+	 * metodo per mettere la prima carta del deck nel discardPile 
 	 */
 	public void start (GameEngine game) {
 		int i = 1;
@@ -60,6 +60,9 @@ public class GameEngine {
 		}
 	}
 
+	/**
+	 * questo metodo manda avanti i turni
+	 */
 	public void nextTurn() {
 		if (direction) {
 	        // verso orario
@@ -70,9 +73,20 @@ public class GameEngine {
 	    }
 	}
 	
-	public void playMatch() {
-		boolean matchOver = false;
-		while(!matchOver) {
+	
+	//TODO: 
+	//-mettere controllo di penalità per chi non dichiara UNO
+	//-aggiungere il sistema di conteggio dei punti alla fine di un round
+	//-Implementare da qualche parte La challenge e i requisiti del Wild Draw Four 
+	//-aggiungere le condizioni di vittoria in base alla modalità scelta (quindi aggiungere anche modalità)
+	
+	
+	/**
+	 * Questo metodo da inizio a un round della partita
+	 */
+	public void playRound() {
+		boolean roundOver = false;
+		while(!roundOver) {
 			Player current = playerList[currentPlayer];
 			Card playedCard = current.playTurn(discardPile.getTopCard());
 			//pesca una carta dal deck se il giocatore non ha giocato nessuna carta nel suo turno.
@@ -96,10 +110,10 @@ public class GameEngine {
 						nextTurn();
 						deck.drawCardRandom(current.getHand(), 2);
 						break;
-					case WILD:
+					case WILD: //il giocatore dovrà scegliere il colore attivo
 						currentColor = playedCard.getActiveColor(); 
 						break;
-					case WILD_DRAW_FOUR: //La challenge e i requisiti del Wild Draw Four vanno implementati da qualche parte
+					case WILD_DRAW_FOUR: 
 						nextTurn();
 						currentColor = playedCard.getActiveColor();
 						deck.drawCardRandom(current.getHand(), 4);
@@ -108,16 +122,17 @@ public class GameEngine {
 						default:
 							break;
 				}
-				
-				//da mettere controllo di penalità per chi non dichiara UNO
-			}	
+			}
+			//condizioni di fine round
 			if (current.getHand().isEmpty()) {
-				current.setWon();
-				matchOver = true;
+				roundOver = true;
 				break;
 			}
+			//Se il deck da cui si pescano le carte rimane vuoto, questo metodo sposta tutte le carte dalla discardPile al deck (eccetto quella in cima).
+			if (deck.isEmpty()) {
+				discardPile.moveToDeck(deck);
+			}
 		}
-		
 		nextTurn();
 	}
 }

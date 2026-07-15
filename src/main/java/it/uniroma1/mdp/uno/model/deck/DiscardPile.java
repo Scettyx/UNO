@@ -20,6 +20,18 @@ public class DiscardPile extends CardCollection {
 		}
 		return null;
 	}
+	
+	/**
+	 * sposta tutte le carte della DiscardPile, quella in cima, nel Deck e poi lo mischia, da usare quando finiscono le carte nel deck. 
+	 * @param deck il deck in cui spostare le carte
+	 */
+	public void moveToDeck(Deck deck) {
+		for (int i = 0; i < this.getNumCards(); i++) {
+			deck.cardList.add(cardList.get(i));	
+		}
+		cardList.clear();
+		deck.shuffleDeck();
+	}
 
 	/**
 	 * Aggiunge una carta in cima alla discard pile
