@@ -18,10 +18,18 @@ public abstract class CardCollection {
 		this.cardList = new ArrayList<Card>();
 	}
 
+	/**
+	 * Ritorna il numero di carte all'interno della collezione
+	 * @return
+	 */
 	public int getNumCards() {
 		return cardList.size();
 	}
 
+	/**
+	 * Ritorna True se la collezione è vuota
+	 * @return
+	 */
 	public boolean isEmpty() {
 		if (cardList.size() == 0) {
 			return true;

@@ -46,15 +46,21 @@ public class GameEngine {
 	}
 	
 	/**
-	 * Funzione per mettere la prima carta del deck nel discardPile (vedi se funge bene l'ho scritta con 2 min di fretta)
+	 * Funzione per mettere la prima carta del deck nel discardPile 
 	 */
 	public void start (GameEngine game) {
-		int i = 0;
+		int i = 1;
 		while (discardPile.isEmpty()) {
-			if (deck.getTopCard().getType() == CardType.NUMBER) {
+			if (deck.getTopCard(i).getType() == CardType.NUMBER) {
 				deck.drawFromTopCard(discardPile, i);
 			} i++;
 		}
 	}
 	
+	public void playMatch() {
+		boolean matchOver = false;
+		while(!matchOver) {
+			Player current = playerList[currentPlayer];
+		}
+	}
 }

@@ -9,7 +9,7 @@ import java.util.ArrayList;
  * @author Massimo Giorgini (M.2234123)
  * @author Cosmin Florea (M.2241398)
  * 
- * 
+ * Rappresenta il mazzo principale di Carte sul tavolo, da cui verranno pescate le carte per formare i mazzi 
  */
 public class Deck extends CardCollection {
 	public final static int LENGTH = 108;
@@ -20,20 +20,22 @@ public class Deck extends CardCollection {
 	}
 
 	/**
-	 * Ritorna la carta in cima alla collezione di carte
+	 * Ritorna la carta in cima alla collezione di carte dalla posizione i dalla cima
+	 * @param i la posizione dalla cima da cui prendere la carta (i = 1 è la carta in cima al mazzo)
 	 */
-	public Card getTopCard() {
+	public Card getTopCard(int i ) {
 		if (this.isEmpty() == false) {
-			return cardList.get(cardList.size() - 1);
+			return cardList.get(cardList.size() - i);
 		}
 		return null;
 	}
 
 	/**
-	 * mette in una CardCollection c la carta in posizione i dalla cima (i = 1 è la
-	 * carta in cima)
+	 * mette in una CardCollection c la carta in posizione i dalla cima 
+	 * 
+	 * @param c la collezione di carte in cui mettere l acarta 
+	 * @param i la posizione dalla cima del deck da cui prendere la carta da deck per metterla in c (i = 1 è la carta in cima)
 	 */
-
 	public Card drawFromTopCard(CardCollection c, int i) {
 		if (this.isEmpty() == false) {
 			Card temp = cardList.get(cardList.size() - i + 1);
@@ -45,8 +47,11 @@ public class Deck extends CardCollection {
 	}
 
 	/**
-	 * Dal deck principale pesca un numero (cardAmount) di carte e lo aggiunge ad
-	 * una collezione di carte qualsiasi c
+	 * Dal deck pesca un numero scelto di carte e lo aggiunge ad
+	 * una collezione di carte
+	 * 
+	 * @param c la collezione a cui aggiungere le carte
+	 * @param cardAmount il numero di carte scelte casualmente da aggiungere alla collezione c
 	 */
 	public void drawCardRandom(CardCollection c, int cardAmount) {
 		Random r = new Random();

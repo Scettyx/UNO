@@ -6,7 +6,7 @@ import java.util.Objects;
  * @author Cosmin Florea (M.2241398)
  * @author Massimo Giorgini (M.2234123)
  * 
- *         Classe astratta per una generica carta
+ *         Classe astratta per una carta generica.
  *         Una volta definiti colore e tipo della carta, restano invariati
  *         definitivamente
  */
@@ -132,7 +132,7 @@ public abstract class Card {
         return this.type == other.type && this.originalColor == other.originalColor;
     }
 
-    // Non fare domande qua so solo che serve con equals
+
     @Override
     public int hashCode() {
         return Objects.hash(type, originalColor);

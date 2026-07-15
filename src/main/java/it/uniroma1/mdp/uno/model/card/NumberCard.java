@@ -9,7 +9,7 @@ import java.util.Objects;
  *         Rappresenta le carte colorate numerate
  */
 public class NumberCard extends Card {
-    private final int value; // Massimo questi sono i tuoi amatissimi numeri finalmente ciao
+    private final int value; 
 
     /**
      * Costruisce la carta azione

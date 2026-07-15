@@ -1,5 +1,6 @@
 package it.uniroma1.mdp.uno.model.player;
 
+import it.uniroma1.mdp.uno.model.card.Card;
 import it.uniroma1.mdp.uno.model.deck.Hand;
 
 /**
@@ -21,8 +22,10 @@ public abstract class Player {
 
 	/**
 	 * SAFE: Al giocatore non può essere contestata la mancata dichiarazione di UNO
+	 * 
 	 * CALLED: Il giocatore ha dichiarato UNO prima di finire il turno con una carta
 	 * sola nel mazzo
+	 * 
 	 * UNSAFE: Al giocatore può essere contestata la mancata dichiarazione di UNO
 	 */
 	public enum UNOState {
@@ -41,6 +44,24 @@ public abstract class Player {
 		totalScore = currentRoundScore = 0;
 		wonRound = false;
 		unoState = UNOState.Safe;
+	}
+	
+	/**
+	 * Il giocatore prende una carta se è il suo turno.
+	 * @param card carta che sarà presa.
+	 * @return true se il giocatore ha preso la carta
+	 */
+	public boolean takeCard(Card card) {
+		return getHand().addCardToHand(card);
+	}
+	
+	/**
+	 * il giocatore gioca una carta
+	 * @param i l'indice della carta da giocare nella mano
+	 * @return la carta giocata
+	 */
+	public Card playCard(int i) {
+		return getHand().getCardAtIndex(i);
 	}
 
 	public String getPlayerName() {
