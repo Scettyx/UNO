@@ -100,7 +100,7 @@ public abstract class Card {
         Objects.requireNonNull(topCard);
         if (this.type.isWild()) {
             return true;
-        } // I vincoli non li stabiliamo qui
+        } // I vincoli non li stabiliamo se la carta è wild
         if (this.originalColor == topCard.getActiveColor()) {
             return true;
         } // Stesso colore

@@ -1,6 +1,7 @@
 package it.uniroma1.mdp.uno.model.player;
 
 import it.uniroma1.mdp.uno.model.card.Card;
+import it.uniroma1.mdp.uno.model.card.CardColor;
 import it.uniroma1.mdp.uno.model.deck.Hand;
 
 /**
@@ -63,6 +64,13 @@ public abstract class Player {
 	public Card playCard(int i) {
 		return getHand().getCardAtIndex(i);
 	}
+	
+	/**
+     * Sceglie quale carta giocare.
+     * @param topDiscard è la carta in cima alla pila del discardPile; la carta scelta viene comparata a quella e si vede così se è giocabile.
+     * @return null se il giocatore deve pescare, la carta giocata altrimenti.
+     */
+    public abstract Card playTurn(Card topDiscard); //è un metodo astratto perchè va implementato diversamente per Bot e Umani
 
 	public String getPlayerName() {
 		return playerName;
