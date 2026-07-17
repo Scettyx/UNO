@@ -46,32 +46,42 @@ public abstract class Player {
 		wonRound = false;
 		unoState = UNOState.Safe;
 	}
-	
+
 	/**
 	 * Il giocatore prende una carta se è il suo turno.
+	 * 
 	 * @param card carta che sarà presa.
 	 * @return true se il giocatore ha preso la carta
 	 */
 	public boolean takeCard(Card card) {
 		return getHand().addCardToHand(card);
 	}
-	
+
 	/**
 	 * il giocatore gioca una carta
+	 * 
 	 * @param i l'indice della carta da giocare nella mano
 	 * @return la carta giocata
 	 */
 	public Card playCard(int i) {
+		if (hand.getNumCards() <= i) {
+			throw new IllegalArgumentException("Indice della carta non valido.");
+		}
 		return getHand().getCardAtIndex(i);
 	}
-	
-	/**
-     * Sceglie quale carta giocare.
-     * @param topDiscard è la carta in cima alla pila del discardPile; la carta scelta viene comparata a quella e si vede così se è giocabile.
-     * @return null se il giocatore deve pescare, la carta giocata altrimenti.
-     */
-    public abstract Card playTurn(Card topDiscard); //è un metodo astratto perchè va implementato diversamente per Bot e Umani
 
+	/**
+	 * Sceglie quale carta giocare.
+	 * 
+	 * @param topDiscard è la carta in cima alla pila del discardPile; la carta
+	 *                   scelta viene comparata a quella e si vede così se è
+	 *                   giocabile.
+	 * @return null se il giocatore deve pescare, la carta giocata altrimenti.
+	 */
+	public abstract Card playTurn(Card topDiscard); // è un metodo astratto perchè va implementato diversamente per Bot
+													// e Umani
+
+	// Javadoooooooocccckkkkkkkkk
 	public String getPlayerName() {
 		return playerName;
 	}

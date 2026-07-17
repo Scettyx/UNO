@@ -11,6 +11,12 @@ public class Hand extends CardCollection {
 
 	}
 
+	/**
+	 * Aggiunge una carta in mano
+	 * 
+	 * @param card la carta da aggiungere
+	 * @return true se la carta è stata aggiunta con successo
+	 */
 	public boolean addCardToHand(Card card) {
 		return cardList.add(card);
 	}

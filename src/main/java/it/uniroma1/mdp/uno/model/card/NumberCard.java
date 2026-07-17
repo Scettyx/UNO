@@ -9,7 +9,7 @@ import java.util.Objects;
  *         Rappresenta le carte colorate numerate
  */
 public class NumberCard extends Card {
-    private final int value; 
+    private final int value;
 
     /**
      * Costruisce la carta azione
@@ -24,7 +24,7 @@ public class NumberCard extends Card {
             throw new IllegalArgumentException("La carta deve avere un colore");
         }
         if (value > 9 || value < 0) {
-            throw new IllegalArgumentException("La carta deve avere un vero numero");
+            throw new IllegalArgumentException("La carta deve avere un numero valido tra 0 e 9");
         }
         this.value = value;
     }

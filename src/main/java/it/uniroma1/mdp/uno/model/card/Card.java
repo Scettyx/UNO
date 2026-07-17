@@ -97,7 +97,7 @@ public abstract class Card {
      * @return {@code true} se la carta può essere giocata
      */
     public boolean isPlayableOn(Card topCard) {
-        Objects.requireNonNull(topCard);
+        Objects.requireNonNull(topCard, "La carta da comparare non puo essere null");
         if (this.type.isWild()) {
             return true;
         } // I vincoli non li stabiliamo se la carta è wild
@@ -131,7 +131,6 @@ public abstract class Card {
             return false;
         return this.type == other.type && this.originalColor == other.originalColor;
     }
-
 
     @Override
     public int hashCode() {

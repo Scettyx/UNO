@@ -3,7 +3,7 @@ package it.uniroma1.mdp.uno.model.card;
 import java.util.Objects;
 
 /**
- * @author Cosmin Florea (M.2241398)
+ * @author Cosmin Florea(M.2241398)
  * 
  *         Rappresenta le carte colorate non numerate
  */
