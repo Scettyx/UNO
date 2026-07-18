@@ -36,7 +36,7 @@ public class GameEngine {
 		currentColor = null;
 
 		/**
-		 * distribuisce le 7 carte iniziali ad ogni giocatore.
+		 * Distribuisce le 7 carte iniziali ad ogni giocatore.
 		 */
 		for (int i = 0; i < plist.length; i++) {
 			deck.drawCardRandom(plist[i].getHand(), 7);
@@ -195,7 +195,7 @@ public class GameEngine {
 						break;
 					case DRAW_TWO:
 						nextTurn();
-						deck.drawCardRandom(current.getHand(), 2);
+						deck.drawCardRandom(playerList[currentPlayer].getHand(), 2);
 						break;
 					case WILD: // il giocatore dovrà scegliere il colore attivo
 						currentColor = playedCard.getActiveColor();
@@ -203,7 +203,7 @@ public class GameEngine {
 					case WILD_DRAW_FOUR:
 						nextTurn();
 						currentColor = playedCard.getActiveColor();
-						deck.drawCardRandom(current.getHand(), 4);
+						deck.drawCardRandom(playerList[currentPlayer].getHand(), 4);
 						break;
 					case NUMBER:
 					default:
