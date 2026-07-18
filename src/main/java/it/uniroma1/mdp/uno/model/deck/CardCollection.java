@@ -1,11 +1,13 @@
 package it.uniroma1.mdp.uno.model.deck;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import it.uniroma1.mdp.uno.model.card.Card;
 
 /**
  * @author Massimo Giorgini (M.2234123)
+ * @author Cosmin Florea (M.2241398)
  * 
  *         Una classe astratta che rappresenta un gruppo di carte qualsiasi;
  *         sarà usata per il mazzo di carte totali, la mano dei giocatori e le
@@ -20,6 +22,7 @@ public abstract class CardCollection {
 
 	/**
 	 * Ritorna il numero di carte all'interno della collezione
+	 * 
 	 * @return
 	 */
 	public int getNumCards() {
@@ -28,6 +31,7 @@ public abstract class CardCollection {
 
 	/**
 	 * Ritorna True se la collezione è vuota
+	 * 
 	 * @return
 	 */
 	public boolean isEmpty() {
@@ -35,5 +39,28 @@ public abstract class CardCollection {
 			return true;
 		}
 		return false;
+	}
+
+	/**
+	 * Ritorna una copia delle carte, utile per la GUI
+	 * 
+	 * @return
+	 */
+	public List<Card> getAllCards() {
+		return new ArrayList<>(cardList);
+	}
+
+	/**
+	 * Ritorna la carta all'indice specificato, utile per la GUI
+	 * 
+	 * @param index della carta
+	 * @return la carta all'indice specificato o null se l'indice è fuori dai limiti
+	 */
+	public Card peekCardAtIndex(int index) {
+		try {
+			return cardList.get(index);
+		} catch (IndexOutOfBoundsException e) {
+			return null;
+		}
 	}
 }

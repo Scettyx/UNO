@@ -51,10 +51,10 @@ public abstract class Card {
      * @return il colore da giocare al turno successivo
      */
     public CardColor getActiveColor() {
-        if (type.isWild() && chosenColor != null) {
+        if (type.isWild()) {
             return chosenColor;
         }
-        return null;
+        return originalColor;
     }
 
     /**

@@ -1,2 +1,17 @@
+C:\Users\Admin\Desktop\Sapienza\UNO\src\main\java\it\uniroma1\mdp\uno\exception\GameSaveException.java
+C:\Users\Admin\Desktop\Sapienza\UNO\src\main\java\it\uniroma1\mdp\uno\exception\IllegalMoveException.java
+C:\Users\Admin\Desktop\Sapienza\UNO\src\main\java\it\uniroma1\mdp\uno\exception\InvalidChallengeException.java
+C:\Users\Admin\Desktop\Sapienza\UNO\src\main\java\it\uniroma1\mdp\uno\model\card\ActionCard.java
+C:\Users\Admin\Desktop\Sapienza\UNO\src\main\java\it\uniroma1\mdp\uno\model\card\Card.java
+C:\Users\Admin\Desktop\Sapienza\UNO\src\main\java\it\uniroma1\mdp\uno\model\card\CardColor.java
+C:\Users\Admin\Desktop\Sapienza\UNO\src\main\java\it\uniroma1\mdp\uno\model\card\CardType.java
+C:\Users\Admin\Desktop\Sapienza\UNO\src\main\java\it\uniroma1\mdp\uno\model\card\NumberCard.java
+C:\Users\Admin\Desktop\Sapienza\UNO\src\main\java\it\uniroma1\mdp\uno\model\card\WildCard.java
+C:\Users\Admin\Desktop\Sapienza\UNO\src\main\java\it\uniroma1\mdp\uno\model\deck\CardCollection.java
+C:\Users\Admin\Desktop\Sapienza\UNO\src\main\java\it\uniroma1\mdp\uno\model\deck\Deck.java
+C:\Users\Admin\Desktop\Sapienza\UNO\src\main\java\it\uniroma1\mdp\uno\model\deck\DiscardPile.java
+C:\Users\Admin\Desktop\Sapienza\UNO\src\main\java\it\uniroma1\mdp\uno\model\deck\Hand.java
+C:\Users\Admin\Desktop\Sapienza\UNO\src\main\java\it\uniroma1\mdp\uno\model\game\GameEngine.java
+C:\Users\Admin\Desktop\Sapienza\UNO\src\main\java\it\uniroma1\mdp\uno\model\player\Player.java
 C:\Users\Admin\Desktop\Sapienza\UNO\src\main\java\it\uniroma1\mdp\uno\view\Launcher.java
 C:\Users\Admin\Desktop\Sapienza\UNO\src\main\java\it\uniroma1\mdp\uno\view\MainApp.java
