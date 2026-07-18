@@ -44,7 +44,7 @@ public class GameEngine {
 	}
 
 	/**
-	 * Ritorna il mazzo principale della partita.
+	 * Ritorna il Deck.
 	 * 
 	 * @return il Deck
 	 */
@@ -53,7 +53,7 @@ public class GameEngine {
 	}
 
 	/**
-	 * Ritorna il mazzo degli scarti.
+	 * Ritorna la DiscardPile.
 	 * 
 	 * @return la DiscardPile
 	 */
@@ -62,7 +62,7 @@ public class GameEngine {
 	}
 
 	/**
-	 * Ritorna l'array contenente tutti i giocatori della partita.
+	 * Ritorna l'array con tutti i giocatori della partita.
 	 * 
 	 * @return array di Player
 	 */
@@ -71,7 +71,7 @@ public class GameEngine {
 	}
 
 	/**
-	 * Ritorna l'indice del giocatore che sta giocando in questo turno.
+	 * Ritorna l'indice del giocatore corrente.
 	 * 
 	 * @return l'indice del giocatore corrente
 	 */
@@ -89,7 +89,7 @@ public class GameEngine {
 	}
 
 	/**
-	 * Ritorna il colore attivo in questo momento sul tavolo.
+	 * Ritorna il colore attivo in questo momento.
 	 * 
 	 * @return il CardColor corrente
 	 */
@@ -100,23 +100,23 @@ public class GameEngine {
 	/**
 	 * Ritorna il numero totale di giocatori.
 	 * 
-	 * @return il numero di giocatori
+	 * @return il numero totale di giocatori
 	 */
 	public int getPlayerCount() {
 		return playerList.length;
 	}
 
 	/**
-	 * Imposta il nuovo colore attivo sul tavolo.
+	 * Imposta il nuovo colore attivo.
 	 * 
-	 * @param color il nuovo colore
+	 * @param color il nuovo colore attivo
 	 */
 	public void setCurrentColor(CardColor color) {
 		this.currentColor = color;
 	}
 
 	/**
-	 * Imposta l'indice del giocatore corrente.
+	 * Imposta l'indice del giocatore.
 	 * 
 	 * @param index l'indice del giocatore
 	 */

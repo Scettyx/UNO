@@ -9,6 +9,8 @@ it\uniroma1\mdp\uno\model\card\CardColor.class
 it\uniroma1\mdp\uno\model\deck\Deck.class
 it\uniroma1\mdp\uno\model\deck\Hand.class
 it\uniroma1\mdp\uno\model\deck\CardCollection.class
+it\uniroma1\mdp\uno\model\player\BotPlayer.class
+it\uniroma1\mdp\uno\model\player\BotPlayer$BotProfile.class
 it\uniroma1\mdp\uno\view\Launcher.class
 it\uniroma1\mdp\uno\model\player\Player.class
 it\uniroma1\mdp\uno\model\card\NumberCard.class
