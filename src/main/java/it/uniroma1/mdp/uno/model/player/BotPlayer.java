@@ -38,7 +38,7 @@ public abstract class BotPlayer extends Player {
     }
 
     /**
-     * Restituisce il profilo comportamentale del bot.
+     * Ritorna il profilo comportamentale del bot.
      * 
      * @return il BotProfile associato a questo giocatore
      */
