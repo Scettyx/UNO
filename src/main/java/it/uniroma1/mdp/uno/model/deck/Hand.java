@@ -10,6 +10,18 @@ public class Hand extends CardCollection {
 	public Hand() {
 
 	}
+	
+	/**
+	 * 
+	 * @return Ritorna la somma del punteggio delle carte nel mazzo 
+	 */
+	public int getHandScore() {
+		int score = 0;
+		for (Card i : this.cardList) {
+			score += i.getPointsValue();
+		}
+		return score;
+	}
 
 	/**
 	 * Aggiunge una carta in mano

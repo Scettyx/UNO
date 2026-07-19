@@ -40,13 +40,20 @@ public abstract class CardCollection {
 		}
 		return false;
 	}
-
+	
+	/**
+	 * 
+	 * @return Ritorna la lista delle carte carte
+	 */
+	public List<Card> getAllCards() {
+		return this.cardList;
+	}
 	/**
 	 * Ritorna una copia delle carte, utile per la GUI
 	 * 
 	 * @return
 	 */
-	public List<Card> getAllCards() {
+	public List<Card> getAllCardsCopy() {
 		return new ArrayList<>(cardList);
 	}
 

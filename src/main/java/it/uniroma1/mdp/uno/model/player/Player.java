@@ -56,6 +56,22 @@ public abstract class Player {
 		wonRound = false;
 		unoState = UNOState.Safe;
 	}
+	
+	
+	/**
+	 * 
+	 * @param card la carta su cui verrà giocato il wild draw four
+	 * @return true se è legale giocare il wild draw four, false se è illegale
+	 */
+	public boolean WildDrawFourLegal(Card card) {
+		boolean legal = true;
+		for (Card i : this.getHand().getAllCards()) {
+			if (i.getOriginalColor() != card.getActiveColor() || i.getOriginalColor() != CardColor.NONE) {
+				legal = false;
+			}
+		}
+		return legal;
+	}
 
 	/**
 	 * Il giocatore prende una carta se è il suo turno.
@@ -117,6 +133,15 @@ public abstract class Player {
 	public int getTotalScore() {
 		return totalScore;
 	}
+	
+	/**
+	 * Aggiorna il punteggio totale
+	 * 
+	 * @param amount la quantità da aggiungere al punteggio
+	 */
+	public void setTotalScore(int amount) {
+		totalScore = totalScore + amount;
+	}
 
 	/**
 	 * Ritorna il punteggio nel round attuale.
@@ -125,6 +150,15 @@ public abstract class Player {
 	 */
 	public int getCurrentRoundScore() {
 		return currentRoundScore;
+	}
+	
+	/**
+	 * Aggiorna il punteggio del round corrente
+	 * 
+	 * @param amount la quantità da aggiungere al punteggio
+	 */
+	public void setCurrentRoundScore(int amount) {
+		currentRoundScore = currentRoundScore + amount;
 	}
 
 	/**

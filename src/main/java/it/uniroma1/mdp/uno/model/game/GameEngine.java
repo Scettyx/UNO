@@ -147,7 +147,7 @@ public class GameEngine {
 	}
 
 	/**
-	 * Manda avanti i turni
+	 * Questo metodo sposta il turno avanti.
 	 */
 	public void nextTurn() {
 		if (direction) {
@@ -161,13 +161,42 @@ public class GameEngine {
 
 	// TODO:
 	// - Mettere controllo di penalità per chi non dichiara UNO
-	// - Aggiungere il sistema di conteggio dei punti alla fine di un round
 	// - Implementare da qualche parte La challenge e i requisiti del Wild Draw Four
 	// - Aggiungere le condizioni di vittoria in base alla modalità scelta (quindi
 	// aggiungere anche modalità)
-
+	
+	
 	/**
-	 * Da inizio a un round della partita
+	 * Assegna il punteggio al vincitore del round e aggiorna il suo punteggio totale.
+	 * 
+	 * @param winner il giocatore che ha vinto il round
+	 */
+	public void addPointsToWinner(Player winner) {
+		for (Player i : playerList) {
+			winner.setCurrentRoundScore(i.getHand().getHandScore());
+		}
+		winner.setTotalScore(winner.getCurrentRoundScore());
+	}
+	
+	
+	/**
+	 * Questo metodo imposta la logica della challenge del wilddrawfour
+	 * @param playedCard
+	 * @param current
+	 * @param challenger
+	 */
+	public void WildDrawFourChallenge(Card playedCard, Player current, Player challenger) {
+		if (!current.WildDrawFourLegal(playedCard)) {
+			deck.drawCardRandom(playerList[currentPlayer].getHand(), 4);
+			return;
+		}
+		//deck.drawCardRandom(playerList[currentPlayer].getHand(), 6); aggiungi un modo per prendere l'index del challenger.
+		return;
+		
+	}
+		
+	/**
+	 * Gestisce la logica dei Round nella partita.
 	 */
 	public void playRound() {
 		boolean roundOver = false;
@@ -195,15 +224,15 @@ public class GameEngine {
 						break;
 					case DRAW_TWO:
 						nextTurn();
-						deck.drawCardRandom(playerList[currentPlayer].getHand(), 2);
+						deck.drawCardRandom(current.getHand(), 2);
 						break;
-					case WILD: // il giocatore dovrà scegliere il colore attivo
+					case WILD: // implementa che il giocatore dovrà scegliere il colore attivo
 						currentColor = playedCard.getActiveColor();
 						break;
-					case WILD_DRAW_FOUR:
+					case WILD_DRAW_FOUR: // implementa che il giocatore dovrà scegliere il colore attivo
 						nextTurn();
 						currentColor = playedCard.getActiveColor();
-						deck.drawCardRandom(playerList[currentPlayer].getHand(), 4);
+						deck.drawCardRandom(current.getHand(), 4);
 						break;
 					case NUMBER:
 					default:
@@ -212,6 +241,8 @@ public class GameEngine {
 			}
 			// condizioni di fine round
 			if (current.getHand().isEmpty()) {
+				current.setWon();
+				addPointsToWinner(current);
 				roundOver = true;
 				break;
 			}
