@@ -158,6 +158,19 @@ public class GameEngine {
 			currentPlayer = (currentPlayer - 1 + playerList.length) % playerList.length;
 		}
 	}
+	
+	/**
+	 * Questo metodo sposta il turno indietro.
+	 */
+	public void previousTurn() {
+		if (direction) {
+			// Verso orario
+			currentPlayer = (currentPlayer - 1 + playerList.length) % playerList.length;
+		} else {
+			// Verso antiorario.
+			currentPlayer = (currentPlayer + 1) % playerList.length;
+		}
+	}
 
 	// TODO:
 	// - Mettere controllo di penalità per chi non dichiara UNO
@@ -180,19 +193,18 @@ public class GameEngine {
 	
 	
 	/**
-	 * Questo metodo imposta la logica della challenge del wilddrawfour
-	 * @param playedCard
-	 * @param current
-	 * @param challenger
+	 * La logica della challenge del Wild Draw Four; se il giocatore non poteva giocare la carta, pesca quattro carte. Se poteva giocare la carta, lo sfidante pesca 6 carte.
+	 * @param playedCard è la carta sulla cima del discardPile
+	 * @param current è il giocatore che ha giocato la carta WildDrawFour
 	 */
-	public void WildDrawFourChallenge(Card playedCard, Player current, Player challenger) {
+	public void WildDrawFourChallenge(Card playedCard, Player current) {
 		if (!current.WildDrawFourLegal(playedCard)) {
-			deck.drawCardRandom(playerList[currentPlayer].getHand(), 4);
+			deck.drawCardRandom(getPlayerList()[currentPlayer].getHand(), 4);
 			return;
 		}
-		//deck.drawCardRandom(playerList[currentPlayer].getHand(), 6); aggiungi un modo per prendere l'index del challenger.
+		nextTurn();
+		deck.drawCardRandom(getPlayerList()[currentPlayer].getHand(), 6); 
 		return;
-		
 	}
 		
 	/**
@@ -201,7 +213,7 @@ public class GameEngine {
 	public void playRound() {
 		boolean roundOver = false;
 		while (!roundOver) {
-			Player current = playerList[currentPlayer];
+			Player current = getPlayerList()[currentPlayer];
 			Card playedCard = current.playTurn(discardPile.getTopCard());
 			// pesca una carta dal deck se il giocatore non ha giocato nessuna carta nel suo
 			// turno.
@@ -226,13 +238,17 @@ public class GameEngine {
 						nextTurn();
 						deck.drawCardRandom(current.getHand(), 2);
 						break;
-					case WILD: // implementa che il giocatore dovrà scegliere il colore attivo
-						currentColor = playedCard.getActiveColor();
+					case WILD: 
+						currentColor = playedCard.getActiveColor(); // implementa che il giocatore dovrà scegliere il colore attivo
 						break;
-					case WILD_DRAW_FOUR: // implementa che il giocatore dovrà scegliere il colore attivo
-						nextTurn();
-						currentColor = playedCard.getActiveColor();
-						deck.drawCardRandom(current.getHand(), 4);
+					case WILD_DRAW_FOUR: 
+						if (current.getIsChallenged() == true) { //controlla se il giocatore è stato sfidato dopo il lancio del Wild Draw Four
+							WildDrawFourChallenge(playedCard, current);
+						} else { //se il giocatore non è stato sfidato dopo un Wild Draw Four, il prossimo giocatore pesca le 4 carte normalmente. 
+							nextTurn();
+							deck.drawCardRandom(getPlayerList()[currentPlayer].getHand(), 4);
+						}
+						currentColor = playedCard.getActiveColor(); // implementa che il giocatore dovrà scegliere il colore attivo
 						break;
 					case NUMBER:
 					default:

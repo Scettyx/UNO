@@ -18,6 +18,7 @@ public abstract class Player {
 	private int totalScore;
 	private int currentRoundScore;
 	private boolean wonRound;
+	private boolean isChallenged;
 
 	/**
 	 * Definisce se il giocatore è umano o controllato dal computer.
@@ -55,6 +56,7 @@ public abstract class Player {
 		totalScore = currentRoundScore = 0;
 		wonRound = false;
 		unoState = UNOState.Safe;
+		isChallenged = false;
 	}
 	
 	
@@ -71,6 +73,22 @@ public abstract class Player {
 			}
 		}
 		return legal;
+	}
+	
+	/**
+	 * 
+	 * @return ritorna true se il giocatore è stato sfidato dopo un Wild Draw Four
+	 */
+	public boolean getIsChallenged() {
+		return isChallenged;
+	}
+	
+	/**
+	 * 
+	 * @param value true se il giocatore è stato sfidato dopo un Wild Draw Four, false se altrimenti
+	 */
+	public void setIsChallenged(boolean value) {
+		isChallenged = value;
 	}
 
 	/**
