@@ -24,12 +24,12 @@ public class Deck extends CardCollection {
 	 * Ritorna la carta in cima alla collezione di carte dalla posizione i dalla
 	 * cima
 	 * 
-	 * @param i la posizione dalla cima da cui prendere la carta (i = 1 è la carta
+	 * @param i la posizione dalla cima da cui prendere la carta (i = 0 è la carta
 	 *          in cima al mazzo)
 	 */
 	public Card getTopCard(int i) {
 		if (!isEmpty()) {
-			return cardList.get(cardList.size() - i);
+			return cardList.get(i);
 		}
 		return null;
 	}
@@ -39,14 +39,13 @@ public class Deck extends CardCollection {
 	 * 
 	 * @param c la collezione di carte in cui mettere l acarta
 	 * @param i la posizione dalla cima del deck da cui prendere la carta da deck
-	 *          per metterla in c (i = 1 è la carta in cima)
+	 *          per metterla in c (i = 0 è la carta in cima)
 	 */
-	public Card drawFromTopCard(CardCollection c, int i) { // Massimo ma i vari +1 si potrebbe togliere se si iniziasse
-															// a contare da i=0?
+	public Card drawFromTopCard(CardCollection c, int i) { 
 		if (!isEmpty()) {
-			Card temp = cardList.get(cardList.size() - i + 1);
-			c.cardList.add(cardList.get(cardList.size() - i + 1));
-			cardList.remove(cardList.size() - i + 1);
+			Card temp = cardList.get(i);
+			c.cardList.add(temp);
+			cardList.remove(temp);
 			return temp;
 		}
 		return null;

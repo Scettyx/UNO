@@ -16,7 +16,7 @@ public class DiscardPile extends CardCollection {
 	 */
 	public Card getTopCard() {
 		if (this.isEmpty() == false) {
-			return cardList.get(cardList.size() - 1);
+			return cardList.get(0);
 		}
 		return null;
 	}

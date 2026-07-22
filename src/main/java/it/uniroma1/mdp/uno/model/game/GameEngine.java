@@ -174,9 +174,7 @@ public class GameEngine {
 
 	// TODO:
 	// - Mettere controllo di penalità per chi non dichiara UNO
-	// - Implementare da qualche parte La challenge e i requisiti del Wild Draw Four
-	// - Aggiungere le condizioni di vittoria in base alla modalità scelta (quindi
-	// aggiungere anche modalità)
+	// - Aggiungere le modalità
 	
 	
 	/**
@@ -206,6 +204,27 @@ public class GameEngine {
 		deck.drawCardRandom(getPlayerList()[currentPlayer].getHand(), 6); 
 		return;
 	}
+	
+	/**
+	 * Pesca una carta se il giocatore non ne ha giocata una in questo turno e gli permette di giocare la carta che ha appena pescato se è giocabile
+	 * @param current
+	 * @param playedCard
+	 */
+	public void drawIfNotPlayed(Player current, Card playedCard) {
+		current.setHasDrawn(false);
+		if (playedCard == null && current.getHasDrawn() == false) {
+			deck.drawCardRandom(current.getHand(), 1);
+			current.setHasDrawn(true);
+			playedCard = current.playTurn(discardPile.getTopCard()); //inserire limitazione: il giocatore in questo caso può giocare solo la carta che ha pescato ora 
+																	//(se hasDrawn = true, può giocare solo l'ultima carta pescata)
+		}
+	}
+	
+	public void checkUnoDeclaration(Player current) {
+		while (current.getHand().getNumCards() == 1 && current.getUnoState() != Player.UNOState.Called) {
+			current.setUnoState(Player.UNOState.Unsafe); //aggiungi metodo in Player per smerdare gli altri giocatori che hanno stato Unsafe e fargli pescare due carte
+		}
+	}
 		
 	/**
 	 * Gestisce la logica dei Round nella partita.
@@ -215,17 +234,15 @@ public class GameEngine {
 		while (!roundOver) {
 			Player current = getPlayerList()[currentPlayer];
 			Card playedCard = current.playTurn(discardPile.getTopCard());
-			// pesca una carta dal deck se il giocatore non ha giocato nessuna carta nel suo
-			// turno.
-			if (playedCard == null) {
-				deck.drawCardRandom(current.getHand(), 1);
-			}
-			// se il giocatore ha giocato una carta, viene scartata e messa in cima alla
-			// discardPile.
-			else {
+			// pesca una carta dal deck se il giocatore non ha giocato nessuna carta nel suo turno.
+			drawIfNotPlayed(current, playedCard);
+			// se il giocatore ha giocato una carta, viene scartata e messa in cima alla discardPile.
+			if (playedCard != null) {
 				discardPile.addCard(playedCard);
 				currentColor = playedCard.getActiveColor();
-
+				//meccaniche dichiarazione UNO
+				checkUnoDeclaration(current);
+				
 				// effetti legati a carte speciali
 				switch (playedCard.getType()) {
 					case REVERSE:
@@ -255,6 +272,7 @@ public class GameEngine {
 						break;
 				}
 			}
+			
 			// condizioni di fine round
 			if (current.getHand().isEmpty()) {
 				current.setWon();

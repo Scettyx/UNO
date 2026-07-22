@@ -19,6 +19,7 @@ public abstract class Player {
 	private int currentRoundScore;
 	private boolean wonRound;
 	private boolean isChallenged;
+	private boolean hasDrawn;
 
 	/**
 	 * Definisce se il giocatore è umano o controllato dal computer.
@@ -30,6 +31,11 @@ public abstract class Player {
 	/** Il tipo di giocatore (umano o bot) */
 	private final PlayerType playerType;
 
+	/**
+	 * Safe: al giocatore non è richiesto dover dichiarare UNO
+	 * Called: al giocatore è richiesto dover dichiarare UNO e l'ha fatto
+	 * Unsafe: al giocatore è richiesto dover dichiarare UNO e non l'ha fatto
+	 */
 	public enum UNOState {
 		Safe, Called, Unsafe
 	}
@@ -57,6 +63,7 @@ public abstract class Player {
 		wonRound = false;
 		unoState = UNOState.Safe;
 		isChallenged = false;
+		hasDrawn = false;
 	}
 	
 	
@@ -196,14 +203,21 @@ public abstract class Player {
 	public PlayerType getPlayerType() {
 		return playerType;
 	}
-
+	
 	/**
-	 * Ritorna lo stato attuale della dichiarazione di "UNO" per il giocatore.
 	 * 
-	 * @return lo stato UNOState tra Safe, Called e Unsafe
+	 * @return true se il giocatore ha pescato una carta nel suo turno dopo non aver giocato una carta
 	 */
-	public UNOState getUnoState() {
-		return unoState;
+	public boolean getHasDrawn() {
+		return hasDrawn;
+	}
+	
+	/**
+	 * imposta qualora il giocatore abbia pescato una carta nel suo turno dopo non aver giocato una carta o meno
+	 * @param value true se il giocatore ha pescato una carta nel suo turno dopo non aver giocato una carta, false se non l'ha fatto. 
+	 */
+	public void setHasDrawn(boolean value) {
+		hasDrawn = value;
 	}
 
 	/**
@@ -229,6 +243,15 @@ public abstract class Player {
 	 */
 	public void setUnoState(UNOState newUnoState) {
 		unoState = newUnoState;
+	}
+	
+	/**
+	 * Ritorna lo stato attuale della dichiarazione di "UNO" per il giocatore.
+	 * 
+	 * @return lo stato UNOState tra Safe, Called e Unsafe
+	 */
+	public UNOState getUnoState() {
+		return unoState;
 	}
 
 	/**
