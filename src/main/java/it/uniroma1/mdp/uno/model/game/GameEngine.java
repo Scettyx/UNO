@@ -6,6 +6,7 @@ import it.uniroma1.mdp.uno.model.card.CardType;
 import it.uniroma1.mdp.uno.model.deck.Deck;
 import it.uniroma1.mdp.uno.model.deck.DiscardPile;
 import it.uniroma1.mdp.uno.model.player.Player;
+import it.uniroma1.mdp.uno.model.rules.RuleSet;
 
 /**
  * @author Massimo Giorgini (M.2234123)
@@ -19,6 +20,7 @@ public class GameEngine {
 	}
 
 	private GameMode gameMode;
+	private RuleSet ruleSet;
 	private CardColor currentColor;
 	private int currentPlayer;
 	private Player[] playerList;
@@ -26,7 +28,8 @@ public class GameEngine {
 	private DiscardPile discardPile;
 	boolean direction;
 
-	public GameEngine(Player[] plist, GameMode gameMode) {
+	public GameEngine(Player[] plist, GameMode gameMode, RuleSet ruleSet) {
+		this.ruleSet = ruleSet;
 		this.gameMode = gameMode;
 		currentPlayer = 0;
 		playerList = plist;
@@ -176,6 +179,7 @@ public class GameEngine {
 			winner.setCurrentRoundScore(i.getHand().getHandScore());
 		}
 		winner.setTotalScore(winner.getCurrentRoundScore());
+		winner.resetCurrentRoundScore();
 	}
 	
 	
@@ -306,7 +310,11 @@ public class GameEngine {
 						}
 						currentColor = playedCard.getActiveColor(); // implementa che il giocatore dovrà scegliere il colore attivo
 					case NUMBER:
-					default:
+						if (ruleSet.getNumberRush()) {
+							for(Card i : current.getHand().getAllCards()) { //devo capire come implementare il RuleSet per number rush.....
+								
+							}
+						}
 				}
 			}
 			

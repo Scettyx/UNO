@@ -2,6 +2,8 @@ package it.uniroma1.mdp.uno.model.card;
 
 import java.util.Objects;
 
+import it.uniroma1.mdp.uno.model.rules.RuleSet;
+
 /**
  * @author Cosmin Florea (M.2241398)
  * @author Massimo Giorgini (M.2234123)
@@ -96,7 +98,7 @@ public abstract class Card {
      * @param topCard carta appena giocata/scartata
      * @return {@code true} se la carta può essere giocata
      */
-    public boolean isPlayableOn(Card topCard) {
+    public boolean isPlayableOn(Card topCard, RuleSet rules) {
         Objects.requireNonNull(topCard, "La carta da comparare non puo essere null");
         if (this.type.isWild()) {
             return true;

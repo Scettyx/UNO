@@ -194,6 +194,10 @@ public abstract class Player {
 	public void setCurrentRoundScore(int amount) {
 		currentRoundScore = currentRoundScore + amount;
 	}
+	
+	public void resetCurrentRoundScore() {
+		currentRoundScore = 0;
+	}
 
 	/**
 	 * Indica se il giocatore ha vinto il round.
