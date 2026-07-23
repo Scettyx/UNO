@@ -28,6 +28,13 @@ public abstract class CardCollection {
 	public int getNumCards() {
 		return cardList.size();
 	}
+	
+	/**
+	 * Rimuove tutte le carte da questa collezione di carte
+	 */
+	public void deleteAllCards() {
+		cardList.clear();
+	}
 
 	/**
 	 * Ritorna True se la collezione è vuota

@@ -2,6 +2,7 @@ package it.uniroma1.mdp.uno.model.player;
 
 import it.uniroma1.mdp.uno.model.card.Card;
 import it.uniroma1.mdp.uno.model.card.CardColor;
+import it.uniroma1.mdp.uno.model.deck.Deck;
 import it.uniroma1.mdp.uno.model.deck.Hand;
 
 /**
@@ -33,8 +34,8 @@ public abstract class Player {
 
 	/**
 	 * Safe: al giocatore non è richiesto dover dichiarare UNO
-	 * Called: al giocatore è richiesto dover dichiarare UNO e l'ha fatto
-	 * Unsafe: al giocatore è richiesto dover dichiarare UNO e non l'ha fatto
+	 * Called: il giocatore non ha dichiarato UNO e deve pescare due carte. 
+	 * Unsafe: al giocatore è richiesto dover dichiarare UNO e non l'ha ancora fatto
 	 */
 	public enum UNOState {
 		Safe, Called, Unsafe
@@ -66,6 +67,14 @@ public abstract class Player {
 		hasDrawn = false;
 	}
 	
+	/**
+	 * il giocatore pesca due carte se non ha dichiarato UNO e un altro giocatore lo richiama
+	 * @param current
+	 * @param deck
+	 */
+	public void notDeclared(Player current, Deck deck) {
+		deck.drawCardRandom(current.getHand(), 2);
+	}
 	
 	/**
 	 * 
@@ -230,19 +239,22 @@ public abstract class Player {
 	}
 
 	/**
-	 * Imposta il giocatore come vincitore del round corrente.
+	 * Imposta il giocatore come vincitore o perdente del round corrente.
 	 */
-	public void setWon() {
-		wonRound = true;
+	public void setWon(boolean value ) {
+		wonRound = value;
 	}
 
 	/**
-	 * Aggiorna lo stato della dichiarazione di "UNO" del giocatore.
+	 * Aggiorna lo stato della dichiarazione di "UNO" del giocatore. Se è Called, il giocatore deve pescare due carte.
 	 * 
 	 * @param newUnoState il nuovo stato da assegnare
 	 */
-	public void setUnoState(UNOState newUnoState) {
+	public void setUnoState(UNOState newUnoState, Deck deck, Player current) {
 		unoState = newUnoState;
+		if (unoState == Player.UNOState.Called) {
+			deck.drawCardRandom(current.getHand(), 2);
+		}
 	}
 	
 	/**
