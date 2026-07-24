@@ -1,5 +1,7 @@
 package it.uniroma1.mdp.uno.model.game;
 
+import java.util.List;
+
 import it.uniroma1.mdp.uno.model.card.Card;
 import it.uniroma1.mdp.uno.model.card.CardColor;
 import it.uniroma1.mdp.uno.model.card.CardType;
@@ -208,14 +210,18 @@ public class GameEngine {
 		if (playedCard == null && current.getHasDrawn() == false) {
 			deck.drawCardRandom(current.getHand(), 1);
 			current.setHasDrawn(true);
-			playedCard = current.playTurn(discardPile.getTopCard()); //da aggiungere una limitazione: il giocatore in questo caso può giocare solo la carta che ha pescato ora 
+			playedCard = current.playTurn(discardPile.getTopCard()).get(-1); //da aggiungere una limitazione: il giocatore in questo caso può giocare solo la carta che ha pescato ora 
 																	//(se hasDrawn = true, può giocare solo l'ultima carta pescata)
 		}
 	}
 	
+	/**
+	 * Controlla lo stato della dichiarazione di UNO del giocatore.
+	 * @param current
+	 */
 	public void checkUnoDeclaration(Player current) {
-		while (current.getHand().getNumCards() == 1 && current.getUnoState() != Player.UNOState.Called) {
-			current.setUnoState(Player.UNOState.Unsafe, deck, current); //aggiungi poi un modo per cambiare l'UNOState a Called quando un altro giocatore 
+		if (current.getHand().getNumCards() == 1 && current.getUnoState() != Player.UNOState.Called) {
+			current.setUnoState(Player.UNOState.Unsafe, deck, current); //aggiungi poi un modo per cambiare l'UNOState a Called quando un altro giocatore richiama. 
 		}
 	}
 	
@@ -279,7 +285,7 @@ public class GameEngine {
 		boolean roundOver = false;
 		while (!roundOver) {
 			Player current = getPlayerList()[currentPlayer];
-			Card playedCard = current.playTurn(discardPile.getTopCard());
+			Card playedCard = current.playTurn(discardPile.getTopCard()).get(-1);
 			// pesca una carta dal deck se il giocatore non ha giocato nessuna carta nel suo turno.
 			drawIfNotPlayed(current, playedCard);
 			// se il giocatore ha giocato una carta, viene scartata e messa in cima alla discardPile.
@@ -310,11 +316,8 @@ public class GameEngine {
 						}
 						currentColor = playedCard.getActiveColor(); // implementa che il giocatore dovrà scegliere il colore attivo
 					case NUMBER:
-						if (ruleSet.getNumberRush()) {
-							for(Card i : current.getHand().getAllCards()) { //devo capire come implementare il RuleSet per number rush.....
-								
-							}
-						}
+					
+					default:
 				}
 			}
 			

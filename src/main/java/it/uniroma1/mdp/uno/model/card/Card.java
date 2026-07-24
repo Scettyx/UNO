@@ -98,7 +98,7 @@ public abstract class Card {
      * @param topCard carta appena giocata/scartata
      * @return {@code true} se la carta può essere giocata
      */
-    public boolean isPlayableOn(Card topCard, RuleSet rules) {
+    public boolean isPlayableOn(Card topCard) {
         Objects.requireNonNull(topCard, "La carta da comparare non puo essere null");
         if (this.type.isWild()) {
             return true;

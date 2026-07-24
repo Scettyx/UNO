@@ -1,5 +1,10 @@
 package it.uniroma1.mdp.uno.model.rules;
 
+
+/**
+ * Classe per impostare le regole alternative.
+ * @author Massimo Giorgini (M.2234123)
+ */
 public class RuleSet {
 	private boolean stackDrawCards;
 	private boolean numberRush;

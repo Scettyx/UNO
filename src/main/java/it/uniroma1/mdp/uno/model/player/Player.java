@@ -1,5 +1,7 @@
 package it.uniroma1.mdp.uno.model.player;
 
+import java.util.List;
+
 import it.uniroma1.mdp.uno.model.card.Card;
 import it.uniroma1.mdp.uno.model.card.CardColor;
 import it.uniroma1.mdp.uno.model.deck.Deck;
@@ -132,14 +134,18 @@ public abstract class Player {
 	}
 
 	/**
-	 * Definisce la logica con cui il giocatore sceglie quale carta giocare.
+	 * Definisce la logica con cui il giocatore sceglie quale carta/e giocare.
 	 * Essendo un metodo astratto, viene implementato diversamente per Bot e Umani.
+	 * il playTurn dovrà ritornare una lista di carte, perchè in caso il number rush sia attivo deve poter ritornare più carte. 
+	 * Se il number rush non è attivo, la lista sarà composta da una sola carta
 	 * 
 	 * @param topDiscard la carta attualmente in cima alla pila degli scarti
-	 * @return la carta scelta dal giocatore, oppure null se decide o è obbligato a
+	 * @return la carta/e scelta dal giocatore, oppure null se decide o è obbligato a
 	 *         pescare
 	 */
-	public abstract Card playTurn(Card topDiscard);
+	//
+	//
+	public abstract List<Card> playTurn(Card topDiscard); 
 
 	/**
 	 * Ritorna il nome del giocatore.
@@ -256,8 +262,9 @@ public abstract class Player {
 	 */
 	public void setUnoState(UNOState newUnoState, Deck deck, Player current) {
 		unoState = newUnoState;
-		if (unoState == Player.UNOState.Called) {
+		if (newUnoState == UNOState.Called) {
 			deck.drawCardRandom(current.getHand(), 2);
+			unoState = UNOState.Safe;
 		}
 	}
 	
