@@ -157,7 +157,7 @@ public class GameEngine {
 			currentPlayer = (currentPlayer - 1 + playerList.length) % playerList.length;
 		}
 	}
-	
+
 	/**
 	 * Questo metodo sposta il turno indietro.
 	 */
@@ -170,9 +170,10 @@ public class GameEngine {
 			currentPlayer = (currentPlayer + 1) % playerList.length;
 		}
 	}
-	
+
 	/**
-	 * Assegna il punteggio al vincitore del round e aggiorna il suo punteggio totale.
+	 * Assegna il punteggio al vincitore del round e aggiorna il suo punteggio
+	 * totale.
 	 * 
 	 * @param winner il giocatore che ha vinto il round
 	 */
@@ -183,12 +184,14 @@ public class GameEngine {
 		winner.setTotalScore(winner.getCurrentRoundScore());
 		winner.resetCurrentRoundScore();
 	}
-	
-	
+
 	/**
-	 * La logica della challenge del Wild Draw Four; se il giocatore non poteva giocare la carta, pesca quattro carte. Se poteva giocare la carta, lo sfidante pesca 6 carte.
+	 * La logica della challenge del Wild Draw Four; se il giocatore non poteva
+	 * giocare la carta, pesca quattro carte. Se poteva giocare la carta, lo
+	 * sfidante pesca 6 carte.
+	 * 
 	 * @param playedCard è la carta sulla cima del discardPile
-	 * @param current è il giocatore che ha giocato la carta WildDrawFour
+	 * @param current    è il giocatore che ha giocato la carta WildDrawFour
 	 */
 	public void WildDrawFourChallenge(Card playedCard, Player current) {
 		if (!current.WildDrawFourLegal(playedCard)) {
@@ -196,12 +199,14 @@ public class GameEngine {
 			return;
 		}
 		nextTurn();
-		deck.drawCardRandom(getPlayerList()[currentPlayer].getHand(), 6); 
+		deck.drawCardRandom(getPlayerList()[currentPlayer].getHand(), 6);
 		return;
 	}
-	
+
 	/**
-	 * Pesca una carta se il giocatore non ne ha giocata una in questo turno e gli permette di giocare la carta che ha appena pescato se è giocabile
+	 * Pesca una carta se il giocatore non ne ha giocata una in questo turno e gli
+	 * permette di giocare la carta che ha appena pescato se è giocabile
+	 * 
 	 * @param current
 	 * @param playedCard
 	 */
@@ -210,23 +215,28 @@ public class GameEngine {
 		if (playedCard == null && current.getHasDrawn() == false) {
 			deck.drawCardRandom(current.getHand(), 1);
 			current.setHasDrawn(true);
-			playedCard = current.playTurn(discardPile.getTopCard()).get(-1); //da aggiungere una limitazione: il giocatore in questo caso può giocare solo la carta che ha pescato ora 
-																	//(se hasDrawn = true, può giocare solo l'ultima carta pescata)
+			playedCard = current.playTurn(discardPile.getTopCard()).get(-1); // da aggiungere una limitazione: il
+																				// giocatore in questo caso può giocare
+																				// solo la carta che ha pescato ora
+			// (se hasDrawn = true, può giocare solo l'ultima carta pescata)
 		}
 	}
-	
+
 	/**
 	 * Controlla lo stato della dichiarazione di UNO del giocatore.
+	 * 
 	 * @param current
 	 */
 	public void checkUnoDeclaration(Player current) {
 		if (current.getHand().getNumCards() == 1 && current.getUnoState() != Player.UNOState.Called) {
-			current.setUnoState(Player.UNOState.Unsafe, deck, current); //aggiungi poi un modo per cambiare l'UNOState a Called quando un altro giocatore richiama. 
+			current.setUnoState(Player.UNOState.Unsafe, deck, current); // aggiungi poi un modo per cambiare l'UNOState
+																		// a Called quando un altro giocatore richiama.
 		}
 	}
-	
+
 	/**
 	 * le condizioni di vittoria di un ROUND in base alla modalità
+	 * 
 	 * @param current
 	 * @param roundOver
 	 */
@@ -237,22 +247,22 @@ public class GameEngine {
 			current.setWon(false);
 			gameMode.setGameOver(true);
 			roundOver = true;
-		}
-		else if (gameMode.getPointMatch() == false) {
+		} else if (gameMode.getPointMatch() == false) {
 			for (Player player : getPlayerList()) {
 				player.resetScore();
 			}
 			roundOver = true;
 		}
 	}
-	
+
 	/**
-	 * Se la modalità è a punti, controlla se alla fine di un round c'è un giocatore che ha raggiunto la soglia di vittoria; se non c'è, gioca un nuovo round
+	 * Se la modalità è a punti, controlla se alla fine di un round c'è un giocatore
+	 * che ha raggiunto la soglia di vittoria; se non c'è, gioca un nuovo round
 	 */
 	public void gameWinConditions() {
 		boolean winnerPresent = false;
 		for (Player player : getPlayerList()) {
-			if (player.getTotalScore() >= gameMode.getPointGoal()){
+			if (player.getTotalScore() >= gameMode.getPointGoal()) {
 				player.setWon(true);
 				winnerPresent = true;
 				gameMode.setGameOver(true);
@@ -262,9 +272,10 @@ public class GameEngine {
 			playRound();
 		}
 	}
-	
+
 	/**
-	 * Distribuisce le 7 carte iniziali ad ogni giocatore, rimescola il mazzo, toglie tutte le carte dalla discardPile.
+	 * Distribuisce le 7 carte iniziali ad ogni giocatore, rimescola il mazzo,
+	 * toglie tutte le carte dalla discardPile.
 	 */
 	public void distributeCards() {
 		this.deck = new Deck();
@@ -276,26 +287,29 @@ public class GameEngine {
 			deck.drawCardRandom(getPlayerList()[i].getHand(), 7);
 		}
 	}
-		
+
 	/**
 	 * Gestisce la logica dei Round nella partita.
 	 */
 	public void playRound() {
 		distributeCards();
 		boolean roundOver = false;
+
 		while (!roundOver) {
 			Player current = getPlayerList()[currentPlayer];
 			Card playedCard = current.playTurn(discardPile.getTopCard()).get(-1);
-			// pesca una carta dal deck se il giocatore non ha giocato nessuna carta nel suo turno.
+			// pesca una carta dal deck se il giocatore non ha giocato nessuna carta nel suo
+			// turno.
 			drawIfNotPlayed(current, playedCard);
-			// se il giocatore ha giocato una carta, viene scartata e messa in cima alla discardPile.
+			// se il giocatore ha giocato una carta, viene scartata e messa in cima alla
+			// discardPile.
 			if (playedCard != null) {
 				discardPile.addCard(playedCard);
 				currentColor = playedCard.getActiveColor();
-				
-				//meccaniche dichiarazione UNO
+
+				// meccaniche dichiarazione UNO
 				checkUnoDeclaration(current);
-	
+
 				// effetti legati a carte speciali
 				switch (playedCard.getType()) {
 					case REVERSE:
@@ -305,37 +319,43 @@ public class GameEngine {
 					case DRAW_TWO:
 						nextTurn();
 						deck.drawCardRandom(current.getHand(), 2);
-					case WILD: 
-						currentColor = playedCard.getActiveColor(); // implementa che il giocatore dovrà scegliere il colore attivo
-					case WILD_DRAW_FOUR: 
-						if (current.getIsChallenged() == true) { //controlla se il giocatore è stato sfidato dopo il lancio del Wild Draw Four
+					case WILD:
+						currentColor = playedCard.getActiveColor(); // implementa che il giocatore dovrà scegliere il
+																	// colore attivo
+					case WILD_DRAW_FOUR:
+						if (current.getIsChallenged() == true) { // controlla se il giocatore è stato sfidato dopo il
+																	// lancio del Wild Draw Four
 							WildDrawFourChallenge(playedCard, current);
-						} else { //se il giocatore non è stato sfidato dopo un Wild Draw Four, il prossimo giocatore pesca le 4 carte normalmente. 
+						} else { // se il giocatore non è stato sfidato dopo un Wild Draw Four, il prossimo
+									// giocatore pesca le 4 carte normalmente.
 							nextTurn();
 							deck.drawCardRandom(getPlayerList()[currentPlayer].getHand(), 4);
 						}
-						currentColor = playedCard.getActiveColor(); // implementa che il giocatore dovrà scegliere il colore attivo
+						currentColor = playedCard.getActiveColor(); // implementa che il giocatore dovrà scegliere il
+																	// colore attivo
 					case NUMBER:
-					
+
 					default:
 				}
 			}
-			
+
 			// Se il deck da cui si pescano le carte rimane vuoto, questo metodo sposta
-						// tutte le carte dalla discardPile al deck (eccetto quella in cima).
+			// tutte le carte dalla discardPile al deck (eccetto quella in cima).
 			if (deck.isEmpty()) {
 				discardPile.moveToDeck(deck);
 			}
-			
-			// condizioni di fine round. Se la partita è a round singolo invece che a punti, il gioco può anche finire quì se un giocatore ha un mazzo vuoto.
+
+			// condizioni di fine round. Se la partita è a round singolo invece che a punti,
+			// il gioco può anche finire quì se un giocatore ha un mazzo vuoto.
 			if (current.getHand().isEmpty()) {
 				roundWinConditions(current, roundOver);
 				break;
 			}
-			
+
 			nextTurn();
 		}
-		//se la partita è a punti, il gioco non finisce nel singolo round ma controlla se è necessario giocarne uno nuovo
+		// se la partita è a punti, il gioco non finisce nel singolo round ma controlla
+		// se è necessario giocarne uno nuovo
 		if (gameMode.getPointMatch() == true) {
 			gameWinConditions();
 		}

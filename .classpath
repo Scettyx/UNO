@@ -1,12 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
-	<!-- Sorgenti principali -->
-	<classpathentry kind="src" path="src/main/java"/>
-
-	<!-- JRE -->
-	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-21"/>
-
-	<!-- JavaFX -->
+	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-25"/>
 	<classpathentry kind="lib" path="lib/javafx-base-21.0.2.jar"/>
 	<classpathentry kind="lib" path="lib/javafx-base-21.0.2-win.jar"/>
 	<classpathentry kind="lib" path="lib/javafx-controls-21.0.2.jar"/>
@@ -15,17 +10,12 @@
 	<classpathentry kind="lib" path="lib/javafx-fxml-21.0.2-win.jar"/>
 	<classpathentry kind="lib" path="lib/javafx-graphics-21.0.2.jar"/>
 	<classpathentry kind="lib" path="lib/javafx-graphics-21.0.2-win.jar"/>
-
-	<!-- GSON -->
 	<classpathentry kind="lib" path="lib/gson-2.10.1.jar"/>
-
-	<!-- JUnit 5 -->
 	<classpathentry kind="lib" path="lib/junit-jupiter-api-5.10.2.jar"/>
 	<classpathentry kind="lib" path="lib/junit-jupiter-engine-5.10.2.jar"/>
 	<classpathentry kind="lib" path="lib/junit-jupiter-params-5.10.2.jar"/>
 	<classpathentry kind="lib" path="lib/junit-platform-commons-1.10.2.jar"/>
 	<classpathentry kind="lib" path="lib/junit-platform-engine-1.10.2.jar"/>
 
-	<!-- Output -->
 	<classpathentry kind="output" path="bin"/>
 </classpath>
