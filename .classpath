@@ -1,51 +1,31 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
-	<classpathentry kind="src" output="target/classes" path="src/main/java">
-		<attributes>
-			<attribute name="optional" value="true"/>
-			<attribute name="maven.pomderived" value="true"/>
-		</attributes>
-	</classpathentry>
-	<classpathentry kind="src" output="target/test-classes" path="src/test/java">
-		<attributes>
-			<attribute name="optional" value="true"/>
-			<attribute name="maven.pomderived" value="true"/>
-			<attribute name="test" value="true"/>
-		</attributes>
-	</classpathentry>
-	<classpathentry excluding="**" kind="src" output="target/test-classes" path="src/test/resources">
-		<attributes>
-			<attribute name="maven.pomderived" value="true"/>
-			<attribute name="test" value="true"/>
-			<attribute name="optional" value="true"/>
-		</attributes>
-	</classpathentry>
-	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-25">
-		<attributes>
-			<attribute name="maven.pomderived" value="true"/>
-		</attributes>
-	</classpathentry>
-	<classpathentry kind="con" path="org.eclipse.m2e.MAVEN2_CLASSPATH_CONTAINER">
-		<attributes>
-			<attribute name="maven.pomderived" value="true"/>
-		</attributes>
-	</classpathentry>
-	<classpathentry kind="src" path="target/generated-sources/annotations">
-		<attributes>
-			<attribute name="optional" value="true"/>
-			<attribute name="maven.pomderived" value="true"/>
-			<attribute name="ignore_optional_problems" value="true"/>
-			<attribute name="m2e-apt" value="true"/>
-		</attributes>
-	</classpathentry>
-	<classpathentry kind="src" output="target/test-classes" path="target/generated-test-sources/test-annotations">
-		<attributes>
-			<attribute name="optional" value="true"/>
-			<attribute name="maven.pomderived" value="true"/>
-			<attribute name="ignore_optional_problems" value="true"/>
-			<attribute name="m2e-apt" value="true"/>
-			<attribute name="test" value="true"/>
-		</attributes>
-	</classpathentry>
-	<classpathentry kind="output" path="target/classes"/>
+	<!-- Sorgenti principali -->
+	<classpathentry kind="src" path="src/main/java"/>
+
+	<!-- JRE -->
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-21"/>
+
+	<!-- JavaFX -->
+	<classpathentry kind="lib" path="lib/javafx-base-21.0.2.jar"/>
+	<classpathentry kind="lib" path="lib/javafx-base-21.0.2-win.jar"/>
+	<classpathentry kind="lib" path="lib/javafx-controls-21.0.2.jar"/>
+	<classpathentry kind="lib" path="lib/javafx-controls-21.0.2-win.jar"/>
+	<classpathentry kind="lib" path="lib/javafx-fxml-21.0.2.jar"/>
+	<classpathentry kind="lib" path="lib/javafx-fxml-21.0.2-win.jar"/>
+	<classpathentry kind="lib" path="lib/javafx-graphics-21.0.2.jar"/>
+	<classpathentry kind="lib" path="lib/javafx-graphics-21.0.2-win.jar"/>
+
+	<!-- GSON -->
+	<classpathentry kind="lib" path="lib/gson-2.10.1.jar"/>
+
+	<!-- JUnit 5 -->
+	<classpathentry kind="lib" path="lib/junit-jupiter-api-5.10.2.jar"/>
+	<classpathentry kind="lib" path="lib/junit-jupiter-engine-5.10.2.jar"/>
+	<classpathentry kind="lib" path="lib/junit-jupiter-params-5.10.2.jar"/>
+	<classpathentry kind="lib" path="lib/junit-platform-commons-1.10.2.jar"/>
+	<classpathentry kind="lib" path="lib/junit-platform-engine-1.10.2.jar"/>
+
+	<!-- Output -->
+	<classpathentry kind="output" path="bin"/>
 </classpath>
