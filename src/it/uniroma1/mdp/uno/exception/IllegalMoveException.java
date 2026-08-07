@@ -1,9 +1,9 @@
 package it.uniroma1.mdp.uno.exception;
 
 /**
+ * Viene lanciato quando un giocatore fa una mossa non consentita
+ * 
  * @author Cosmin Florea (M.2241398)
- *
- *         Viene lanciato quando un giocatore fa una mossa non consentita
  */
 public class IllegalMoveException extends RuntimeException {
 

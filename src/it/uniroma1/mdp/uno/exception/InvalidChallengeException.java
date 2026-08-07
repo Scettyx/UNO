@@ -1,9 +1,9 @@
 package it.uniroma1.mdp.uno.exception;
 
 /**
+ * Viene lanciata quando un giocatore tenta una Challenge non consentita
+ * 
  * @author Cosmin Florea (M.2241398)
- *
- *         Viene lanciata quando un giocatore tenta una Challenge non consentita
  */
 public class InvalidChallengeException extends RuntimeException {
 

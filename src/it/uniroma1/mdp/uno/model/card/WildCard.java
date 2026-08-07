@@ -1,10 +1,10 @@
 package it.uniroma1.mdp.uno.model.card;
 
 /**
+ * Rappresenta le carte WILD e WILD_DRAW_FOUR
+ * 
  * @author Massimo Giorgini (M.2234123)
  * @author Cosmin Florea (M.2241398)
- * 
- *         Rappresenta le carte WILD e WILD_DRAW_FOUR
  */
 public class WildCard extends Card {
 	public static final int POINTS_VALUE = 50; // Massimo assicurati che i punti sono giusti che io ho messo gli stessi

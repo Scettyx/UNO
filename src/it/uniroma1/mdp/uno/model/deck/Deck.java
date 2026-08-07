@@ -6,11 +6,11 @@ import java.util.Random;
 import java.util.ArrayList;
 
 /**
+ * Rappresenta il mazzo principale di Carte sul tavolo, da cui verranno
+ * pescate le carte per formare i mazzi
+ * 
  * @author Massimo Giorgini (M.2234123)
  * @author Cosmin Florea (M.2241398)
- * 
- *         Rappresenta il mazzo principale di Carte sul tavolo, da cui verranno
- *         pescate le carte per formare i mazzi
  */
 public class Deck extends CardCollection {
 	public final static int LENGTH = 108;
@@ -41,7 +41,7 @@ public class Deck extends CardCollection {
 	 * @param i la posizione dalla cima del deck da cui prendere la carta da deck
 	 *          per metterla in c (i = 0 è la carta in cima)
 	 */
-	public Card drawFromTopCard(CardCollection c, int i) { 
+	public Card drawFromTopCard(CardCollection c, int i) {
 		if (!isEmpty()) {
 			Card temp = cardList.get(i);
 			c.cardList.add(temp);

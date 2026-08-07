@@ -2,6 +2,7 @@ package it.uniroma1.mdp.uno.model.game;
 /**
  * Gestisce qualora, in una partita, si usi la modalità a partita singola oppure la modalità a partita con punti, e permette in tal caso
  * di configurare il limite di punti per vincere.
+ * 
  * @author Massimo Giorgini (M.2234123)
  */
 public class GameMode {

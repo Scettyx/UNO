@@ -3,9 +3,9 @@ package it.uniroma1.mdp.uno.model.card;
 import java.util.Objects;
 
 /**
- * @author Cosmin Florea(M.2241398)
+ * Rappresenta le carte colorate non numerate
  * 
- *         Rappresenta le carte colorate non numerate
+ * @author Cosmin Florea (M.2241398)
  */
 public class ActionCard extends Card {
 	public static final int POINTS_VALUE = 20;

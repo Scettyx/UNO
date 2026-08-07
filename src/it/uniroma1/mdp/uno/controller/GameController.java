@@ -4,7 +4,8 @@ import it.uniroma1.mdp.uno.model.card.Card;
 import javafx.fxml.FXML;
 
 /**
- * La classe che fa interagire l'interfaccia grafica (View) con la logica del gioco (Model). 
+ * La classe che fa interagire l'interfaccia grafica (View) con la logica del gioco (Model).
+ * 
  * @author Massimo Giorgini (M.2234123)
  */
 public class GameController {

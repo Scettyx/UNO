@@ -3,8 +3,9 @@ package it.uniroma1.mdp.uno.model.deck;
 import it.uniroma1.mdp.uno.model.card.Card;
 
 /**
- * @author Massimo Giorgini (M.2234123)
  * 
+ * 
+ * @author Massimo Giorgini (M.2234123)
  */
 public class Hand extends CardCollection {
 	public Hand() {

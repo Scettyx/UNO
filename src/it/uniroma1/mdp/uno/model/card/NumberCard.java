@@ -3,10 +3,10 @@ package it.uniroma1.mdp.uno.model.card;
 import java.util.Objects;
 
 /**
+ * Rappresenta le carte colorate numerate
+ * 
  * @author Massimo Giorgini (M.2234123)
  * @author Cosmin Florea (M.2241398)
- * 
- *         Rappresenta le carte colorate numerate
  */
 public class NumberCard extends Card {
     private final int value;

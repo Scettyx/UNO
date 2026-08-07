@@ -1,9 +1,9 @@
 package it.uniroma1.mdp.uno.exception;
 
 /**
- * @author Cosmin Florea (M.2241398)
+ * Viene lanciata quando viene caricato uno stato di gioco
  * 
- *         Viene lanciata quando viene caricato uno stato di gioco
+ * @author Cosmin Florea (M.2241398)
  */
 public class GameSaveException extends RuntimeException {
 

@@ -5,12 +5,11 @@ import java.util.Objects;
 import it.uniroma1.mdp.uno.model.rules.RuleSet;
 
 /**
+ * Classe astratta per una carta generica. Una volta definiti colore e tipo
+ * della carta, restano invariati definitivamente
+ * 
  * @author Cosmin Florea (M.2241398)
  * @author Massimo Giorgini (M.2234123)
- * 
- *         Classe astratta per una carta generica.
- *         Una volta definiti colore e tipo della carta, restano invariati
- *         definitivamente
  */
 public abstract class Card {
     protected final CardType type;

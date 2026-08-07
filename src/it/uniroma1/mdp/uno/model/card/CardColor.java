@@ -1,9 +1,9 @@
 package it.uniroma1.mdp.uno.model.card;
 
 /**
- * @author Cosmin Florea (M.2241398)
+ * Enumerazione per ogni tipo di colore delle carte
  * 
- *         Enumerazione per ogni tipo di colore delle carte
+ * @author Cosmin Florea (M.2241398)
  */
 public enum CardColor {
     RED,

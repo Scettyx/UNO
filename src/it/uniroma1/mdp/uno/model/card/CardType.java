@@ -1,9 +1,9 @@
 package it.uniroma1.mdp.uno.model.card;
 
 /**
- * @author Cosmin Florea (M.2241398)
+ * Enumerazione per ogni tipo di carta
  * 
- *         Enumerazione per ogni tipo di carta
+ * @author Cosmin Florea (M.2241398)
  */
 public enum CardType {
     NUMBER,

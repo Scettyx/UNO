@@ -6,12 +6,12 @@ import java.util.List;
 import it.uniroma1.mdp.uno.model.card.Card;
 
 /**
+ * Una classe astratta che rappresenta un gruppo di carte qualsiasi sarà usata
+ * per il mazzo di carte totali, la mano dei giocatori e le
+ * carte sul tavolo.
+ * 
  * @author Massimo Giorgini (M.2234123)
  * @author Cosmin Florea (M.2241398)
- * 
- *         Una classe astratta che rappresenta un gruppo di carte qualsiasi;
- *         sarà usata per il mazzo di carte totali, la mano dei giocatori e le
- *         carte sul tavolo.
  */
 public abstract class CardCollection {
 	protected ArrayList<Card> cardList;
@@ -28,7 +28,7 @@ public abstract class CardCollection {
 	public int getNumCards() {
 		return cardList.size();
 	}
-	
+
 	/**
 	 * Rimuove tutte le carte da questa collezione di carte
 	 */
@@ -47,7 +47,7 @@ public abstract class CardCollection {
 		}
 		return false;
 	}
-	
+
 	/**
 	 * 
 	 * @return Ritorna la lista delle carte carte
@@ -55,6 +55,7 @@ public abstract class CardCollection {
 	public List<Card> getAllCards() {
 		return this.cardList;
 	}
+
 	/**
 	 * Ritorna una copia delle carte, utile per la GUI
 	 * 
