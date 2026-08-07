@@ -32,6 +32,13 @@ public class RandomBot extends BotPlayer {
         this.random = new Random();
     }
 
+    /**
+     * Filtra le carte in mano per mettere in evidenza solo quelle giocabili sopra
+     * l'ultima carta
+     * 
+     * @param topDiscard la carta in cima alla pila degli scrati
+     * @return lista di carte giocabili
+     */
     private List<Card> collectPlayableCards(Card topDiscard) {
         List<Card> playable = new ArrayList<>();
 
@@ -43,6 +50,11 @@ public class RandomBot extends BotPlayer {
         return playable;
     }
 
+    /**
+     * Sceglie un colore casuale quando piazza una carta Wild
+     * 
+     * @return un colore casuale
+     */
     private CardColor pickRandomColor() {
         CardColor[] realColors = {
                 CardColor.BLUE,
@@ -53,6 +65,9 @@ public class RandomBot extends BotPlayer {
         return realColors[random.nextInt(realColors.length)];
     }
 
+    /**
+     * Sceglie in maniera casuale la carta da giocare tra quelle Playable
+     */
     @Override
     public List<Card> playTurn(Card topDiscard) {
         List<Card> playableCards = collectPlayableCards(topDiscard);

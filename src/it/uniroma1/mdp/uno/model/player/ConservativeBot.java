@@ -32,6 +32,13 @@ public class ConservativeBot extends BotPlayer {
         this.random = new Random();
     }
 
+    /**
+     * Filtra le carte in mano per mettere in evidenza solo quelle giocabili sopra
+     * l'ultima carta
+     * 
+     * @param topDiscard la carta in cima alla pila degli scrati
+     * @return lista di carte giocabili
+     */
     private List<Card> collectPlayableCards(Card topDiscard) {
         List<Card> playable = new ArrayList<>();
 
@@ -43,6 +50,11 @@ public class ConservativeBot extends BotPlayer {
         return playable;
     }
 
+    /**
+     * Sceglie un colore casuale quando piazza una carta Wild
+     * 
+     * @return un colore casuale
+     */
     private CardColor pickRandomColor() {
         CardColor[] realColors = {
                 CardColor.BLUE,
@@ -53,24 +65,38 @@ public class ConservativeBot extends BotPlayer {
         return realColors[random.nextInt(realColors.length)];
     }
 
+    /**
+     * Cerca tra le carte giocabili se c'è una carta numerica, altrimenti
+     * cerca comunque una carta speciale prima di passare alle carte di tipo WILD
+     * 
+     * @param playableCards lista di carte giocabili
+     * @return la prima carta Numerica giocabile o la prima carta speciale,
+     *         altrimenti null
+     */
     private Card findConservativeCard(List<Card> playableCards) {
-        for (Card card : playableCards) {
-            if (card.getType().name().equals("NUMBER")) {
-                return card;
+        if (!playableCards.isEmpty()) {
+            for (Card card : playableCards) {
+                if (card.getType() == CardType.NUMBER) {
+                    return card;
+                }
             }
-        }
 
-        for (Card card : playableCards) {
-            if (card.getType().name().equals("REVERSE") ||
-                    card.getType().name().equals("SKIP") ||
-                    card.getType().name().equals("DRAW_TWO")) {
-                return card;
+            for (Card card : playableCards) {
+                if (card.getType() == CardType.REVERSE ||
+                        card.getType() == CardType.SKIP ||
+                        card.getType() == CardType.DRAW_TWO) {
+                    return card;
+                }
             }
-        }
 
-        return playableCards.get(0);
+            return playableCards.get(0);
+        }
+        return null;
     }
 
+    /**
+     * Sceglie in maniera casuale la carta da giocare tra quelle Playable
+     */
     @Override
     public List<Card> playTurn(Card topDiscard) {
         List<Card> playableCards = collectPlayableCards(topDiscard);

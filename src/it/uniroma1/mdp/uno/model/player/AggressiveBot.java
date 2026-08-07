@@ -32,6 +32,13 @@ public class AggressiveBot extends BotPlayer {
         this.random = new Random();
     }
 
+    /**
+     * Filtra le carte in mano per mettere in evidenza solo quelle giocabili sopra
+     * l'ultima carta
+     * 
+     * @param topDiscard la carta in cima alla pila degli scrati
+     * @return lista di carte giocabili
+     */
     private List<Card> collectPlayableCards(Card topDiscard) {
         List<Card> playable = new ArrayList<>();
 
@@ -43,6 +50,11 @@ public class AggressiveBot extends BotPlayer {
         return playable;
     }
 
+    /**
+     * Sceglie un colore casuale quando piazza una carta Wild
+     * 
+     * @return un colore casuale
+     */
     private CardColor pickRandomColor() {
         CardColor[] realColors = {
                 CardColor.BLUE,
@@ -53,24 +65,38 @@ public class AggressiveBot extends BotPlayer {
         return realColors[random.nextInt(realColors.length)];
     }
 
+    /**
+     * Cerca tra le carte giocabili se c'è una DRAW_TWO o WILD_DRAW_FOUR, altrimenti
+     * cerca comunque una carta speciale prima di passare ai numeri
+     * 
+     * @param playableCards lista di carte giocabili
+     * @return la prima carta Aggressive o la prima carta giocabile in caso ci siano
+     *         solo numeri, altrimenti null
+     */
     private Card findAggressiveCard(List<Card> playableCards) {
-        for (Card card : playableCards) {
-            if (card.getType().name().equals("WILD_DRAW_FOUR") ||
-                    card.getType().name().equals("DRAW_TWO")) {
-                return card;
+        if (!playableCards.isEmpty()) {
+            for (Card card : playableCards) {
+                if (card.getType() == CardType.WILD_DRAW_FOUR ||
+                        card.getType() == CardType.DRAW_TWO) {
+                    return card;
+                }
             }
-        }
 
-        for (Card card : playableCards) {
-            if (card.getType().name().equals("REVERSE") ||
-                    card.getType().name().equals("SKIP")) {
-                return card;
+            for (Card card : playableCards) {
+                if (card.getType() == CardType.REVERSE ||
+                        card.getType() == CardType.SKIP) {
+                    return card;
+                }
             }
-        }
 
-        return playableCards.get(0);
+            return playableCards.get(0);
+        }
+        return null;
     }
 
+    /**
+     * Sceglie in maniera casuale la carta da giocare tra quelle Playable
+     */
     @Override
     public List<Card> playTurn(Card topDiscard) {
         List<Card> playableCards = collectPlayableCards(topDiscard);

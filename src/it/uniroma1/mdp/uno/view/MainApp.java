@@ -13,6 +13,11 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
+/**
+ * MainApp dalla quale si ha accesso diretto al menu
+ * 
+ * @author Cosmin Florea (M.2241398)
+ */
 public class MainApp extends Application {
 
     @Override
