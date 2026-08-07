@@ -1,0 +1,13 @@
+.menu-bg {
+    -fx-background-image: url('images/menu_bg.jpg');
+    -fx-background-size: cover;
+    -fx-background-position: center center;
+    -fx-background-repeat: no-repeat;
+}
+
+.table-bg {
+    -fx-background-image: url('images/table1_bg.jpg');
+    -fx-background-size: cover;
+    -fx-background-position: center center;
+    -fx-background-repeat: no-repeat;
+}
