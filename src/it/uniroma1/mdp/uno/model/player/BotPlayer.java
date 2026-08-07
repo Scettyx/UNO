@@ -18,7 +18,7 @@ public abstract class BotPlayer extends Player {
 
     public enum BotProfile {
         RANDOM,
-        GREEDY,
+        CONSERVATIVE,
         AGGRESSIVE
     }
 
