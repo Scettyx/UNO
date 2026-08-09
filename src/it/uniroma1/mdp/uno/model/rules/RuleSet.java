@@ -10,9 +10,9 @@ public class RuleSet {
 	private boolean stackDrawCards;
 	private boolean numberRush;
 	
-	public RuleSet() {
-		this.stackDrawCards = false;
-		this.numberRush = false;
+	public RuleSet(boolean stackDrawCards, boolean numberRush) {
+		this.stackDrawCards = stackDrawCards;
+		this.numberRush = numberRush;
 	}
 	
 	/**

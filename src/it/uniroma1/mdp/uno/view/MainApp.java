@@ -2,13 +2,17 @@ package it.uniroma1.mdp.uno.view;
 
 import java.net.URL;
 
+import it.uniroma1.mdp.uno.model.game.GameEngine;
 import it.uniroma1.mdp.uno.model.game.GameMode;
 import it.uniroma1.mdp.uno.model.player.AggressiveBot;
+import it.uniroma1.mdp.uno.model.player.BotPlayer;
 import it.uniroma1.mdp.uno.model.player.ConservativeBot;
 import it.uniroma1.mdp.uno.model.player.HumanPlayer;
 import it.uniroma1.mdp.uno.model.player.Player;
 import it.uniroma1.mdp.uno.model.player.Player.PlayerType;
 import it.uniroma1.mdp.uno.model.player.RandomBot;
+import it.uniroma1.mdp.uno.model.rules.RuleSet;
+import it.uniroma1.mdp.uno.model.simulation.SimulationEngine;
 import javafx.application.Application;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -163,10 +167,53 @@ public class MainApp extends Application {
                 }
             });
             // TODO: Passare i dati a SimulationConfig
+            SimulationEngine simulation = buildSimulationEngine(namesBox, playersCombo.getValue(), stackCheck, rushCheck);
         });
 
         container.getChildren().addAll(stackCheck, rushCheck, playersBox, namesBox, startSimButton);
     }
+    
+    private SimulationEngine buildSimulationEngine(VBox names, int numPlayers, CheckBox stackWild, CheckBox numberRush) {
+    	java.util.List<String> playerNames = new java.util.ArrayList<>();
+    	java.util.List<String> botCategories = new java.util.ArrayList<>();
+    	BotPlayer[] playerList = new BotPlayer[numPlayers];
+    	names.getChildren().forEach(node -> {
+            if(node instanceof HBox) {
+                HBox row = (HBox) node;
+                
+                @SuppressWarnings("unchecked")
+                ComboBox<String> playerTypeCombo = (ComboBox<String>) row.getChildren().get(1);
+                TextField nameField = (TextField) row.getChildren().get(2);
+                @SuppressWarnings("unchecked")
+                ComboBox<String> categoryCombo = (ComboBox<String>) row.getChildren().get(3);
+                
+                playerNames.add(nameField.getText());
+                botCategories.add(categoryCombo.getValue());
+            }
+        });
+    	
+        for(int i = 0; i < numPlayers; i++) {
+    		if(botCategories.get(i).equals("Random")) {
+    			playerList[i] = new RandomBot(playerNames.get(i), i);
+    		}
+    		else if(botCategories.get(i).equals("Conservativo")) {
+    			playerList[i] = new ConservativeBot(playerNames.get(i), i);
+    		}
+    		else if(botCategories.get(i).equals("Aggressivo")) {
+    			playerList[i] = new AggressiveBot(playerNames.get(i), i);
+    		}
+        };
+        
+        //crea la modalità di gioco (singola o a punti)
+        GameMode gameMode = new GameMode(false);
+       
+        //crea le regole di gioco
+        RuleSet ruleSet = new RuleSet(stackWild.isSelected(), numberRush.isSelected());
+        
+        SimulationEngine simulation = new SimulationEngine(playerList, gameMode, ruleSet);
+        return simulation;
+    }
+    	
 
     /**
      * Genera le opzioni per la PARTITA NORMALE (con campi di testo dinamici)
@@ -232,13 +279,6 @@ public class MainApp extends Application {
         startNormalButton.setOnAction(e -> {
             System.out.println("Avvio Partita Normale (" + modeCombo.getValue() + ") con " + playersCombo.getValue() + " giocatori.");
             
-            // Lettura del valore della soglia se presente
-            if ("A punti".equals(modeCombo.getValue()) && !thresholdBox.getChildren().isEmpty()) {
-                HBox row = (HBox) thresholdBox.getChildren().get(0);
-                TextField tf = (TextField) row.getChildren().get(1);
-                System.out.println("Soglia di Vittoria: " + tf.getText());
-            }
-
             System.out.println("Stacking: " + stackCheck.isSelected() + " | Number Rush: " + rushCheck.isSelected());
             
             namesBox.getChildren().forEach(node -> {
@@ -257,8 +297,8 @@ public class MainApp extends Application {
                 }
             });
             
-            //TODO: Passare i parametri al GameEngine
-            buildGameEngine(namesBox, playersCombo.getValue(), modeCombo, thresholdBox);
+            //Passa i parametri configurati nell'UI al Game Engine
+            GameEngine game = buildGameEngine(namesBox, playersCombo.getValue(), modeCombo, thresholdBox, stackCheck, rushCheck);
         });
 
         container.getChildren().addAll(modeBox, thresholdBox, stackCheck, rushCheck, playersBox, namesBox, startNormalButton);
@@ -266,10 +306,9 @@ public class MainApp extends Application {
     
     /**
      * Questa classe passa i vari parametri configurati nell'interfaccia al GameEngine
-     * @param names i nomi dei giocatori inseriti
-     * @param numPlayers il numero di giocatori
      */
-    private void buildGameEngine(VBox names, int numPlayers, ComboBox mode, VBox valueTreshold) {
+    private GameEngine buildGameEngine(VBox names, int numPlayers, ComboBox<String> mode, VBox valueThreshold, CheckBox stackWild, CheckBox numberRush) {
+    	//crea la lista di giocatori
     	java.util.List<String> playerNames = new java.util.ArrayList<>();
         java.util.List<String> playerTypes = new java.util.ArrayList<>();
         java.util.List<String> botCategories = new java.util.ArrayList<>();
@@ -289,29 +328,44 @@ public class MainApp extends Application {
                 botCategories.add(categoryCombo.getValue());
             }
         });
-        
         Player[] playerList = new Player[numPlayers];
         for(int i = 0; i < numPlayers; i++) {
-        	if (playerTypes.get(i) == "Umano") {
+        	if (playerTypes.get(i).equals("Umano")) {
         		playerList[i] = new HumanPlayer(playerNames.get(i), i);
         	} else if(playerTypes.get(i) == "Bot"){
-        		if(botCategories.get(i) == "Random") {
+        		if(botCategories.get(i).equals("Random")) {
         			playerList[i] = new RandomBot(playerNames.get(i), i);
         		}
-        		else if(botCategories.get(i) == "Conservativo") {
+        		else if(botCategories.get(i).equals("Conservativo")) {
         			playerList[i] = new ConservativeBot(playerNames.get(i), i);
         		}
-        		else if(botCategories.get(i) == "Aggressivo") {
+        		else if(botCategories.get(i).equals("Aggressivo")) {
         			playerList[i] = new AggressiveBot(playerNames.get(i), i);
         		}
         	};
         }
         
-        if(mode.getValue() == "Singola") {
-        	GameMode gameMode = new GameMode(false);
+        //crea la modalità di gioco (singola o a punti)
+        GameMode gameMode;
+        if(mode.getValue().equals("Singola")) {
+        	gameMode = new GameMode(false);
         } else {
-        	GameMode gameMode = new GameMode(true, Integer.parseInt(valueTreshold.getText()));
+        	HBox row = (HBox) valueThreshold.getChildren().get(0);
+            TextField pointValue = (TextField) row.getChildren().get(1);
+            int threshold = 500; // Valore di default in caso di input non valido
+            try {
+                threshold = Integer.parseInt(pointValue.getText().trim());
+            } catch (NumberFormatException e) {
+                System.err.println("Soglia punti non valida. Impostato valore di default (500).");
+            }
+        	gameMode = new GameMode(true, threshold);
         }
+        
+        //crea le regole di gioco
+        RuleSet ruleSet = new RuleSet(stackWild.isSelected(), numberRush.isSelected());
+        
+        GameEngine game = new GameEngine(playerList, gameMode, ruleSet);
+        return game;
     }
 
     /**
