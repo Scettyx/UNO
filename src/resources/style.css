@@ -11,3 +11,155 @@
     -fx-background-position: center center;
     -fx-background-repeat: no-repeat;
 }
+
+/* PANNELLO CENTRALE (Casino Card / Frame) */
+.casino-card {
+    -fx-background-color: rgba(12, 24, 16, 0.82);
+    -fx-background-radius: 20px;
+    -fx-border-color: linear-gradient(to bottom right, #ffe082, #d4af37, #8a6d1c);
+    -fx-border-width: 2px;
+    -fx-border-radius: 20px;
+    -fx-padding: 25px 40px;
+    -fx-effect: dropshadow(three-pass-box, rgba(0, 0, 0, 0.7), 20, 0, 0, 10);
+}
+
+/* TITOLI E LABEL */
+.title-main {
+    -fx-font-family: 'Arial Black', 'Impact', sans-serif;
+    -fx-font-size: 56px;
+    -fx-text-fill: linear-gradient(to bottom, #ffffff, #ffe082, #ffd700);
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.8), 10, 0, 2, 4);
+}
+
+.title-sub {
+    -fx-font-family: 'Segoe UI', sans-serif;
+    -fx-font-weight: bold;
+    -fx-font-size: 26px;
+    -fx-text-fill: #ffd700;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.9), 5, 0, 1, 2);
+}
+
+.casino-label {
+    -fx-font-family: 'Segoe UI', sans-serif;
+    -fx-font-size: 15px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #f0f0f0;
+}
+
+/* BOTTONI PRINCIPALI (Gold/Red Casino Style) */
+.casino-button {
+    -fx-background-color: linear-gradient(to bottom, #d32f2f, #9a0007);
+    -fx-text-fill: #ffffff;
+    -fx-font-family: 'Segoe UI', sans-serif;
+    -fx-font-weight: bold;
+    -fx-font-size: 16px;
+    -fx-background-radius: 30px;
+    -fx-border-color: #ffd700;
+    -fx-border-width: 1.5px;
+    -fx-border-radius: 30px;
+    -fx-padding: 10px 25px;
+    -fx-cursor: hand;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.5), 8, 0, 0, 4);
+}
+
+.casino-button:hover {
+    -fx-background-color: linear-gradient(to bottom, #f44336, #c62828);
+    -fx-border-color: #ffffff;
+    -fx-effect: dropshadow(three-pass-box, rgba(255, 215, 0, 0.6), 12, 0, 0, 4);
+}
+
+.casino-button-primary {
+    -fx-background-color: linear-gradient(to bottom, #ffb300, #c67c00);
+    -fx-text-fill: #1a0f00;
+    -fx-font-size: 20px;
+    -fx-padding: 12px 35px;
+}
+
+.casino-button-primary:hover {
+    -fx-background-color: linear-gradient(to bottom, #ffca28, #ffa000);
+    -fx-text-fill: #000000;
+}
+
+.back-button {
+    -fx-background-color: transparent;
+    -fx-text-fill: #b0bec5;
+    -fx-font-size: 13px;
+    -fx-border-color: #78909c;
+    -fx-border-width: 1px;
+    -fx-border-radius: 15px;
+    -fx-background-radius: 15px;
+}
+
+.back-button:hover {
+    -fx-text-fill: #ffffff;
+    -fx-border-color: #ffffff;
+}
+
+/* INPUT: COMBOBOX, TEXTFIELD, CHECKBOX */
+.combo-box, .text-field {
+    -fx-background-color: #122116;
+    -fx-text-fill: #ffffff;
+    -fx-highlight-fill: #ffd700;
+    -fx-highlight-text-fill: #000000;
+    -fx-border-color: #48634f;
+    -fx-border-radius: 5px;
+    -fx-background-radius: 5px;
+    -fx-font-weight: bold;
+}
+
+.combo-box:hover, .text-field:focused {
+    -fx-border-color: #ffd700;
+}
+
+/* Freccia del ComboBox */
+.combo-box .arrow-button {
+    -fx-background-color: transparent;
+}
+
+.combo-box .arrow {
+    -fx-background-color: #ffd700;
+}
+
+/* Fissiamo il testo visibile della ComboBox chiusa */
+.combo-box .cell {
+    -fx-text-fill: #ffffff;
+}
+
+/* POPUP DEL DROPDOWN */
+.combo-box-popup .list-view {
+    -fx-background-color: #0d1a11;
+    -fx-border-color: #ffd700;
+    -fx-border-width: 1px;
+    -fx-padding: 0;
+}
+
+/* Singole celle della lista (Stato Normale) */
+.combo-box-popup .list-cell {
+    -fx-background-color: #0d1a11;
+    -fx-text-fill: #ffffff;
+    -fx-padding: 8px 12px;
+}
+
+/* Stato Hover e Selezionato (rimuove l'azzurro di default di JavaFX) */
+.combo-box-popup .list-cell:hover,
+.combo-box-popup .list-cell:filled:selected,
+.combo-box-popup .list-cell:filled:hover {
+    -fx-background-color: #2e4d36;
+    -fx-text-fill: #ffd700;
+}
+
+/* CHECKBOX */
+.check-box .box {
+    -fx-background-color: #122116;
+    -fx-border-color: #ffd700;
+    -fx-border-radius: 3px;
+}
+
+.check-box:selected .mark {
+    -fx-background-color: #ffd700;
+}
+
+.check-box {
+    -fx-text-fill: #ffffff;
+    -fx-font-weight: bold;
+}
