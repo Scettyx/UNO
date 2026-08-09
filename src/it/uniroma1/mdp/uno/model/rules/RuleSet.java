@@ -15,26 +15,44 @@ public class RuleSet {
 		this.numberRush = false;
 	}
 	
+	/**
+	 * Questo metodo abilita la regola alternativa dello stacking delle carte pesca
+	 */
 	public void setStackDrawCards() {
 		stackDrawCards = true;
 	}
 	
+	/**
+	 * Questo metodo abilita la regola alternativa del number rush
+	 */
 	public void setNumberRush() {
 		numberRush = true; 
 	}
 	
+	/**
+	 * @return true se la regola alternativa dello stacking delle carte pesca è abilitata
+	 */
 	public boolean getStackDrawCards() {
 		return stackDrawCards;
 	}
 	
+	/**
+	 * @return true se la regola alternativa del number rush è abilitata
+	 */
 	public boolean getNumberRush() {
 		return numberRush;
 	}
 	
+	/**
+	 * Questo metodo disabilita la regola alternativa dello stacking delle carte pesca
+	 */
 	public void disableStackDrawCards() {
 		stackDrawCards = false;
 	}
 	
+	/**
+	 * Questo metodo disabilita la regola alternativa del number rush
+	 */
 	public void disableNumberRush() {
 		numberRush = false; 
 	}

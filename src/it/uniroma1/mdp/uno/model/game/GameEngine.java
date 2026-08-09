@@ -19,9 +19,6 @@ import it.uniroma1.mdp.uno.model.rules.RuleSet;
 
 public class GameEngine {
 
-	public enum Mode {
-		SINGLE, POINTS
-	}
 
 	private GameMode gameMode;
 	private RuleSet ruleSet;
