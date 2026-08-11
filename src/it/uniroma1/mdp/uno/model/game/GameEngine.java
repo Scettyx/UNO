@@ -73,8 +73,17 @@ public class GameEngine {
 	 * 
 	 * @return l'indice del giocatore corrente
 	 */
-	public int getCurrentPLayerIndex() {
+	public int getCurrentPlayerIndex() {
 		return currentPlayer;
+	}
+	
+	/**
+	 * Ritorna il giocatore corrente.
+	 * 
+	 * @return il giocatore corrente
+	 */
+	public Player getCurrentPlayer() {
+		return getPlayerList()[currentPlayer];
 	}
 
 	/**
@@ -129,19 +138,6 @@ public class GameEngine {
 	 */
 	public void setDirection(boolean direction) {
 		this.direction = direction;
-	}
-
-	/**
-	 * Metodo per mettere la prima carta del deck nel discardPile.
-	 */
-	public void start(GameEngine game) {
-		int i = 1; // Stesso discorso, non ha senso cominciare da 0?
-		while (discardPile.isEmpty()) {
-			if (deck.getTopCard(i).getType() == CardType.NUMBER) {
-				deck.drawFromTopCard(discardPile, i);
-			}
-			i++;
-		}
 	}
 
 	/**
@@ -271,6 +267,19 @@ public class GameEngine {
 			playRound();
 		}
 	}
+	
+	/**
+	 * Metodo per mettere la prima carta del deck nel discardPile.
+	 */
+	public void firstDiscardCard() {
+		int i = 0; 
+		while (discardPile.isEmpty()) {
+			if (deck.getTopCard(i).getType() == CardType.NUMBER) {
+				deck.drawFromTopCard(discardPile, i);
+			}
+			i++;
+		}
+	}
 
 	/**
 	 * Distribuisce le 7 carte iniziali ad ogni giocatore, rimescola il mazzo,
@@ -292,11 +301,12 @@ public class GameEngine {
 	 */
 	public void playRound() {
 		distributeCards();
+		firstDiscardCard();
 		boolean roundOver = false;
 
 		while (!roundOver) {
 			Player current = getPlayerList()[currentPlayer];
-			Card playedCard = current.playTurn(discardPile.getTopCard()).get(-1);
+			Card playedCard = current.playTurn(discardPile.getTopCard()).getLast();
 			// pesca una carta dal deck se il giocatore non ha giocato nessuna carta nel suo
 			// turno.
 			drawIfNotPlayed(current, playedCard);

@@ -84,10 +84,9 @@ public abstract class Card {
     }
 
     /**
-     * Metodo astratto per ritornare i punti delle carte rimaste in mano al termine
-     * della partita
+     * Metodo astratto per ritornare i punti della carte 
      * 
-     * @return i punti delle carte rimaste in mano
+     * @return i punti della carta
      */
     public abstract int getPointsValue();
 
