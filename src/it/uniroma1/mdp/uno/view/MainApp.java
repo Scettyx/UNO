@@ -302,7 +302,7 @@ public class MainApp extends Application {
             
             // Passa i parametri configurati nell'UI al Game Engine
             GameEngine game = buildGameEngine(namesBox, playersCombo.getValue(), modeCombo, thresholdBox, stackCheck, rushCheck);
-            game.playRound();
+            game.initializeRound();
             
             BoardView board = new BoardView(game);
             root.getChildren().clear();

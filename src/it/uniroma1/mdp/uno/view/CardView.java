@@ -1,6 +1,7 @@
 package it.uniroma1.mdp.uno.view;
 
-import it.uniroma1.mdp.uno.model.card.Card; 
+import it.uniroma1.mdp.uno.model.card.Card;
+import it.uniroma1.mdp.uno.model.card.CardType;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.StackPane;
@@ -50,15 +51,20 @@ public class CardView extends StackPane {
      */
     private String determineImagePath() {
         if (!isFaceUp) {
-            return "/UNO/src/resources/images/carte_uno/Back.png"; 
+            return "/resources/images/carte_uno/Back.png"; 
         }
         
-        // Estrae il nome dell'Enum (assicurati che i metodi getColor() e getValue() combacino con il tuo Model)
+        // Estrae il nome dell'Enum
         String colorName = card.getOriginalColor().name(); 
-        String valueName = Integer.toString(card.getPointsValue()); 
+        String valueName = "";
+        if(card.getType() == CardType.NUMBER) {
+        	valueName = Integer.toString(card.getPointsValue()); 
+        } else {
+        	valueName = card.getType().name();
+        }
         
-        // Restituisce la stringa formattata, es: "/cards/RED_9.png"
-        return "/UNO/src/resources/images/carte_uno/" + colorName + "_" + valueName + ".jpg";
+        // Restituisce la stringa formattata, es: "/images/carte_uno/RED_9.png"
+        return "/resources/images/carte_uno/" + colorName + "_" + valueName + ".jpg";
     }
 
     public Card getCard() {

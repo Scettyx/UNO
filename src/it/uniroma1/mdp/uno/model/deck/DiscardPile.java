@@ -39,7 +39,7 @@ public class DiscardPile extends CardCollection {
 	/**
 	 * Aggiunge una carta in cima alla discard pile
 	 */
-	public boolean addCard(Card card) {
-		return cardList.add(card);
+	public void addCard(Card card) {
+		cardList.add(card);
 	}
 }
