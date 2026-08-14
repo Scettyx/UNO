@@ -44,6 +44,7 @@ public class Deck extends CardCollection {
 	public Card drawFromTopCard(CardCollection c, int i) {
 		if (!isEmpty()) {
 			Card temp = cardList.get(i);
+			temp.setDrawn(true);
 			c.cardList.add(temp);
 			cardList.remove(temp);
 			return temp;

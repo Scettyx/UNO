@@ -69,6 +69,7 @@ public abstract class Player {
 		hasDrawn = false;
 	}
 	
+	
 	/**
 	 * il giocatore pesca due carte se non ha dichiarato UNO e un altro giocatore lo richiama
 	 * @param current

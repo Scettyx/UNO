@@ -44,5 +44,15 @@ public class Hand extends CardCollection {
 			return null;
 		}
 	}
+	
+	/**
+	 * Gioca una carta mettendola nella discardPile e togliendola dal mazzo
+	 * @param card carta da giocare
+	 * @param discardPile discardPile a cui aggiungere la carta
+	 */
+	public void playCard(Card card, DiscardPile discardPile) {
+		discardPile.addCard(card);
+		this.cardList.remove(card);
+	}
 
 }

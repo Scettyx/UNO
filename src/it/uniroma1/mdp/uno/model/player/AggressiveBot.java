@@ -122,4 +122,5 @@ public class AggressiveBot extends BotPlayer {
         result.add(chosenCard);
         return result;
     }
+
 }

@@ -15,6 +15,7 @@ public abstract class Card {
     protected final CardType type;
     protected final CardColor originalColor;
     private CardColor chosenColor;
+    private boolean drawn;
 
     /**
      * Costruttore utilizzabile solo dalle sottoclassi
@@ -30,6 +31,22 @@ public abstract class Card {
         this.type = type;
         this.originalColor = color;
         this.chosenColor = null;
+    }
+    
+    /**
+     * Imposta qualora la carta sia stata pescata da un giocatore durante un turno o meno.
+     * @param status true se il giocatore ha pescato la carta, false se non l'ha fatto
+     */
+    public void setDrawn(boolean status) {
+    	drawn = status;
+    }
+    
+    /**
+     * 
+     * @return true qualora la carta sia stata pescata dal giocatore durante il suo turno
+     */
+    public boolean getDrawn() {
+    	return drawn;
     }
 
     /**

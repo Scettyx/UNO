@@ -19,6 +19,10 @@ public class HumanPlayer extends Player{
 	public void setSelectedCardsFromUI (List<Card> cards) {
 		this.selectedCardsFromUI = cards;
 	}
+	
+	public List<Card> getSelectedCardsFromUI() {
+		return selectedCardsFromUI;
+	}
 
 	@Override
 	public List<Card> playTurn(Card topDiscard) {
