@@ -7,7 +7,9 @@ import it.uniroma1.mdp.uno.model.card.CardColor;
 import it.uniroma1.mdp.uno.model.card.CardType;
 import it.uniroma1.mdp.uno.model.deck.Deck;
 import it.uniroma1.mdp.uno.model.deck.DiscardPile;
+import it.uniroma1.mdp.uno.model.player.HumanPlayer;
 import it.uniroma1.mdp.uno.model.player.Player;
+import it.uniroma1.mdp.uno.model.player.Player.PlayerType;
 import it.uniroma1.mdp.uno.model.rules.RuleSet;
 
 /**
@@ -154,6 +156,10 @@ public class GameEngine {
 	public void nextTurn() {
 		//Se il giocatore ha pescato una carte nel turno precedente, gli viene rimosso lo status che ha pescato.
 		playerList[currentPlayer].setHasDrawn(false);
+		if(playerList[currentPlayer].getPlayerType() == PlayerType.HUMAN) {
+			HumanPlayer currentHumanPlayer = (HumanPlayer) playerList[currentPlayer];
+			currentHumanPlayer.getSelectedCardsFromUI().clear();
+		}
 		for(Card i : playerList[currentPlayer].getHand().getAllCards()) {
 			i.setDrawn(false);
 		}
@@ -319,7 +325,10 @@ public class GameEngine {
 	
 				// meccaniche dichiarazione UNO
 				checkUnoDeclaration(current);
-	
+				
+				discardPile.addCard(playedCard);
+				current.getHand().getAllCards().remove(playedCard);
+				
 				// effetti legati a carte speciali
 				switch (playedCard.getType()) {
 					case REVERSE:

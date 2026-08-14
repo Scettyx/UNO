@@ -2,6 +2,7 @@ package it.uniroma1.mdp.uno.view;
 
 import it.uniroma1.mdp.uno.model.game.GameEngine;
 import it.uniroma1.mdp.uno.model.card.Card;
+import it.uniroma1.mdp.uno.model.card.CardType;
 import it.uniroma1.mdp.uno.model.player.HumanPlayer;
 import it.uniroma1.mdp.uno.model.player.Player;
 import it.uniroma1.mdp.uno.model.player.Player.PlayerType;
@@ -78,12 +79,31 @@ public class BoardView extends BorderPane {
             drawPile.setDisable(true);
         }
         
-        
         drawPile.setOnAction(event -> {
-            if(drawPile.isDisabled() == false) {
+            if (drawPile.isDisabled() == false) {
                 System.out.println("Il giocatore ha pescato una carta");
                 game.drawIfNotPlayed(currentPlayer);
                 currentPlayer.setHasDrawn(true);
+                refreshBoard();
+            }
+        });
+        
+        // BOTTONE GIOCA CARTE
+        Button playCardsBtn = new Button("Gioca");
+        playCardsBtn.getStyleClass().add("casino-button");
+        playCardsBtn.setPrefSize(90, 90);
+        playCardsBtn.setStyle("-fx-font-size: 15px; -fx-font-weight: bold; -fx-background-radius: 36; -fx-padding: 5");
+        
+        // Disabilitato se non è il turno del giocatore umano
+        if (currentPlayer.getPlayerType() != PlayerType.HUMAN) {
+            playCardsBtn.setDisable(true);
+        }
+        
+        playCardsBtn.setOnAction(event -> {
+            if (currentPlayer.getPlayerType() == PlayerType.HUMAN) {
+                System.out.println("Il giocatore ha deciso di giocare le carte selezionate");
+                HumanPlayer currentHumanPlayer = (HumanPlayer) currentPlayer;
+                game.processTurn(currentHumanPlayer, currentHumanPlayer.playTurn(null));
                 refreshBoard();
             }
         });
@@ -102,7 +122,7 @@ public class BoardView extends BorderPane {
         }
         
         passTurnBtn.setOnAction(event -> {
-            if(currentPlayer.getPlayerType() == PlayerType.HUMAN) {
+            if (currentPlayer.getPlayerType() == PlayerType.HUMAN) {
                 System.out.println("Il giocatore ha deciso di saltare il turno");
                 game.nextTurn();
                 refreshBoard();
@@ -113,58 +133,66 @@ public class BoardView extends BorderPane {
         Card topDiscard = game.getDiscardPile().getTopCard();
         if (topDiscard != null) {
             CardView discardView = new CardView(topDiscard, true);
-            // Ordine: Pesca -> Carta Scartata -> Passa
-            centerAreaBox.getChildren().addAll(drawPile, discardView, passTurnBtn);
+            // Ordine: Pesca -> Gioca -> Carta Scartata -> Passa
+            centerAreaBox.getChildren().addAll(drawPile, playCardsBtn, discardView, passTurnBtn);
         } else {
-            centerAreaBox.getChildren().addAll(drawPile, passTurnBtn);
+            centerAreaBox.getChildren().addAll(drawPile, playCardsBtn, passTurnBtn);
         }
 
         // -- DISEGNA IN BASSO SOLO LE CARTE DEL GIOCATORE CORRENTE --
         if (currentPlayer != null) {
             for (Card card : currentPlayer.getHand().getAllCardsCopy()) {
                 // Le carte del giocatore di turno sono sempre scoperte (isFaceUp = true) se il giocatore è umano. Se è un bot sono coperte. 
-            	CardView cardView;
-            	if(currentPlayer.getPlayerType() == PlayerType.HUMAN) {
-            		cardView = new CardView(card, true); 
-            	} else {
-            		cardView = new CardView(card, false); 
-            	}
-            	
-            	//dopo che un giocatore ha pescato una carta, può giocare solo quella carta. Impedisce al giocatore di giocare carte che non siano la carta pescata.
-            	if(currentPlayer.getHasDrawn() == true) {
-            		if(cardView.getCard().getDrawn() != true) {
-            			cardView.setDisable(true);
-                		cardView.setDisabledEffect(true);
-            		}
-            	}
+                CardView cardView;
+                if (currentPlayer.getPlayerType() == PlayerType.HUMAN) {
+                    cardView = new CardView(card, true); 
+                } else {
+                    cardView = new CardView(card, false); 
+                }
                 
-            	//impedisce all'utente di interagire con le carte se è il turno di un bot
-            	if(currentPlayer.getPlayerType() == PlayerType.HUMAN) {
-            		cardView.setOnMouseEntered(e -> cardView.setTranslateY(-15));
-            		cardView.setOnMouseExited(e -> cardView.setTranslateY(0));
-            	} else {
-            		cardView.setDisable(true);
-            		cardView.setDisabledEffect(true);
-            	}
-            	
-            	//impedisce all'utente di interagire con le carte che non possono essere giocate al momento
-            	if(cardView.getCard().isPlayableOn(topDiscard) != true) {
-            		cardView.setDisable(true);
-            		cardView.setDisabledEffect(true);
-            	}
-            	
-            	
+                // Dopo che un giocatore ha pescato una carta, può giocare solo quella carta. Impedisce al giocatore di giocare carte che non siano la carta pescata.
+                if (currentPlayer.getHasDrawn() == true) {
+                    if (cardView.getCard().getDrawn() != true) {
+                        cardView.setDisable(true);
+                        cardView.setDisabledEffect(true);
+                    }
+                }
+                
+                // Impedisce all'utente di interagire con le carte se è il turno di un bot
+                if (currentPlayer.getPlayerType() == PlayerType.HUMAN) {
+                    cardView.setOnMouseEntered(e -> cardView.setTranslateY(-15));
+                    cardView.setOnMouseExited(e -> cardView.setTranslateY(0));
+                } else {
+                    cardView.setDisable(true);
+                    cardView.setDisabledEffect(true);
+                }
+                
+                // Impedisce all'utente di interagire con le carte che non possono essere giocate sulla carta in cima al discardPile
+                if (cardView.getCard().isPlayableOn(topDiscard) != true) {
+                    cardView.setDisable(true);
+                    cardView.setDisabledEffect(true);
+                }               
+                
                 cardView.setOnMouseClicked(e -> {
                     // Controlla che il giocatore di turno sia umano prima di far valere il click
+                    HumanPlayer currentHumanPlayer = (HumanPlayer) currentPlayer;
                     if (cardView.isDisabled() == false) {
-                    	HumanPlayer currentHumanPlayer = (HumanPlayer) currentPlayer;
-                    	if (cardView.getSelected() == false) {
-	                    	currentHumanPlayer.getSelectedCardsFromUI().add(card);
-	                    	cardView.setSelectedEffect(true);
-                    	} else {
-                    		currentHumanPlayer.getSelectedCardsFromUI().remove(card);
-                    		cardView.setSelectedEffect(false);
-                    	}
+                        if (cardView.getSelected() == false) {
+                            if (currentHumanPlayer.getSelectedCardsFromUI().size() == 0) {
+                                currentHumanPlayer.getSelectedCardsFromUI().add(card);
+                                cardView.setSelectedEffect(true);
+                            }
+                            
+                            if (game.getRuleSet().getNumberRush() == true) {
+                                if (cardView.getCard().getType() == CardType.NUMBER && currentHumanPlayer.isSelectedCardsOnlyNumbers() == true) {
+                                    currentHumanPlayer.getSelectedCardsFromUI().add(card);
+                                    cardView.setSelectedEffect(true);
+                                }
+                            }
+                        } else {
+                            currentHumanPlayer.getSelectedCardsFromUI().remove(card);
+                            cardView.setSelectedEffect(false);
+                        }
                     }
                 });
                 
