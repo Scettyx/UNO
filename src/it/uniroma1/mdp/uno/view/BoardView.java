@@ -3,6 +3,7 @@ package it.uniroma1.mdp.uno.view;
 import it.uniroma1.mdp.uno.model.game.GameEngine;
 import it.uniroma1.mdp.uno.model.card.Card;
 import it.uniroma1.mdp.uno.model.card.CardType;
+import it.uniroma1.mdp.uno.model.deck.DiscardPile;
 import it.uniroma1.mdp.uno.model.player.HumanPlayer;
 import it.uniroma1.mdp.uno.model.player.Player;
 import it.uniroma1.mdp.uno.model.player.Player.PlayerType;
@@ -82,8 +83,8 @@ public class BoardView extends BorderPane {
         drawPile.setOnAction(event -> {
             if (drawPile.isDisabled() == false) {
                 System.out.println("Il giocatore ha pescato una carta");
-                game.drawIfNotPlayed(currentPlayer);
-                currentPlayer.setHasDrawn(true);
+                HumanPlayer currentHumanPlayer = (HumanPlayer) currentPlayer;
+                currentHumanPlayer.drawOnTurn(game);
                 refreshBoard();
             }
         });
@@ -103,7 +104,7 @@ public class BoardView extends BorderPane {
             if (currentPlayer.getPlayerType() == PlayerType.HUMAN) {
                 System.out.println("Il giocatore ha deciso di giocare le carte selezionate");
                 HumanPlayer currentHumanPlayer = (HumanPlayer) currentPlayer;
-                game.processTurn(currentHumanPlayer, currentHumanPlayer.playTurn(null));
+                game.processTurn(currentHumanPlayer, currentHumanPlayer.playTurn(game.getDiscardPile().getTopCard()));
                 refreshBoard();
             }
         });

@@ -5,6 +5,7 @@ import java.util.List;
 
 import it.uniroma1.mdp.uno.model.card.Card;
 import it.uniroma1.mdp.uno.model.card.CardType;
+import it.uniroma1.mdp.uno.model.game.GameEngine;
 
 /**
  * Classe di un giocatore umano.
@@ -46,6 +47,16 @@ public class HumanPlayer extends Player{
 		List<Card> toPlay = new ArrayList<>(selectedCardsFromUI);
 		selectedCardsFromUI.clear();
 		return toPlay;
+	}
+	
+	/**
+	 * Metodo per far pescare una carta al giocatore durante il suo turno
+	 * @param game
+	 */
+	public void drawOnTurn(GameEngine game) {
+		selectedCardsFromUI.clear();
+		game.drawIfNotPlayed(this);
+		this.setHasDrawn(true);
 	}
 	
 
