@@ -218,15 +218,10 @@ public class GameEngine {
 	 * @param current
 	 * @param playedCard
 	 */
-	public Card drawIfNotPlayed(Player current, List<Card> playedCards) {
-		for (Card i : playedCards) { //porcodio non funziona
-        	playedCards.remove(i);
-        }
-		if (playedCards.size() == 0 && current.getHasDrawn() == false) {
+	public Card drawIfNotPlayed(Player current) {
+		if (current.getHasDrawn() == false) {
 			current.setHasDrawn(true);
-			return deck.drawFromTopCard(current.getHand(), 0); 
-			// da aggiungere una limitazione: il giocatore in questo caso può giocare solo la carta che ha pescato ora
-			// (se hasDrawn = true, può giocare solo l'ultima carta pescata)											
+			return deck.drawFromTopCard(current.getHand(), 0); 											
 		}
 		return null;
 	}

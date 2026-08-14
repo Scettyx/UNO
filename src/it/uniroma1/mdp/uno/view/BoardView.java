@@ -80,11 +80,9 @@ public class BoardView extends BorderPane {
         
         
         drawPile.setOnAction(event -> {
-            if(currentPlayer.getPlayerType() == PlayerType.HUMAN) {
+            if(drawPile.isDisabled() == false) {
                 System.out.println("Il giocatore ha pescato una carta");
-                HumanPlayer currentHumanPlayer = (HumanPlayer) currentPlayer;
-                
-                game.drawIfNotPlayed(currentPlayer, currentHumanPlayer.getSelectedCardsFromUI());
+                game.drawIfNotPlayed(currentPlayer);
                 currentPlayer.setHasDrawn(true);
                 refreshBoard();
             }
