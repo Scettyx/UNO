@@ -12,8 +12,8 @@
     -fx-background-repeat: no-repeat;
 }
 
-/* PANNELLO CENTRALE (Casino Card / Frame) */
-.casino-card {
+/* PANNELLO CENTRALE (Frame Menu) */
+.menu-card {
     -fx-background-color: rgba(12, 24, 16, 0.82);
     -fx-background-radius: 20px;
     -fx-border-color: linear-gradient(to bottom right, #ffe082, #d4af37, #8a6d1c);
@@ -39,15 +39,15 @@
     -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.9), 5, 0, 1, 2);
 }
 
-.casino-label {
+.menu-label {
     -fx-font-family: 'Segoe UI', sans-serif;
     -fx-font-size: 15px;
     -fx-font-weight: bold;
     -fx-text-fill: #f0f0f0;
 }
 
-/* BOTTONI PRINCIPALI (Gold/Red Casino Style) */
-.casino-button {
+/* BOTTONI PRINCIPALI */
+.menu-button {
     -fx-background-color: linear-gradient(to bottom, #d32f2f, #9a0007);
     -fx-text-fill: #ffffff;
     -fx-font-family: 'Segoe UI', sans-serif;
@@ -62,20 +62,20 @@
     -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.5), 8, 0, 0, 4);
 }
 
-.casino-button:hover {
+.menu-button:hover {
     -fx-background-color: linear-gradient(to bottom, #f44336, #c62828);
     -fx-border-color: #ffffff;
     -fx-effect: dropshadow(three-pass-box, rgba(255, 215, 0, 0.6), 12, 0, 0, 4);
 }
 
-.casino-button-primary {
+.menu-button-primary {
     -fx-background-color: linear-gradient(to bottom, #ffb300, #c67c00);
     -fx-text-fill: #1a0f00;
     -fx-font-size: 20px;
     -fx-padding: 12px 35px;
 }
 
-.casino-button-primary:hover {
+.menu-button-primary:hover {
     -fx-background-color: linear-gradient(to bottom, #ffca28, #ffa000);
     -fx-text-fill: #000000;
 }

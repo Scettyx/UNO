@@ -17,6 +17,9 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 
+/**
+ * @author Massimo Giorgini (M.2234123)
+ */
 public class BoardView extends BorderPane {
 
     private final GameEngine game;
@@ -30,7 +33,7 @@ public class BoardView extends BorderPane {
         this.game = game;
         
         // Mantiene lo stile "Casinò" impostato in MainApp
-        getStyleClass().add("menu-bg"); 
+        getStyleClass().add("table-bg"); 
         
         setupLayout();
         refreshBoard(); // Disegna lo stato iniziale della partita
@@ -72,7 +75,7 @@ public class BoardView extends BorderPane {
         
         // BOTTONE PESCA
         Button drawPile = new Button("Pesca"); 
-        drawPile.getStyleClass().add("casino-button");
+        drawPile.getStyleClass().add("menu-button");
         drawPile.setPrefSize(90, 90); 
         drawPile.setStyle("-fx-font-size: 15px; -fx-font-weight: bold; -fx-background-radius: 36; -fx-padding: 5");
         
@@ -91,7 +94,7 @@ public class BoardView extends BorderPane {
         
         // BOTTONE GIOCA CARTE
         Button playCardsBtn = new Button("Gioca");
-        playCardsBtn.getStyleClass().add("casino-button");
+        playCardsBtn.getStyleClass().add("menu-button");
         playCardsBtn.setPrefSize(90, 90);
         playCardsBtn.setStyle("-fx-font-size: 15px; -fx-font-weight: bold; -fx-background-radius: 36; -fx-padding: 5");
         
@@ -111,7 +114,7 @@ public class BoardView extends BorderPane {
         
         // BOTTONE SALTA TURNO
         Button passTurnBtn = new Button("Passa");
-        passTurnBtn.getStyleClass().add("casino-button");
+        passTurnBtn.getStyleClass().add("menu-button");
         passTurnBtn.setPrefSize(90, 90);
         passTurnBtn.setStyle("-fx-font-size: 15px; -fx-font-weight: bold; -fx-background-radius: 36; -fx-padding: 5");
         

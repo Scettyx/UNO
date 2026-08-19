@@ -12,7 +12,9 @@ import javafx.scene.paint.Color;
 
 import java.net.URL;
 
-
+/**
+ * @author Massimo Giorgini (M.2234123)
+ */
 public class CardView extends StackPane {
 
     private final Card card;

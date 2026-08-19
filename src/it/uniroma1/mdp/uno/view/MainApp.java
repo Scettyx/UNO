@@ -50,7 +50,7 @@ public class MainApp extends Application {
             scene.getStylesheets().add(cssUrl.toExternalForm());
         }
 
-        primaryStage.setTitle("UNO Game - Casino Edition");
+        primaryStage.setTitle("UNO Game");
         primaryStage.setScene(scene);
         primaryStage.show();
     }
@@ -61,14 +61,14 @@ public class MainApp extends Application {
     private void showMainMenu() {
         VBox menuCard = new VBox(25);
         menuCard.setAlignment(Pos.CENTER);
-        menuCard.getStyleClass().add("casino-card");
+        menuCard.getStyleClass().add("menu-card");
         menuCard.setMaxSize(450, 300);
         
         Label titleLabel = new Label("UNO");
         titleLabel.getStyleClass().add("title-main");
 
         Button startButton = new Button("INIZIA PARTITA");
-        startButton.getStyleClass().addAll("casino-button", "casino-button-primary");
+        startButton.getStyleClass().addAll("menu-button", "menu-button-primary");
         
         // Al click, passa al menu di configurazione
         startButton.setOnAction(e -> showMenuConfig());
@@ -86,7 +86,7 @@ public class MainApp extends Application {
     private void showMenuConfig() {
         VBox configCard = new VBox(20);
         configCard.setAlignment(Pos.CENTER);
-        configCard.getStyleClass().add("casino-card");
+        configCard.getStyleClass().add("menu-card");
         configCard.setMaxWidth(600);
 
         Label titleLabel = new Label("IMPOSTAZIONI PARTITA");
@@ -95,7 +95,7 @@ public class MainApp extends Application {
         HBox typeBox = new HBox(15);
         typeBox.setAlignment(Pos.CENTER);
         Label typeLabel = new Label("Tipo di Partita:");
-        typeLabel.getStyleClass().add("casino-label");
+        typeLabel.getStyleClass().add("menu-label");
         
         ComboBox<String> typeCombo = new ComboBox<>();
         typeCombo.getItems().addAll("Seleziona...", "Partita Normale", "Simulazione");
@@ -120,7 +120,7 @@ public class MainApp extends Application {
 
         // Bottone per tornare indietro al menu principale
         Button backButton = new Button("Torna Indietro");
-        backButton.getStyleClass().addAll("casino-button", "back-button");
+        backButton.getStyleClass().addAll("menu-button", "back-button");
         backButton.setOnAction(e -> showMainMenu());
 
         configCard.getChildren().addAll(titleLabel, typeBox, dynamicOptionsBox, backButton);
@@ -141,7 +141,7 @@ public class MainApp extends Application {
         HBox playersBox = new HBox(10);
         playersBox.setAlignment(Pos.CENTER);
         Label playersLabel = new Label("Numero Bot:");
-        playersLabel.getStyleClass().add("casino-label");
+        playersLabel.getStyleClass().add("menu-label");
         
         ComboBox<Integer> playersCombo = new ComboBox<>();
         playersCombo.getItems().addAll(2, 3, 4, 5, 6);
@@ -157,7 +157,7 @@ public class MainApp extends Application {
         playersCombo.setOnAction(e -> updateSimulationFields(namesBox, playersCombo.getValue()));
 
         Button startSimButton = new Button("AVVIA SIMULAZIONE");
-        startSimButton.getStyleClass().add("casino-button");
+        startSimButton.getStyleClass().add("menu-button");
         startSimButton.setOnAction(e -> {
             System.out.println("Avvio Simulazione con " + playersCombo.getValue() + " bot.");
             System.out.println("Stacking: " + stackCheck.isSelected() + " | Number Rush: " + rushCheck.isSelected());
@@ -227,7 +227,7 @@ public class MainApp extends Application {
         HBox modeBox = new HBox(10);
         modeBox.setAlignment(Pos.CENTER);
         Label modeLabel = new Label("Modalità:");
-        modeLabel.getStyleClass().add("casino-label");
+        modeLabel.getStyleClass().add("menu-label");
         
         ComboBox<String> modeCombo = new ComboBox<>();
         modeCombo.getItems().addAll("Singola", "A punti");
@@ -245,7 +245,7 @@ public class MainApp extends Application {
                 HBox row = new HBox(10);
                 row.setAlignment(Pos.CENTER);
                 Label thresholdLabel = new Label("Soglia di Vittoria:");
-                thresholdLabel.getStyleClass().add("casino-label");
+                thresholdLabel.getStyleClass().add("menu-label");
                 
                 TextField thresholdField = new TextField("500");
                 thresholdField.setMaxWidth(80);
@@ -263,7 +263,7 @@ public class MainApp extends Application {
         HBox playersBox = new HBox(10);
         playersBox.setAlignment(Pos.CENTER);
         Label playersLabel = new Label("Numero Giocatori:");
-        playersLabel.getStyleClass().add("casino-label");
+        playersLabel.getStyleClass().add("menu-label");
         
         ComboBox<Integer> playersCombo = new ComboBox<>();
         playersCombo.getItems().addAll(2, 3, 4, 5, 6);
@@ -279,7 +279,7 @@ public class MainApp extends Application {
         playersCombo.setOnAction(e -> updateNormalFields(namesBox, playersCombo.getValue()));
 
         Button startNormalButton = new Button("AVVIA PARTITA");
-        startNormalButton.getStyleClass().add("casino-button");
+        startNormalButton.getStyleClass().add("menu-button");
         startNormalButton.setOnAction(e -> {
             System.out.println("Avvio Partita Normale (" + modeCombo.getValue() + ") con " + playersCombo.getValue() + " giocatori.");
             System.out.println("Stacking: " + stackCheck.isSelected() + " | Number Rush: " + rushCheck.isSelected());
@@ -387,7 +387,7 @@ public class MainApp extends Application {
             row.setAlignment(Pos.CENTER);
             
             Label label = new Label("Nome Bot " + i + ":");
-            label.getStyleClass().add("casino-label");
+            label.getStyleClass().add("menu-label");
             
             TextField nameField = new TextField("Bot " + i);
             nameField.setMaxWidth(120);
@@ -413,7 +413,7 @@ public class MainApp extends Application {
             row.setAlignment(Pos.CENTER);
             
             Label label = new Label("G" + playerIndex + ":");
-            label.getStyleClass().add("casino-label");
+            label.getStyleClass().add("menu-label");
             
             ComboBox<String> typeCombo = new ComboBox<>();
             typeCombo.getItems().addAll("Umano", "Bot");
