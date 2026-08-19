@@ -21,7 +21,6 @@ import it.uniroma1.mdp.uno.model.rules.RuleSet;
 
 public class GameEngine {
 
-
 	private GameMode gameMode;
 	private RuleSet ruleSet;
 	private CardColor currentColor;
@@ -29,6 +28,7 @@ public class GameEngine {
 	private Player[] playerList;
 	private Deck deck;
 	private DiscardPile discardPile;
+	private int pendingDrawPenalty = 0;
 	boolean direction;
 
 	public GameEngine(Player[] plist, GameMode gameMode, RuleSet ruleSet) {
@@ -42,11 +42,11 @@ public class GameEngine {
 		currentColor = null;
 
 	}
-	
+
 	public RuleSet getRuleSet() {
 		return ruleSet;
 	}
-	
+
 	public GameMode getGameMode() {
 		return gameMode;
 	}
@@ -86,7 +86,7 @@ public class GameEngine {
 	public int getCurrentPlayerIndex() {
 		return currentPlayer;
 	}
-	
+
 	/**
 	 * Ritorna il giocatore corrente.
 	 * 
@@ -154,13 +154,14 @@ public class GameEngine {
 	 * Questo metodo sposta il turno avanti.
 	 */
 	public void nextTurn() {
-		//Se il giocatore ha pescato una carte nel turno precedente, gli viene rimosso lo status che ha pescato.
+		// Se il giocatore ha pescato una carte nel turno precedente, gli viene rimosso
+		// lo status che ha pescato.
 		playerList[currentPlayer].setHasDrawn(false);
-		if(playerList[currentPlayer].getPlayerType() == PlayerType.HUMAN) {
+		if (playerList[currentPlayer].getPlayerType() == PlayerType.HUMAN) {
 			HumanPlayer currentHumanPlayer = (HumanPlayer) playerList[currentPlayer];
 			currentHumanPlayer.getSelectedCardsFromUI().clear();
 		}
-		for(Card i : playerList[currentPlayer].getHand().getAllCards()) {
+		for (Card i : playerList[currentPlayer].getHand().getAllCards()) {
 			i.setDrawn(false);
 		}
 		if (direction) {
@@ -227,7 +228,7 @@ public class GameEngine {
 	public Card drawIfNotPlayed(Player current) {
 		if (current.getHasDrawn() == false) {
 			current.setHasDrawn(true);
-			return deck.drawFromTopCard(current.getHand(), 0); 											
+			return deck.drawFromTopCard(current.getHand(), 0);
 		}
 		return null;
 	}
@@ -280,12 +281,12 @@ public class GameEngine {
 			initializeRound();
 		}
 	}
-	
+
 	/**
 	 * Metodo per mettere la prima carta del deck nel discardPile.
 	 */
 	public void firstDiscardCard() {
-		int i = 0; 
+		int i = 0;
 		while (discardPile.isEmpty()) {
 			if (deck.getTopCard(i).getType() == CardType.NUMBER) {
 				deck.drawFromTopCard(discardPile, i);
@@ -308,7 +309,7 @@ public class GameEngine {
 			deck.drawCardRandom(getPlayerList()[i].getHand(), 7);
 		}
 	}
-	
+
 	public void initializeRound() {
 		distributeCards();
 		firstDiscardCard();
@@ -318,45 +319,91 @@ public class GameEngine {
 	 * Gestisce la logica dei Round nella partita.
 	 */
 	public void processTurn(Player current, List<Card> playedCards) {
+		if (ruleSet.getStackDrawCards() && pendingDrawPenalty > 0) {
+			boolean stacked = false;
+
+			if (playedCards.size() > 0) {
+				Card firstPlayed = playedCards.get(0);
+
+				if (firstPlayed.getType() == CardType.DRAW_TWO || firstPlayed.getType() == CardType.WILD_DRAW_FOUR) {
+					stacked = true;
+				}
+			}
+
+			if (!stacked) {
+				deck.drawCardRandom(current.getHand(), pendingDrawPenalty);
+				pendingDrawPenalty = 0;
+
+				if (playedCards.isEmpty()) {
+					nextTurn();
+					return;
+				}
+			}
+		}
+
 		if (playedCards.size() != 0) {
 			for (Card playedCard : playedCards) {
 				current.getHand().playCard(playedCard, discardPile);
 				currentColor = playedCard.getActiveColor();
-	
+
 				// meccaniche dichiarazione UNO
 				checkUnoDeclaration(current);
-				
+
 				discardPile.addCard(playedCard);
 				current.getHand().getAllCards().remove(playedCard);
-				
+
 				// effetti legati a carte speciali
 				switch (playedCard.getType()) {
 					case REVERSE:
 						direction = !direction;
 						break;
+
 					case SKIP:
 						nextTurn();
 						break;
+
 					case DRAW_TWO:
-						nextTurn();
-						deck.drawCardRandom(current.getHand(), 2);
+						if (ruleSet.getStackDrawCards()) {
+							pendingDrawPenalty = +2;
+						} else {
+							nextTurn();
+							deck.drawCardRandom(getPlayerList()[currentPlayer].getHand(), 2);
+						}
 						break;
+
 					case WILD:
-						currentColor = playedCard.getActiveColor(); // implementa che il giocatore dovrà scegliere il colore attivo
-						break;											
+						// Si forza il rosso
+						if (playedCard.getActiveColor() == CardColor.NONE || playedCard.getActiveColor() == null) {
+							playedCard.setChosenColor(CardColor.RED);
+						}
+						currentColor = playedCard.getActiveColor(); // implementa che il giocatore dovrà scegliere il
+																	// colore attivo
+						break;
+
 					case WILD_DRAW_FOUR:
-						if (current.getIsChallenged() == true) { // controlla se il giocatore è stato sfidato dopo il
-																	// lancio del Wild Draw Four
+						if (current.getIsChallenged()) { // controlla se il giocatore è stato sfidato dopo il
+															// lancio del Wild Draw Four
 							WildDrawFourChallenge(playedCard, current);
 						} else { // se il giocatore non è stato sfidato dopo un Wild Draw Four, il prossimo
 									// giocatore pesca le 4 carte normalmente.
-							nextTurn();
-							deck.drawCardRandom(getPlayerList()[currentPlayer].getHand(), 4);
+							if (ruleSet.getStackDrawCards()) {
+								pendingDrawPenalty = +4;
+							} else {
+								nextTurn();
+								deck.drawCardRandom(getPlayerList()[currentPlayer].getHand(), 4);
+							}
 						}
-						currentColor = playedCard.getActiveColor(); // implementa che il giocatore dovrà scegliere il colore attivo
+
+						if (playedCard.getActiveColor() == CardColor.NONE || playedCard.getActiveColor() == null) {
+							playedCard.setChosenColor(CardColor.RED);
+						}
+						currentColor = playedCard.getActiveColor(); // implementa che il giocatore dovrà scegliere il
+																	// colore attivo
 						break;
+
 					case NUMBER:
 						break;
+
 					default:
 						break;
 				}
@@ -378,9 +425,9 @@ public class GameEngine {
 			if (gameMode.getPointMatch() == true) {
 				gameWinConditions();
 			}
-			return; 
+			return;
 		}
-		
+
 		nextTurn();
 	}
 }

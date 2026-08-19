@@ -1,5 +1,7 @@
 package it.uniroma1.mdp.uno.model.card;
 
+import java.util.Random;
+
 /**
  * Enumerazione per ogni tipo di colore delle carte
  * 
@@ -19,5 +21,20 @@ public enum CardColor {
      */
     public boolean isRealColor() {
         return this != NONE;
+    }
+
+    /**
+     * Restituisce un colore scelto casualmente
+     * 
+     * @return un CardColor casuale
+     */
+    public static CardColor getRandomColor() {
+        CardColor[] validColors = {
+            RED,
+            BLUE,
+            GREEN,
+            YELLOW
+        };
+        return validColors[new Random().nextInt(validColors.length)];
     }
 }

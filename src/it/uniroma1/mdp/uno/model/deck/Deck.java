@@ -3,7 +3,6 @@ package it.uniroma1.mdp.uno.model.deck;
 import it.uniroma1.mdp.uno.model.card.*;
 
 import java.util.Random;
-import java.util.ArrayList;
 
 /**
  * Rappresenta il mazzo principale di Carte sul tavolo, da cui verranno
