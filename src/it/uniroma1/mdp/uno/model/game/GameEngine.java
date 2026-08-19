@@ -372,9 +372,9 @@ public class GameEngine {
 						break;
 
 					case WILD:
-						// Si forza il rosso
+						// Si prende un colore casuale se non si sceglie
 						if (playedCard.getActiveColor() == CardColor.NONE || playedCard.getActiveColor() == null) {
-							playedCard.setChosenColor(CardColor.RED);
+							playedCard.setChosenColor(CardColor.getRandomColor());
 						}
 						currentColor = playedCard.getActiveColor(); // implementa che il giocatore dovrà scegliere il
 																	// colore attivo
@@ -394,8 +394,9 @@ public class GameEngine {
 							}
 						}
 
+						// Si prende un colore casuale se non si sceglie
 						if (playedCard.getActiveColor() == CardColor.NONE || playedCard.getActiveColor() == null) {
-							playedCard.setChosenColor(CardColor.RED);
+							playedCard.setChosenColor(CardColor.getRandomColor());
 						}
 						currentColor = playedCard.getActiveColor(); // implementa che il giocatore dovrà scegliere il
 																	// colore attivo
