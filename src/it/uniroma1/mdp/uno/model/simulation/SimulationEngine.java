@@ -8,6 +8,7 @@ import it.uniroma1.mdp.uno.model.rules.RuleSet;
 
 /**
  * Classe per la simulazione di una partita tra bot.
+ * 
  * @author Massimo Giorgini (M.2234123)
  */
 public class SimulationEngine extends GameEngine{

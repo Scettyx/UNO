@@ -26,6 +26,7 @@ public class GameAction {
         this.unoCalled = false;
         this.challengeCalled = false;
         this.challengeSucceded = false;
+        this.cardsInvolved = new ArrayList<>();
     }
 
     /**

@@ -36,7 +36,7 @@ public abstract class Player {
 
 	/**
 	 * Safe: al giocatore non è richiesto dover dichiarare UNO
-	 * Called: il giocatore non ha dichiarato UNO e deve pescare due carte. 
+	 * Called: il giocatore non ha dichiarato UNO e deve pescare due carte.
 	 * Unsafe: al giocatore è richiesto dover dichiarare UNO e non l'ha ancora fatto
 	 */
 	public enum UNOState {
@@ -68,17 +68,18 @@ public abstract class Player {
 		isChallenged = false;
 		hasDrawn = false;
 	}
-	
-	
+
 	/**
-	 * il giocatore pesca due carte se non ha dichiarato UNO e un altro giocatore lo richiama
+	 * il giocatore pesca due carte se non ha dichiarato UNO e un altro giocatore lo
+	 * richiama
+	 * 
 	 * @param current
 	 * @param deck
 	 */
 	public void notDeclared(Player current, Deck deck) {
 		deck.drawCardRandom(current.getHand(), 2);
 	}
-	
+
 	/**
 	 * 
 	 * @param card la carta su cui verrà giocato il wild draw four
@@ -93,7 +94,7 @@ public abstract class Player {
 		}
 		return legal;
 	}
-	
+
 	/**
 	 * 
 	 * @return ritorna true se il giocatore è stato sfidato dopo un Wild Draw Four
@@ -101,10 +102,11 @@ public abstract class Player {
 	public boolean getIsChallenged() {
 		return isChallenged;
 	}
-	
+
 	/**
 	 * 
-	 * @param value true se il giocatore è stato sfidato dopo un Wild Draw Four, false se altrimenti
+	 * @param value true se il giocatore è stato sfidato dopo un Wild Draw Four,
+	 *              false se altrimenti
 	 */
 	public void setIsChallenged(boolean value) {
 		isChallenged = value;
@@ -137,16 +139,18 @@ public abstract class Player {
 	/**
 	 * Definisce la logica con cui il giocatore sceglie quale carta/e giocare.
 	 * Essendo un metodo astratto, viene implementato diversamente per Bot e Umani.
-	 * il playTurn dovrà ritornare una lista di carte, perchè in caso il number rush sia attivo deve poter ritornare più carte. 
+	 * il playTurn dovrà ritornare una lista di carte, perchè in caso il number rush
+	 * sia attivo deve poter ritornare più carte.
 	 * Se il number rush non è attivo, la lista sarà composta da una sola carta
 	 * 
 	 * @param topDiscard la carta attualmente in cima alla pila degli scarti
-	 * @return la carta/e scelta dal giocatore, oppure null se decide o è obbligato a
+	 * @return la carta/e scelta dal giocatore, oppure null se decide o è obbligato
+	 *         a
 	 *         pescare
 	 */
 	//
 	//
-	public abstract List<Card> playTurn(Card topDiscard); 
+	public abstract List<Card> playTurn(Card topDiscard);
 
 	/**
 	 * Ritorna il nome del giocatore.
@@ -174,7 +178,7 @@ public abstract class Player {
 	public int getTotalScore() {
 		return totalScore;
 	}
-	
+
 	/**
 	 * Aggiorna il punteggio totale
 	 * 
@@ -192,7 +196,7 @@ public abstract class Player {
 	public int getCurrentRoundScore() {
 		return currentRoundScore;
 	}
-	
+
 	/**
 	 * Aggiorna il punteggio del round corrente
 	 * 
@@ -201,7 +205,7 @@ public abstract class Player {
 	public void setCurrentRoundScore(int amount) {
 		currentRoundScore = currentRoundScore + amount;
 	}
-	
+
 	public void resetCurrentRoundScore() {
 		currentRoundScore = 0;
 	}
@@ -223,18 +227,22 @@ public abstract class Player {
 	public PlayerType getPlayerType() {
 		return playerType;
 	}
-	
+
 	/**
 	 * 
-	 * @return true se il giocatore ha pescato una carta nel suo turno dopo non aver giocato una carta
+	 * @return true se il giocatore ha pescato una carta nel suo turno dopo non aver
+	 *         giocato una carta
 	 */
 	public boolean getHasDrawn() {
 		return hasDrawn;
 	}
-	
+
 	/**
-	 * imposta qualora il giocatore abbia pescato una carta nel suo turno dopo non aver giocato una carta o meno
-	 * @param value true se il giocatore ha pescato una carta nel suo turno dopo non aver giocato una carta, false se non l'ha fatto. 
+	 * imposta qualora il giocatore abbia pescato una carta nel suo turno dopo non
+	 * aver giocato una carta o meno
+	 * 
+	 * @param value true se il giocatore ha pescato una carta nel suo turno dopo non
+	 *              aver giocato una carta, false se non l'ha fatto.
 	 */
 	public void setHasDrawn(boolean value) {
 		hasDrawn = value;
@@ -252,12 +260,13 @@ public abstract class Player {
 	/**
 	 * Imposta il giocatore come vincitore o perdente del round corrente.
 	 */
-	public void setWon(boolean value ) {
+	public void setWon(boolean value) {
 		wonRound = value;
 	}
 
 	/**
-	 * Aggiorna lo stato della dichiarazione di "UNO" del giocatore. Se è Called, il giocatore deve pescare due carte.
+	 * Aggiorna lo stato della dichiarazione di "UNO" del giocatore. Se è Called, il
+	 * giocatore deve pescare due carte.
 	 * 
 	 * @param newUnoState il nuovo stato da assegnare
 	 */
@@ -268,7 +277,7 @@ public abstract class Player {
 			unoState = UNOState.Safe;
 		}
 	}
-	
+
 	/**
 	 * Ritorna lo stato attuale della dichiarazione di "UNO" per il giocatore.
 	 * 

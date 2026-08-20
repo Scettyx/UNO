@@ -1,10 +1,12 @@
 package it.uniroma1.mdp.uno.model.game;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import it.uniroma1.mdp.uno.model.card.Card;
 import it.uniroma1.mdp.uno.model.card.CardColor;
 import it.uniroma1.mdp.uno.model.card.CardType;
+import it.uniroma1.mdp.uno.model.card.NumberCard;
 import it.uniroma1.mdp.uno.model.deck.Deck;
 import it.uniroma1.mdp.uno.model.deck.DiscardPile;
 import it.uniroma1.mdp.uno.model.player.HumanPlayer;
@@ -29,6 +31,7 @@ public class GameEngine {
 	private Deck deck;
 	private DiscardPile discardPile;
 	private int pendingDrawPenalty = 0;
+	private GameHistory gameHistory;
 	boolean direction;
 
 	public GameEngine(Player[] plist, GameMode gameMode, RuleSet ruleSet) {
@@ -40,7 +43,7 @@ public class GameEngine {
 		discardPile = new DiscardPile();
 		direction = true;
 		currentColor = null;
-
+		this.gameHistory = new GameHistory();
 	}
 
 	public RuleSet getRuleSet() {
@@ -151,6 +154,24 @@ public class GameEngine {
 	}
 
 	/**
+	 * Getter per il GameHystory
+	 * 
+	 * @return il GameHistory
+	 */
+	public GameHistory getGameHistory() {
+		return this.gameHistory;
+	}
+
+	public void contestUno(Player target) {
+		if (target.getUnoState() == Player.UNOState.Unsafe) {
+			target.setUnoState(Player.UNOState.Called, deck, target);
+			GameAction contestAction = new GameAction("System", "UNO_CONTEST");
+			contestAction.setChallenge(true, true);
+			gameHistory.addGameAction(contestAction);
+		}
+	}
+
+	/**
 	 * Questo metodo sposta il turno avanti.
 	 */
 	public void nextTurn() {
@@ -228,7 +249,11 @@ public class GameEngine {
 	public Card drawIfNotPlayed(Player current) {
 		if (current.getHasDrawn() == false) {
 			current.setHasDrawn(true);
-			return deck.drawFromTopCard(current.getHand(), 0);
+			Card drawnCard = deck.drawFromTopCard(current.getHand(), 0);
+			GameAction drawAction = new GameAction(current.getPlayerName(), "DRAW");
+			drawAction.addCardInvolved(drawnCard);
+			gameHistory.addGameAction(drawAction);
+			return drawnCard;
 		}
 		return null;
 	}
@@ -342,12 +367,38 @@ public class GameEngine {
 		}
 
 		if (playedCards.size() != 0) {
+			GameAction playAction = new GameAction(current.getPlayerName(), "PLAY");
+
+			if (ruleSet.getNumberRush() && current.getPlayerType() == PlayerType.BOT && playedCards.size() == 1) {
+				Card firstCard = playedCards.get(0);
+
+				if (firstCard.getType() == CardType.NUMBER) {
+					NumberCard numCard = (NumberCard) firstCard;
+					List<Card> handCards = new ArrayList<>(current.getHand().getAllCards());
+
+					for ( Card c : handCards) {
+
+						if (c != firstCard && c.getType() == CardType.NUMBER) {
+							NumberCard otherNum = (NumberCard) c;
+
+							if (otherNum.getValue() == numCard.getValue()) {
+								playedCards.add(otherNum);
+							}
+						}
+					}
+				}
+			}
+
 			for (Card playedCard : playedCards) {
 				current.getHand().playCard(playedCard, discardPile);
 				currentColor = playedCard.getActiveColor();
+				playAction.addCardInvolved(playedCard);
 
 				// meccaniche dichiarazione UNO
 				checkUnoDeclaration(current);
+				if (current.getUnoState() == Player.UNOState.Safe && current.getHand().getNumCards() == 1) {
+					playAction.setUnoCalled(true);
+				}
 
 				discardPile.addCard(playedCard);
 				current.getHand().getAllCards().remove(playedCard);
@@ -364,7 +415,7 @@ public class GameEngine {
 
 					case DRAW_TWO:
 						if (ruleSet.getStackDrawCards()) {
-							pendingDrawPenalty = +2;
+							pendingDrawPenalty += 2;
 						} else {
 							nextTurn();
 							deck.drawCardRandom(getPlayerList()[currentPlayer].getHand(), 2);
@@ -387,7 +438,7 @@ public class GameEngine {
 						} else { // se il giocatore non è stato sfidato dopo un Wild Draw Four, il prossimo
 									// giocatore pesca le 4 carte normalmente.
 							if (ruleSet.getStackDrawCards()) {
-								pendingDrawPenalty = +4;
+								pendingDrawPenalty += 4;
 							} else {
 								nextTurn();
 								deck.drawCardRandom(getPlayerList()[currentPlayer].getHand(), 4);
@@ -409,6 +460,8 @@ public class GameEngine {
 						break;
 				}
 			}
+			
+			gameHistory.addGameAction(playAction);
 		}
 
 		// Se il deck da cui si pescano le carte rimane vuoto, questo metodo sposta
