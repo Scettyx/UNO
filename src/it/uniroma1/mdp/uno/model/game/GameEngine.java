@@ -348,7 +348,7 @@ public class GameEngine {
 			boolean stacked = false;
 
 			if (playedCards.size() > 0) {
-				Card firstPlayed = playedCards.get(0);
+				Card firstPlayed = playedCards.getFirst();
 
 				if (firstPlayed.getType() == CardType.DRAW_TWO || firstPlayed.getType() == CardType.WILD_DRAW_FOUR) {
 					stacked = true;
@@ -370,7 +370,7 @@ public class GameEngine {
 			GameAction playAction = new GameAction(current.getPlayerName(), "PLAY");
 
 			if (ruleSet.getNumberRush() && current.getPlayerType() == PlayerType.BOT && playedCards.size() == 1) {
-				Card firstCard = playedCards.get(0);
+				Card firstCard = playedCards.getFirst();
 
 				if (firstCard.getType() == CardType.NUMBER) {
 					NumberCard numCard = (NumberCard) firstCard;
@@ -419,6 +419,7 @@ public class GameEngine {
 						} else {
 							nextTurn();
 							deck.drawCardRandom(getPlayerList()[currentPlayer].getHand(), 2);
+							previousTurn();
 						}
 						break;
 
@@ -432,8 +433,8 @@ public class GameEngine {
 						break;
 
 					case WILD_DRAW_FOUR:
-						if (current.getIsChallenged()) { // controlla se il giocatore è stato sfidato dopo il
-															// lancio del Wild Draw Four
+						// controlla se il giocatore è stato sfidato dopo il lancio del Wild Draw Four
+						if (current.getIsChallenged()) { 
 							WildDrawFourChallenge(playedCard, current);
 						} else { // se il giocatore non è stato sfidato dopo un Wild Draw Four, il prossimo
 									// giocatore pesca le 4 carte normalmente.
@@ -442,6 +443,7 @@ public class GameEngine {
 							} else {
 								nextTurn();
 								deck.drawCardRandom(getPlayerList()[currentPlayer].getHand(), 4);
+								previousTurn();
 							}
 						}
 
@@ -449,8 +451,8 @@ public class GameEngine {
 						if (playedCard.getActiveColor() == CardColor.NONE || playedCard.getActiveColor() == null) {
 							playedCard.setChosenColor(CardColor.getRandomColor());
 						}
-						currentColor = playedCard.getActiveColor(); // implementa che il giocatore dovrà scegliere il
-																	// colore attivo
+						currentColor = playedCard.getActiveColor(); // implementa che il giocatore dovrà scegliere il colore attivo
+																	
 						break;
 
 					case NUMBER:
