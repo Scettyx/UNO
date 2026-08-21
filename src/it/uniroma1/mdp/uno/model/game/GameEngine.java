@@ -264,34 +264,34 @@ public class GameEngine {
 	 * 
 	 */
 	public void setUnsafeUnoState(Player player) {
-		player.setUnoState(Player.UNOState.Unsafe, deck, player); 
+		player.setUnoState(Player.UNOState.Unsafe, deck, player);
 	}
-	
+
 	/**
 	 * Imposta lo stato della dichiarazione UNO a Safe (nel BoardView).
 	 * 
 	 */
 	public void setSafeUnoState(Player player) {
-		player.setUnoState(Player.UNOState.Safe, deck, player); 
+		player.setUnoState(Player.UNOState.Safe, deck, player);
 	}
-	
+
 	/**
 	 * Imposta lo stato della dichiarazione UNO a Called (nel BoardView).
 	 * 
 	 */
 	public void setCalledUnoState(Player player) {
-		player.setUnoState(Player.UNOState.Called, deck, player); 
+		player.setUnoState(Player.UNOState.Called, deck, player);
 	}
-	
+
 	/**
-	 * Metodo per far pescare le carte ai giocatori a cui è stata contestata la mancata dichiarazione di UNO.
+	 * Metodo per far pescare le carte ai giocatori a cui è stata contestata la
+	 * mancata dichiarazione di UNO.
 	 */
 	public void punishUnsafePlayers() {
-		for (Player p: playerList) {
+		for (Player p : playerList) {
 			setCalledUnoState(p);
 		}
 	}
-	
 
 	/**
 	 * le condizioni di vittoria di un ROUND in base alla modalità
@@ -399,7 +399,7 @@ public class GameEngine {
 					NumberCard numCard = (NumberCard) firstCard;
 					List<Card> handCards = new ArrayList<>(current.getHand().getAllCards());
 
-					for ( Card c : handCards) {
+					for (Card c : handCards) {
 
 						if (c != firstCard && c.getType() == CardType.NUMBER) {
 							NumberCard otherNum = (NumberCard) c;
@@ -453,7 +453,7 @@ public class GameEngine {
 
 					case WILD_DRAW_FOUR:
 						// controlla se il giocatore è stato sfidato dopo il lancio del Wild Draw Four
-						if (current.getIsChallenged()) { 
+						if (current.getIsChallenged()) {
 							WildDrawFourChallenge(playedCard, current);
 						} else { // se il giocatore non è stato sfidato dopo un Wild Draw Four, il prossimo
 									// giocatore pesca le 4 carte normalmente.
@@ -470,8 +470,9 @@ public class GameEngine {
 						if (playedCard.getActiveColor() == CardColor.NONE || playedCard.getActiveColor() == null) {
 							playedCard.setChosenColor(CardColor.getRandomColor());
 						}
-						currentColor = playedCard.getActiveColor(); // implementa che il giocatore dovrà scegliere il colore attivo
-																	
+						currentColor = playedCard.getActiveColor(); // implementa che il giocatore dovrà scegliere il
+																	// colore attivo
+
 						break;
 
 					case NUMBER:
@@ -481,7 +482,7 @@ public class GameEngine {
 						break;
 				}
 			}
-			
+
 			gameHistory.addGameAction(playAction);
 		}
 

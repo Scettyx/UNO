@@ -31,21 +31,21 @@ import javafx.util.Duration;
 public class BoardView extends BorderPane {
 
     private final GameEngine game;
-    
+
     private HBox playerHandBox;
     private HBox centerAreaBox;
     private VBox opponentsBox;
 
     public BoardView(GameEngine game) {
         this.game = game;
-        getStyleClass().add("table-bg"); 
-        
+        getStyleClass().add("table-bg");
+
         setupLayout();
-        refreshBoard(); 
+        refreshBoard();
     }
 
     private void setupLayout() {
-        playerHandBox = new HBox(-20); 
+        playerHandBox = new HBox(-20);
         playerHandBox.setAlignment(Pos.CENTER);
         playerHandBox.setPadding(new Insets(20));
         setBottom(playerHandBox);
@@ -66,22 +66,62 @@ public class BoardView extends BorderPane {
         opponentsBox.getChildren().clear();
 
         Player currentPlayer = game.getCurrentPlayer();
-        
-      //check per vedere se c'è qualcuno da punire per la mancata dichiarazione di UNO
-        if(currentPlayer.getUnoState() != UNOState.Unsafe && currentPlayer.getPlayerType() == PlayerType.HUMAN) {
-        	checkAndSpawnCallOutButton();
+
+        if (currentPlayer.getPlayerType() == PlayerType.BOT) {
+
+            // Evita che il giocatore umano clicchi cose in preda al panico mentre il bot
+            // pensa
+            centerAreaBox.setDisable(true);
+            playerHandBox.setDisable(true);
+            // Timer di 1.5 secondi per dare "l'illusione" che stia pensando e far capire di
+            // chi è il turno
+            PauseTransition botTimer = new PauseTransition(Duration.seconds(1.5));
+            botTimer.setOnFinished(e -> {
+                List<Card> botPlay = currentPlayer.playTurn(game.getDiscardPile().getTopCard());
+                // Se il bot non ha trovato nulla da giocare, deve pescare
+                if (botPlay.isEmpty()) {
+                    System.out.println(currentPlayer.getPlayerName() + " non ha carte. Pesca!");
+                    Card drawn = game.drawIfNotPlayed(currentPlayer);
+                    // Controlla se la carta appena pescata si può giocare come salvataggio in
+                    // corner
+                    if (drawn != null && drawn.isPlayableOn(game.getDiscardPile().getTopCard())) {
+                        System.out.println(
+                                "Fortuna! " + currentPlayer.getPlayerName() + " gioca la carta appena pescata.");
+                        if (drawn.getType().isWild()) {
+                            drawn.setChosenColor(it.uniroma1.mdp.uno.model.card.CardColor.getRandomColor());
+                        }
+                        botPlay.add(drawn);
+                    }
+                } else {
+                    System.out.println(currentPlayer.getPlayerName() + " ha fatto la sua mossa.");
+                }
+                // Sblocca la grafica
+                centerAreaBox.setDisable(false);
+                playerHandBox.setDisable(false);
+
+                // Processa il turno ed evoca la funzione in ricorsione per passare al prossimo
+                game.processTurn(currentPlayer, botPlay);
+                refreshBoard();
+            });
+            botTimer.play();
         }
-        
+
+        // check per vedere se c'è qualcuno da punire per la mancata dichiarazione di
+        // UNO
+        if (currentPlayer.getUnoState() != UNOState.Unsafe && currentPlayer.getPlayerType() == PlayerType.HUMAN) {
+            checkAndSpawnCallOutButton();
+        }
+
         // --- BOTTONE PESCA ---
-        Button drawPile = new Button("Pesca"); 
+        Button drawPile = new Button("Pesca");
         drawPile.getStyleClass().add("menu-button");
-        drawPile.setPrefSize(90, 90); 
+        drawPile.setPrefSize(90, 90);
         drawPile.setStyle("-fx-font-size: 15px; -fx-font-weight: bold; -fx-background-radius: 36; -fx-padding: 5");
-        
+
         if (currentPlayer.getPlayerType() != PlayerType.HUMAN || currentPlayer.getHasDrawn()) {
             drawPile.setDisable(true);
         }
-        
+
         drawPile.setOnAction(event -> {
             if (!drawPile.isDisabled()) {
                 System.out.println("Il giocatore ha pescato una carta");
@@ -90,30 +130,30 @@ public class BoardView extends BorderPane {
                 refreshBoard();
             }
         });
-        
+
         // --- BOTTONE GIOCA CARTE ---
         Button playCardsBtn = new Button("Gioca");
         playCardsBtn.getStyleClass().add("menu-button");
         playCardsBtn.setPrefSize(90, 90);
         playCardsBtn.setStyle("-fx-font-size: 15px; -fx-font-weight: bold; -fx-background-radius: 36; -fx-padding: 5");
-        
 
         if (currentPlayer.getPlayerType() != PlayerType.HUMAN) {
             playCardsBtn.setDisable(true);
         } else {
-        	
+
         }
-        
+
         playCardsBtn.setOnAction(event -> {
-        	HumanPlayer currentHumanPlayer = (HumanPlayer) currentPlayer;
-            if (currentPlayer.getPlayerType() == PlayerType.HUMAN && currentHumanPlayer.getSelectedCardsFromUI().size() > 0) {
+            HumanPlayer currentHumanPlayer = (HumanPlayer) currentPlayer;
+            if (currentPlayer.getPlayerType() == PlayerType.HUMAN
+                    && currentHumanPlayer.getSelectedCardsFromUI().size() > 0) {
                 System.out.println("Il giocatore ha deciso di giocare le carte selezionate");
                 // 1. Processa la mossa nel Model
                 game.processTurn(currentHumanPlayer, currentHumanPlayer.playTurn(game.getDiscardPile().getTopCard()));
-                
+
                 // 2. Controlla quante carte sono rimaste
                 int remainingCards = currentHumanPlayer.getHand().getAllCardsCopy().size();
-                
+
                 if (remainingCards == 1) {
                     // 3. Avvia la fase di emergenza (1 secondo), bloccando il passaggio del turno
                     triggerUnoPhase(currentHumanPlayer);
@@ -128,11 +168,11 @@ public class BoardView extends BorderPane {
         passTurnBtn.getStyleClass().add("menu-button");
         passTurnBtn.setPrefSize(90, 90);
         passTurnBtn.setStyle("-fx-font-size: 15px; -fx-font-weight: bold; -fx-background-radius: 36; -fx-padding: 5");
-        
+
         if (currentPlayer.getPlayerType() != PlayerType.HUMAN) {
             passTurnBtn.setDisable(true);
         }
-        
+
         passTurnBtn.setOnAction(event -> {
             if (currentPlayer.getPlayerType() == PlayerType.HUMAN) {
                 System.out.println("Il giocatore ha deciso di saltare il turno");
@@ -141,7 +181,7 @@ public class BoardView extends BorderPane {
                 refreshBoard();
             }
         });
-        
+
         // Layout Centrale
         Card topDiscard = game.getDiscardPile().getTopCard();
         if (topDiscard != null) {
@@ -154,13 +194,13 @@ public class BoardView extends BorderPane {
         // --- DISEGNA CARTE GIOCATORE ---
         if (currentPlayer != null) {
             for (Card card : currentPlayer.getHand().getAllCardsCopy()) {
-                CardView cardView = new CardView(card, currentPlayer.getPlayerType() == PlayerType.HUMAN); 
-                
+                CardView cardView = new CardView(card, currentPlayer.getPlayerType() == PlayerType.HUMAN);
+
                 if (currentPlayer.getHasDrawn() && !cardView.getCard().getDrawn()) {
                     cardView.setDisable(true);
                     cardView.setDisabledEffect(true);
                 }
-                
+
                 if (currentPlayer.getPlayerType() == PlayerType.HUMAN) {
                     cardView.setOnMouseEntered(e -> cardView.setTranslateY(-15));
                     cardView.setOnMouseExited(e -> cardView.setTranslateY(0));
@@ -168,12 +208,12 @@ public class BoardView extends BorderPane {
                     cardView.setDisable(true);
                     cardView.setDisabledEffect(true);
                 }
-                
+
                 if (!cardView.getCard().isPlayableOn(topDiscard)) {
                     cardView.setDisable(true);
                     cardView.setDisabledEffect(true);
-                }               
-                
+                }
+
                 cardView.setOnMouseClicked(e -> {
                     HumanPlayer currentHumanPlayer = (HumanPlayer) currentPlayer;
                     if (!cardView.isDisabled()) {
@@ -182,9 +222,10 @@ public class BoardView extends BorderPane {
                                 currentHumanPlayer.getSelectedCardsFromUI().add(card);
                                 cardView.setSelectedEffect(true);
                             }
-                            
+
                             if (game.getRuleSet().getNumberRush()) {
-                                if (cardView.getCard().getType() == CardType.NUMBER && currentHumanPlayer.isSelectedCardsOnlyNumbers()) {
+                                if (cardView.getCard().getType() == CardType.NUMBER
+                                        && currentHumanPlayer.isSelectedCardsOnlyNumbers()) {
                                     currentHumanPlayer.getSelectedCardsFromUI().add(card);
                                     cardView.setSelectedEffect(true);
                                 }
@@ -195,11 +236,11 @@ public class BoardView extends BorderPane {
                         }
                     }
                 });
-                
+
                 playerHandBox.getChildren().add(cardView);
             }
         }
-        
+
         // --- DISEGNA AVVERSARI ---
         Label turnInfo = new Label("Turno di: " + (currentPlayer != null ? currentPlayer.getPlayerName() : ""));
         turnInfo.setStyle("-fx-text-fill: #ffd700; -fx-font-size: 22px; -fx-font-weight: bold;");
@@ -209,7 +250,8 @@ public class BoardView extends BorderPane {
         otherPlayersContainer.setAlignment(Pos.CENTER);
 
         for (Player p : game.getPlayerList()) {
-            if (p == currentPlayer) continue;
+            if (p == currentPlayer)
+                continue;
 
             VBox opponentBox = new VBox(5);
             opponentBox.setAlignment(Pos.CENTER);
@@ -218,7 +260,7 @@ public class BoardView extends BorderPane {
             Label opponentName = new Label(p.getPlayerName() + " (" + cardCount + " carte)");
             opponentName.setStyle("-fx-text-fill: white; -fx-font-size: 14px; -fx-font-weight: bold;");
 
-            HBox opponentCards = new HBox(-50); 
+            HBox opponentCards = new HBox(-50);
             opponentCards.setAlignment(Pos.CENTER);
 
             for (Card card : p.getHand().getAllCardsCopy()) {
@@ -231,7 +273,7 @@ public class BoardView extends BorderPane {
             opponentBox.getChildren().addAll(opponentName, opponentCards);
             otherPlayersContainer.getChildren().add(opponentBox);
         }
-        
+
         opponentsBox.getChildren().add(otherPlayersContainer);
     }
 
@@ -242,7 +284,7 @@ public class BoardView extends BorderPane {
     private void checkAndSpawnCallOutButton() {
         // Controllo se esiste almeno un giocatore "unsafe"
         boolean isSomeoneUnsafe = false;
-        
+
         for (Player p : game.getPlayerList()) {
             if (p.getHand().getAllCardsCopy().size() == 1 && p.getUnoState() == UNOState.Unsafe) {
                 isSomeoneUnsafe = true;
@@ -253,37 +295,39 @@ public class BoardView extends BorderPane {
         // Se qualcuno è da punire, mostriamo il bottone sulla SINISTRA
         if (isSomeoneUnsafe) {
             Button callOutBtn = new Button("CONTESTA!");
-            callOutBtn.setStyle("-fx-background-color: #ff8800; -fx-text-fill: white; -fx-font-size: 28px; -fx-font-weight: bold; -fx-background-radius: 15; -fx-border-color: white; -fx-border-width: 3; -fx-border-radius: 15; -fx-padding: 15 20; -fx-cursor: hand;");
+            callOutBtn.setStyle(
+                    "-fx-background-color: #ff8800; -fx-text-fill: white; -fx-font-size: 28px; -fx-font-weight: bold; -fx-background-radius: 15; -fx-border-color: white; -fx-border-width: 3; -fx-border-radius: 15; -fx-padding: 15 20; -fx-cursor: hand;");
             callOutBtn.setEffect(new DropShadow(15, Color.BLACK));
-            
+
             VBox leftSideBox = new VBox(callOutBtn);
             leftSideBox.setAlignment(Pos.CENTER);
             leftSideBox.setPadding(new Insets(0, 0, 0, 50)); // Margine di 50px da sinistra
-            
+
             this.setLeft(leftSideBox); // Lo piazziamo fisso a sinistra
 
             PauseTransition pt = new PauseTransition(Duration.seconds(3));
-            
+
             callOutBtn.setOnAction(e -> {
                 pt.stop();
                 this.setLeft(null); // Rimuove il bottone
                 System.out.println("Qualcuno è stato punito per non aver detto UNO!");
-                
+
                 game.punishUnsafePlayers();
-                
+
                 refreshBoard(); // Aggiorna per mostrare le nuove carte in mano al giocatore punito
             });
 
             pt.setOnFinished(e -> {
                 System.out.println("Finestra di contestazione scaduta.");
                 this.setLeft(null); // Rimuove il bottone
-                
-                //imposta lo stato di tutti i giocatori a Safe se finisce la finestra di tempo per contestargli la mancata dichiarazione.
+
+                // imposta lo stato di tutti i giocatori a Safe se finisce la finestra di tempo
+                // per contestargli la mancata dichiarazione.
                 for (Player p : game.getPlayerList()) {
-                	game.setSafeUnoState(p);
+                    game.setSafeUnoState(p);
                 }
             });
-            
+
             pt.play();
         }
     }
@@ -293,28 +337,33 @@ public class BoardView extends BorderPane {
     // ==========================================
 
     /**
-     * Mette in pausa il gioco per 1 secondo, aspettando che il giocatore clicchi il bottone.
+     * Mette in pausa il gioco per 1 secondo, aspettando che il giocatore clicchi il
+     * bottone.
      */
     private void triggerUnoPhase(HumanPlayer humanPlayer) {
-        // Disabilita temporaneamente i contenitori per evitare che l'utente clicchi altre carte/bottoni
+        // Disabilita temporaneamente i contenitori per evitare che l'utente clicchi
+        // altre carte/bottoni
         centerAreaBox.setDisable(true);
         playerHandBox.setDisable(true);
 
         Button unoBtn = new Button("DICHIARA UNO!!");
-        unoBtn.setStyle("-fx-background-color: #ff0000; -fx-text-fill: white; -fx-font-size: 32px; -fx-font-weight: bold; -fx-background-radius: 15; -fx-border-color: white; -fx-border-width: 3; -fx-border-radius: 15; -fx-padding: 15 30; -fx-cursor: hand;");
+        unoBtn.setStyle(
+                "-fx-background-color: #ff0000; -fx-text-fill: white; -fx-font-size: 32px; -fx-font-weight: bold; -fx-background-radius: 15; -fx-border-color: white; -fx-border-width: 3; -fx-border-radius: 15; -fx-padding: 15 30; -fx-cursor: hand;");
         unoBtn.setEffect(new DropShadow(20, Color.BLACK));
-        
-        // Creiamo un box dedicato per centrare il bottone verticalmente sul lato destro dello schermo
+
+        // Creiamo un box dedicato per centrare il bottone verticalmente sul lato destro
+        // dello schermo
         VBox rightSideBox = new VBox(unoBtn);
         rightSideBox.setAlignment(Pos.CENTER);
         rightSideBox.setPadding(new Insets(0, 50, 0, 0)); // Diamo 50px di margine dal bordo destro dello schermo
-        
-        // Piazziamo il box nella zona DESTRA (vuota) del BorderPane. Niente coordinate, posizione fissa!
+
+        // Piazziamo il box nella zona DESTRA (vuota) del BorderPane. Niente coordinate,
+        // posizione fissa!
         this.setRight(rightSideBox);
 
         // Avviamo il timer di emergenza
         PauseTransition pt = new PauseTransition(Duration.seconds(1));
-        
+
         // Se il giocatore clicca in tempo
         unoBtn.setOnAction(e -> {
             pt.stop(); // Ferma il countdown del timer
@@ -329,7 +378,7 @@ public class BoardView extends BorderPane {
             game.setUnsafeUnoState(humanPlayer);
             concludeUnoPhase();
         });
-        
+
         pt.play();
     }
 
@@ -339,12 +388,12 @@ public class BoardView extends BorderPane {
     private void concludeUnoPhase() {
         // Svuotiamo la zona destra del BorderPane, facendo sparire il bottone
         this.setRight(null);
-        
+
         // Sblocchiamo il tavolo e la mano
         centerAreaBox.setDisable(false);
         playerHandBox.setDisable(false);
-        
+
         // Aggiorniamo la grafica per il turno successivo
-        refreshBoard(); 
+        refreshBoard();
     }
 }
