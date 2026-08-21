@@ -105,7 +105,7 @@ public class BoardView extends BorderPane {
                 pt.setOnFinished(e -> {
                     // Inviamo una lista vuota: il GameEngine capirà che deve applicare la penalità!
                     game.processTurn(currentPlayer, new ArrayList<>());
-                    refreshBoard();
+                    finishHumanTurnAndRefresh();
                 });
                 pt.play();
             }
@@ -158,7 +158,7 @@ public class BoardView extends BorderPane {
 
                 // Processa il turno ed evoca la funzione in ricorsione per passare al prossimo
                 game.processTurn(currentPlayer, botPlay);
-                refreshBoard();
+                finishHumanTurnAndRefresh();
             });
             botTimer.play();
         }
@@ -216,7 +216,7 @@ public class BoardView extends BorderPane {
                     triggerUnoPhase(currentHumanPlayer);
                 } else {
                     // 4. Procedi normalmente al turno successivo
-                    refreshBoard();
+                    finishHumanTurnAndRefresh();
                 }
             }
         });
@@ -235,7 +235,7 @@ public class BoardView extends BorderPane {
                 System.out.println("Il giocatore ha deciso di saltare il turno");
                 List<Card> EmptyList = new ArrayList<>();
                 game.processTurn(currentPlayer, EmptyList);
-                refreshBoard();
+                finishHumanTurnAndRefresh();
             }
         });
 
@@ -355,6 +355,30 @@ public class BoardView extends BorderPane {
         topBar.setCenter(opponentsBox);
         topBar.setLeft(historyBox);
 
+        // --- CLASSIFICA IN ALTO A DESTRA (Solo per le partite a punti) ---
+        if (game.getGameMode().getPointMatch()) {
+            VBox scoreBox = new VBox(3);
+            scoreBox.setPadding(new Insets(10));
+            scoreBox.setStyle("-fx-background-color: rgba(0,0,0,0.6); -fx-background-radius: 10;");
+            
+            Label scoreTitle = new Label(" PUNTI (Goal: " + game.getGameMode().getPointGoal() + "):");
+            scoreTitle.setStyle("-fx-text-fill: gold; -fx-font-weight: bold;");
+            scoreBox.getChildren().add(scoreTitle);
+            
+            for (Player p : game.getPlayerList()) {
+                Label pScore = new Label("- " + p.getPlayerName() + ": " + p.getTotalScore() + " pt");
+                // Mettiamo in grassetto il giocatore a cui tocca
+                if (p == currentPlayer) {
+                    pScore.setStyle("-fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 14px;");
+                } else {
+                    pScore.setStyle("-fx-text-fill: lightgray; -fx-font-size: 13px;");
+                }
+                scoreBox.getChildren().add(pScore);
+            }
+            
+            topBar.setRight(scoreBox);
+        }
+        
         this.setTop(topBar); // Inserisce la barra in alto nel tavolo verde
     }
 
@@ -475,7 +499,30 @@ public class BoardView extends BorderPane {
         playerHandBox.setDisable(false);
 
         // Aggiorniamo la grafica per il turno successivo
-        refreshBoard();
+        finishHumanTurnAndRefresh();
+    }
+
+    /**
+     * Gestisce la transizione visiva (Hotseat) per evitare che i giocatori umani
+     * sbircino le carte l'uno dell'altro scambiandosi il posto al computer.
+     */
+    private void finishHumanTurnAndRefresh() {
+        // Se il prossimo a giocare è di nuovo un umano, oscura il tavolo per 2 secondi
+        if (game.getCurrentPlayer().getPlayerType() == PlayerType.HUMAN) {
+            playerHandBox.getChildren().clear();
+            centerAreaBox.getChildren().clear();
+            
+            Label passLabel = new Label("Cambio Turno...");
+            passLabel.setStyle("-fx-text-fill: orange; -fx-font-size: 35px; -fx-font-weight: bold;");
+            centerAreaBox.getChildren().add(passLabel);
+
+            PauseTransition pt = new PauseTransition(Duration.seconds(2));
+            pt.setOnFinished(e -> refreshBoard());
+            pt.play();
+        } else {
+            // Se tocca a un bot, aggiorna subito (il bot aspetterà già 2 secondi da solo)
+            refreshBoard();
+        }
     }
 
     private void showVictoryScreen() {
