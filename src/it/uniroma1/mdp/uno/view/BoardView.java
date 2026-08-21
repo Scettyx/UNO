@@ -1,6 +1,7 @@
 package it.uniroma1.mdp.uno.view;
 
 import it.uniroma1.mdp.uno.model.game.GameEngine;
+import it.uniroma1.mdp.uno.model.game.GameAction;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,6 +28,7 @@ import javafx.util.Duration;
 
 /**
  * @author Massimo Giorgini (M.2234123)
+ * @author Cosmin Florea (M.2241398)
  */
 public class BoardView extends BorderPane {
 
@@ -68,6 +70,8 @@ public class BoardView extends BorderPane {
         Player currentPlayer = game.getCurrentPlayer();
 
         if (currentPlayer.getPlayerType() == PlayerType.BOT) {
+
+            game.punishUnsafePlayers();
 
             // Evita che il giocatore umano clicchi cose in preda al panico mentre il bot
             // pensa
@@ -275,6 +279,29 @@ public class BoardView extends BorderPane {
         }
 
         opponentsBox.getChildren().add(otherPlayersContainer);
+
+        // --- CREAZIONE STORICO IN ALTO A SINISTRA ---
+        VBox historyBox = new VBox(3);
+        historyBox.setPadding(new Insets(10));
+        historyBox.setStyle("-fx-background-color: rgba(0,0,0,0.6); -fx-background-radius: 10;");
+        Label histTitle = new Label(" STORICO MOSSE:");
+        histTitle.setStyle("-fx-text-fill: white; -fx-font-weight: bold;");
+        historyBox.getChildren().add(histTitle);
+        
+        List<GameAction> actions = game.getGameHistory().getAllActions();
+        int start = Math.max(0, actions.size() - 5); // Mostra solo le ultime 5 mosse per non ingombrare
+        for(int i = start; i < actions.size(); i++) {
+            Label move = new Label("- " + actions.get(i).setActionDescription());
+            move.setStyle("-fx-text-fill: lightgray; -fx-font-size: 13px;");
+            historyBox.getChildren().add(move);
+        }
+        
+        // Impacchettiamo gli avversari (al centro) e lo storico (a sinistra) in una TopBar
+        BorderPane topBar = new BorderPane();
+        topBar.setCenter(opponentsBox);
+        topBar.setLeft(historyBox);
+        
+        this.setTop(topBar); // Inserisce la barra in alto nel tavolo verde
     }
 
     // ==========================================

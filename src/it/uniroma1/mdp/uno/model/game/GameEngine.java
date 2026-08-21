@@ -289,7 +289,9 @@ public class GameEngine {
 	 */
 	public void punishUnsafePlayers() {
 		for (Player p : playerList) {
-			setCalledUnoState(p);
+			if (p.getUnoState() == Player.UNOState.Unsafe) {
+				setCalledUnoState(p);
+			}
 		}
 	}
 
