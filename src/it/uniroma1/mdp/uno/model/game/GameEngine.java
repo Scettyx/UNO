@@ -447,10 +447,8 @@ public class GameEngine {
 						break;
 
 					case DRAW_TWO:
-						if (ruleSet.getStackDrawCards()) {
-							pendingDrawPenalty += 2;
-							break;
-						}
+						pendingDrawPenalty += 2;
+						break;
 
 					case WILD:
 						// Si prende un colore casuale se non si sceglie

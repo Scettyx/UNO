@@ -64,6 +64,12 @@ public class BoardView extends BorderPane {
 
     public void refreshBoard() {
 
+        // --- CONTROLLO VITTORIA GRAFICA ---
+        if (game.getGameMode().getGameOver()) {
+            showVictoryScreen();
+            return; // Blocca tutto il resto e non disegna più il tavolo!
+        }
+
         if (playerHandBox != null)
             playerHandBox.setDisable(false);
 
@@ -470,5 +476,48 @@ public class BoardView extends BorderPane {
 
         // Aggiorniamo la grafica per il turno successivo
         refreshBoard();
+    }
+
+    private void showVictoryScreen() {
+        // Pulisce tutto il BorderPane
+        this.getChildren().clear(); 
+        Player winner = null;
+        for (Player p : game.getPlayerList()) {
+            if (p.getWonRound()) {
+                winner = p;
+                break;
+            }
+        }
+        VBox victoryBox = new VBox(15);
+        victoryBox.setAlignment(Pos.CENTER);
+        Label title = new Label("FINE PARTITA!");
+        title.setStyle("-fx-text-fill: gold; -fx-font-size: 55px; -fx-font-weight: bold; -fx-effect: dropshadow(gaussian, black, 10, 0, 0, 0);");
+        Label subtitle = new Label(winner != null ? "Vince: " + winner.getPlayerName() + "!" : "Parità?");
+        subtitle.setStyle("-fx-text-fill: white; -fx-font-size: 35px;");
+        victoryBox.getChildren().addAll(title, subtitle);
+        // Se è una partita a punti, stampiamo la Leaderboard!
+        if (game.getGameMode().getPointMatch()) {
+            Label scoreTitle = new Label("--- CLASSIFICA FINALE ---");
+            scoreTitle.setStyle("-fx-text-fill: yellow; -fx-font-size: 25px; -fx-padding: 20 0 5 0;");
+            victoryBox.getChildren().add(scoreTitle);
+            
+            for (Player p : game.getPlayerList()) {
+                Label pScore = new Label(p.getPlayerName() + ": " + p.getTotalScore() + " pt");
+                // Il vincitore ha il testo verde, gli altri bianco
+                pScore.setStyle("-fx-text-fill: " + (p.getWonRound() ? "lightgreen" : "white") + "; -fx-font-size: 22px;");
+                victoryBox.getChildren().add(pScore);
+            }
+        }
+        Button exitBtn = new Button("Chiudi Gioco");
+        exitBtn.setStyle("-fx-font-size: 20px; -fx-padding: 10 20; -fx-cursor: hand;");
+        exitBtn.setOnAction(e -> {
+            System.out.println("Partita Terminata. Chiusura gioco...");
+            // Classica mossa da studente: brutale exit(0) invece di tornare al menu principale
+            System.exit(0); 
+        });
+        
+        VBox.setMargin(exitBtn, new Insets(40, 0, 0, 0)); // Spazio sopra al bottone
+        victoryBox.getChildren().add(exitBtn);
+        this.setCenter(victoryBox);
     }
 }
