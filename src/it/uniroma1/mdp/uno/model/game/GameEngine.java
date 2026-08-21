@@ -128,6 +128,15 @@ public class GameEngine {
 	}
 
 	/**
+	 * Ritorna il numero di carte da pescare con la regola dello stacking
+	 * 
+	 * @return il numero di carte da pescare
+	 */
+	public int getPendingDrawPenalty() {
+		return pendingDrawPenalty;
+	}
+
+	/**
 	 * Imposta il nuovo colore attivo.
 	 * 
 	 * @param color il nuovo colore attivo
@@ -252,7 +261,6 @@ public class GameEngine {
 			current.setHasDrawn(true);
 			Card drawnCard = deck.drawFromTopCard(current.getHand(), 0);
 			GameAction drawAction = new GameAction(current.getPlayerName(), "DRAW");
-			drawAction.addCardInvolved(drawnCard);
 			gameHistory.addGameAction(drawAction);
 			return drawnCard;
 		}
@@ -369,7 +377,8 @@ public class GameEngine {
 	 * Gestisce la logica dei Round nella partita.
 	 */
 	public void processTurn(Player current, List<Card> playedCards) {
-		if (ruleSet.getStackDrawCards() && pendingDrawPenalty > 0) {
+
+		if (pendingDrawPenalty > 0) {
 			boolean stacked = false;
 
 			if (playedCards.size() > 0) {
@@ -382,12 +391,15 @@ public class GameEngine {
 
 			if (!stacked) {
 				deck.drawCardRandom(current.getHand(), pendingDrawPenalty);
+				GameAction penaltyAction = new GameAction(current.getPlayerName(), "DRAW_PENALTY");
+				gameHistory.addGameAction(penaltyAction);
 				pendingDrawPenalty = 0;
 
-				if (playedCards.isEmpty()) {
-					nextTurn();
-					return;
+				for (Card invalidCard : playedCards) {
+					current.getHand().addCardToHand(invalidCard);
 				}
+				nextTurn();
+				return;
 			}
 		}
 
@@ -437,12 +449,8 @@ public class GameEngine {
 					case DRAW_TWO:
 						if (ruleSet.getStackDrawCards()) {
 							pendingDrawPenalty += 2;
-						} else {
-							nextTurn();
-							deck.drawCardRandom(getPlayerList()[currentPlayer].getHand(), 2);
-							previousTurn();
+							break;
 						}
-						break;
 
 					case WILD:
 						// Si prende un colore casuale se non si sceglie
@@ -457,15 +465,8 @@ public class GameEngine {
 						// controlla se il giocatore è stato sfidato dopo il lancio del Wild Draw Four
 						if (current.getIsChallenged()) {
 							WildDrawFourChallenge(playedCard, current);
-						} else { // se il giocatore non è stato sfidato dopo un Wild Draw Four, il prossimo
-									// giocatore pesca le 4 carte normalmente.
-							if (ruleSet.getStackDrawCards()) {
-								pendingDrawPenalty += 4;
-							} else {
-								nextTurn();
-								deck.drawCardRandom(getPlayerList()[currentPlayer].getHand(), 4);
-								previousTurn();
-							}
+						} else {
+							pendingDrawPenalty += 4;
 						}
 
 						// Si prende un colore casuale se non si sceglie
@@ -474,7 +475,6 @@ public class GameEngine {
 						}
 						currentColor = playedCard.getActiveColor(); // implementa che il giocatore dovrà scegliere il
 																	// colore attivo
-
 						break;
 
 					case NUMBER:

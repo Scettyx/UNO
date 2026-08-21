@@ -98,23 +98,24 @@ public class GameAction {
     }
 
     public String setActionDescription() {
-        String description = playerName + " ha fatto " + actionType;
-
+        if (actionType.equals("DRAW")) {
+            return playerName + " ha pescato una carta.";
+        }
+        if (actionType.equals("DRAW_PENALTY")) {
+            return playerName + " ha pescato le carte di penalità.";
+        }
+        if (actionType.equals("UNO_CONTEST")) {
+            return "Sistema: " + playerName + " punito per non aver detto UNO!";
+        }
+        String description = playerName + " gioca ";
         if (!cardsInvolved.isEmpty()) {
-            description += " con le carte ";
             for (Card c : cardsInvolved) {
-                description += c.toString() + " ";
+                description += "[" + c.toString() + "] ";
             }
         }
-
         if (unoCalled) {
-            description += " ha chiamato Uno";
+            description += " e grida UNO!";
         }
-
-        if (challengeCalled) {
-            description += " Challenge chiamata: successo = " + challengeSucceded;
-        }
-
         return description;
     }
 }

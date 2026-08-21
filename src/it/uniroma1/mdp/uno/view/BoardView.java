@@ -63,11 +63,58 @@ public class BoardView extends BorderPane {
     }
 
     public void refreshBoard() {
+
+        if (playerHandBox != null)
+            playerHandBox.setDisable(false);
+
+        if (centerAreaBox != null)
+            centerAreaBox.setDisable(false);
+
         playerHandBox.getChildren().clear();
         centerAreaBox.getChildren().clear();
         opponentsBox.getChildren().clear();
 
         Player currentPlayer = game.getCurrentPlayer();
+
+        // --- AZIONI AUTOMATICHE PER L'UMANO (DELAY 2 SECONDI) ---
+        if (currentPlayer.getPlayerType() == PlayerType.HUMAN) {
+            boolean hasPlayable = false;
+            Card topDiscard = game.getDiscardPile().getTopCard();
+            for (Card c : currentPlayer.getHand().getAllCardsCopy()) {
+                if (c.isPlayableOn(topDiscard))
+                    hasPlayable = true;
+            }
+            boolean canStack = false;
+            if (game.getPendingDrawPenalty() > 0 && game.getRuleSet().getStackDrawCards()) {
+                for (Card c : currentPlayer.getHand().getAllCardsCopy()) {
+                    if (c.getType() == CardType.DRAW_TWO || c.getType() == CardType.WILD_DRAW_FOUR)
+                        canStack = true;
+                }
+            }
+            // CASO 1: L'umano riceve una penalità (+2 o +4) e non può difendersi.
+            if (game.getPendingDrawPenalty() > 0 && !canStack) {
+                centerAreaBox.setDisable(true);
+                playerHandBox.setDisable(true);
+                PauseTransition pt = new PauseTransition(Duration.seconds(2));
+                pt.setOnFinished(e -> {
+                    // Inviamo una lista vuota: il GameEngine capirà che deve applicare la penalità!
+                    game.processTurn(currentPlayer, new ArrayList<>());
+                    refreshBoard();
+                });
+                pt.play();
+            }
+            // CASO 2: L'umano inizia il turno ma ha zero carte giocabili. Pesca da solo!
+            else if (game.getPendingDrawPenalty() == 0 && !hasPlayable && !currentPlayer.getHasDrawn()) {
+                centerAreaBox.setDisable(true);
+                playerHandBox.setDisable(true);
+                PauseTransition pt = new PauseTransition(Duration.seconds(2));
+                pt.setOnFinished(e -> {
+                    game.drawIfNotPlayed(currentPlayer);
+                    refreshBoard(); // Si sbloccherà dandogli la possibilità di giocare o passare
+                });
+                pt.play();
+            }
+        }
 
         if (currentPlayer.getPlayerType() == PlayerType.BOT) {
 
@@ -287,20 +334,21 @@ public class BoardView extends BorderPane {
         Label histTitle = new Label(" STORICO MOSSE:");
         histTitle.setStyle("-fx-text-fill: white; -fx-font-weight: bold;");
         historyBox.getChildren().add(histTitle);
-        
+
         List<GameAction> actions = game.getGameHistory().getAllActions();
         int start = Math.max(0, actions.size() - 5); // Mostra solo le ultime 5 mosse per non ingombrare
-        for(int i = start; i < actions.size(); i++) {
+        for (int i = start; i < actions.size(); i++) {
             Label move = new Label("- " + actions.get(i).setActionDescription());
             move.setStyle("-fx-text-fill: lightgray; -fx-font-size: 13px;");
             historyBox.getChildren().add(move);
         }
-        
-        // Impacchettiamo gli avversari (al centro) e lo storico (a sinistra) in una TopBar
+
+        // Impacchettiamo gli avversari (al centro) e lo storico (a sinistra) in una
+        // TopBar
         BorderPane topBar = new BorderPane();
         topBar.setCenter(opponentsBox);
         topBar.setLeft(historyBox);
-        
+
         this.setTop(topBar); // Inserisce la barra in alto nel tavolo verde
     }
 
