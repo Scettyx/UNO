@@ -1,12 +1,17 @@
 package it.uniroma1.mdp.uno.view;
 
 import it.uniroma1.mdp.uno.model.game.GameEngine;
+
+import java.util.ArrayList;
+import java.util.List;
+
 import it.uniroma1.mdp.uno.model.card.Card;
 import it.uniroma1.mdp.uno.model.card.CardType;
 import it.uniroma1.mdp.uno.model.deck.DiscardPile;
 import it.uniroma1.mdp.uno.model.player.HumanPlayer;
 import it.uniroma1.mdp.uno.model.player.Player;
 import it.uniroma1.mdp.uno.model.player.Player.PlayerType;
+import it.uniroma1.mdp.uno.model.player.Player.UNOState;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
@@ -17,6 +22,9 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 
+import javafx.animation.PauseTransition;
+import javafx.util.Duration;
+
 /**
  * @author Massimo Giorgini (M.2234123)
  */
@@ -24,56 +32,47 @@ public class BoardView extends BorderPane {
 
     private final GameEngine game;
     
-    // Contenitori principali per le zone del tavolo
     private HBox playerHandBox;
     private HBox centerAreaBox;
     private VBox opponentsBox;
 
     public BoardView(GameEngine game) {
         this.game = game;
-        
-        // Mantiene lo stile "Casinò" impostato in MainApp
         getStyleClass().add("table-bg"); 
         
         setupLayout();
-        refreshBoard(); // Disegna lo stato iniziale della partita
+        refreshBoard(); 
     }
 
-    /**
-     * Inizializza le aree del BorderPane senza popolarle
-     */
     private void setupLayout() {
-        // 1. Area del giocatore (In basso)
-        playerHandBox = new HBox(-20); // Spaziatura negativa per sovrapporre leggermente le carte a ventaglio
+        playerHandBox = new HBox(-20); 
         playerHandBox.setAlignment(Pos.CENTER);
         playerHandBox.setPadding(new Insets(20));
         setBottom(playerHandBox);
 
-        // 2. Area Centrale: Mazzo e Scarti
         centerAreaBox = new HBox(40);
         centerAreaBox.setAlignment(Pos.CENTER);
         setCenter(centerAreaBox);
 
-        // 3. Area Avversari (In alto)
         opponentsBox = new VBox(10);
         opponentsBox.setAlignment(Pos.TOP_CENTER);
         opponentsBox.setPadding(new Insets(20));
         setTop(opponentsBox);
     }
 
-    /**
-     * Pulisce e ridisegna il tavolo in base allo stato attuale del GameEngine (Model)
-     */
     public void refreshBoard() {
-        // Pulisce le viste precedenti
         playerHandBox.getChildren().clear();
         centerAreaBox.getChildren().clear();
         opponentsBox.getChildren().clear();
 
-        // Recuperiamo il giocatore che deve giocare in questo turno
         Player currentPlayer = game.getCurrentPlayer();
         
-        // BOTTONE PESCA
+      //check per vedere se c'è qualcuno da punire per la mancata dichiarazione di UNO
+        if(currentPlayer.getUnoState() != UNOState.Unsafe && currentPlayer.getPlayerType() == PlayerType.HUMAN) {
+        	checkAndSpawnCallOutButton();
+        }
+        
+        // --- BOTTONE PESCA ---
         Button drawPile = new Button("Pesca"); 
         drawPile.getStyleClass().add("menu-button");
         drawPile.setPrefSize(90, 90); 
@@ -84,7 +83,7 @@ public class BoardView extends BorderPane {
         }
         
         drawPile.setOnAction(event -> {
-            if (drawPile.isDisabled() == false) {
+            if (!drawPile.isDisabled()) {
                 System.out.println("Il giocatore ha pescato una carta");
                 HumanPlayer currentHumanPlayer = (HumanPlayer) currentPlayer;
                 currentHumanPlayer.drawOnTurn(game);
@@ -92,35 +91,44 @@ public class BoardView extends BorderPane {
             }
         });
         
-        // BOTTONE GIOCA CARTE
+        // --- BOTTONE GIOCA CARTE ---
         Button playCardsBtn = new Button("Gioca");
         playCardsBtn.getStyleClass().add("menu-button");
         playCardsBtn.setPrefSize(90, 90);
         playCardsBtn.setStyle("-fx-font-size: 15px; -fx-font-weight: bold; -fx-background-radius: 36; -fx-padding: 5");
         
-        // Disabilitato se non è il turno del giocatore umano
+
         if (currentPlayer.getPlayerType() != PlayerType.HUMAN) {
             playCardsBtn.setDisable(true);
+        } else {
+        	
         }
         
         playCardsBtn.setOnAction(event -> {
-            if (currentPlayer.getPlayerType() == PlayerType.HUMAN) {
+        	HumanPlayer currentHumanPlayer = (HumanPlayer) currentPlayer;
+            if (currentPlayer.getPlayerType() == PlayerType.HUMAN && currentHumanPlayer.getSelectedCardsFromUI().size() > 0) {
                 System.out.println("Il giocatore ha deciso di giocare le carte selezionate");
-                HumanPlayer currentHumanPlayer = (HumanPlayer) currentPlayer;
+                // 1. Processa la mossa nel Model
                 game.processTurn(currentHumanPlayer, currentHumanPlayer.playTurn(game.getDiscardPile().getTopCard()));
-                refreshBoard();
+                
+                // 2. Controlla quante carte sono rimaste
+                int remainingCards = currentHumanPlayer.getHand().getAllCardsCopy().size();
+                
+                if (remainingCards == 1) {
+                    // 3. Avvia la fase di emergenza (1 secondo), bloccando il passaggio del turno
+                    triggerUnoPhase(currentHumanPlayer);
+                } else {
+                    // 4. Procedi normalmente al turno successivo
+                    refreshBoard();
+                }
             }
         });
-        
-        // BOTTONE SALTA TURNO
+        // --- BOTTONE SALTA TURNO ---
         Button passTurnBtn = new Button("Passa");
         passTurnBtn.getStyleClass().add("menu-button");
         passTurnBtn.setPrefSize(90, 90);
         passTurnBtn.setStyle("-fx-font-size: 15px; -fx-font-weight: bold; -fx-background-radius: 36; -fx-padding: 5");
         
-        // Di default, disabilitiamo il bottone se non è il turno del giocatore umano.
-        // Nel classico UNO, potresti volerlo abilitare SOLO se il giocatore ha già pescato (currentPlayer.getHasDrawn() == true) 
-        // ma per ora lo lasciamo cliccabile per il turno umano.
         if (currentPlayer.getPlayerType() != PlayerType.HUMAN) {
             passTurnBtn.setDisable(true);
         }
@@ -128,41 +136,31 @@ public class BoardView extends BorderPane {
         passTurnBtn.setOnAction(event -> {
             if (currentPlayer.getPlayerType() == PlayerType.HUMAN) {
                 System.out.println("Il giocatore ha deciso di saltare il turno");
-                game.nextTurn();
+                List<Card> EmptyList = new ArrayList<>();
+                game.processTurn(currentPlayer, EmptyList);
                 refreshBoard();
             }
         });
         
-        // Visualizza la prima carta degli scarti e aggiunge i bottoni all'area centrale
+        // Layout Centrale
         Card topDiscard = game.getDiscardPile().getTopCard();
         if (topDiscard != null) {
             CardView discardView = new CardView(topDiscard, true);
-            // Ordine: Pesca -> Gioca -> Carta Scartata -> Passa
             centerAreaBox.getChildren().addAll(drawPile, playCardsBtn, discardView, passTurnBtn);
         } else {
             centerAreaBox.getChildren().addAll(drawPile, playCardsBtn, passTurnBtn);
         }
 
-        // -- DISEGNA IN BASSO SOLO LE CARTE DEL GIOCATORE CORRENTE --
+        // --- DISEGNA CARTE GIOCATORE ---
         if (currentPlayer != null) {
             for (Card card : currentPlayer.getHand().getAllCardsCopy()) {
-                // Le carte del giocatore di turno sono sempre scoperte (isFaceUp = true) se il giocatore è umano. Se è un bot sono coperte. 
-                CardView cardView;
-                if (currentPlayer.getPlayerType() == PlayerType.HUMAN) {
-                    cardView = new CardView(card, true); 
-                } else {
-                    cardView = new CardView(card, false); 
+                CardView cardView = new CardView(card, currentPlayer.getPlayerType() == PlayerType.HUMAN); 
+                
+                if (currentPlayer.getHasDrawn() && !cardView.getCard().getDrawn()) {
+                    cardView.setDisable(true);
+                    cardView.setDisabledEffect(true);
                 }
                 
-                // Dopo che un giocatore ha pescato una carta, può giocare solo quella carta. Impedisce al giocatore di giocare carte che non siano la carta pescata.
-                if (currentPlayer.getHasDrawn() == true) {
-                    if (cardView.getCard().getDrawn() != true) {
-                        cardView.setDisable(true);
-                        cardView.setDisabledEffect(true);
-                    }
-                }
-                
-                // Impedisce all'utente di interagire con le carte se è il turno di un bot
                 if (currentPlayer.getPlayerType() == PlayerType.HUMAN) {
                     cardView.setOnMouseEntered(e -> cardView.setTranslateY(-15));
                     cardView.setOnMouseExited(e -> cardView.setTranslateY(0));
@@ -171,24 +169,22 @@ public class BoardView extends BorderPane {
                     cardView.setDisabledEffect(true);
                 }
                 
-                // Impedisce all'utente di interagire con le carte che non possono essere giocate sulla carta in cima al discardPile
-                if (cardView.getCard().isPlayableOn(topDiscard) != true) {
+                if (!cardView.getCard().isPlayableOn(topDiscard)) {
                     cardView.setDisable(true);
                     cardView.setDisabledEffect(true);
                 }               
                 
                 cardView.setOnMouseClicked(e -> {
-                    // Controlla che il giocatore di turno sia umano prima di far valere il click
                     HumanPlayer currentHumanPlayer = (HumanPlayer) currentPlayer;
-                    if (cardView.isDisabled() == false) {
-                        if (cardView.getSelected() == false) {
-                            if (currentHumanPlayer.getSelectedCardsFromUI().size() == 0) {
+                    if (!cardView.isDisabled()) {
+                        if (!cardView.getSelected()) {
+                            if (currentHumanPlayer.getSelectedCardsFromUI().isEmpty()) {
                                 currentHumanPlayer.getSelectedCardsFromUI().add(card);
                                 cardView.setSelectedEffect(true);
                             }
                             
-                            if (game.getRuleSet().getNumberRush() == true) {
-                                if (cardView.getCard().getType() == CardType.NUMBER && currentHumanPlayer.isSelectedCardsOnlyNumbers() == true) {
+                            if (game.getRuleSet().getNumberRush()) {
+                                if (cardView.getCard().getType() == CardType.NUMBER && currentHumanPlayer.isSelectedCardsOnlyNumbers()) {
                                     currentHumanPlayer.getSelectedCardsFromUI().add(card);
                                     cardView.setSelectedEffect(true);
                                 }
@@ -204,7 +200,7 @@ public class BoardView extends BorderPane {
             }
         }
         
-        // -- DISEGNA IN ALTO TUTTI GLI ALTRI GIOCATORI IN ATTESA --
+        // --- DISEGNA AVVERSARI ---
         Label turnInfo = new Label("Turno di: " + (currentPlayer != null ? currentPlayer.getPlayerName() : ""));
         turnInfo.setStyle("-fx-text-fill: #ffd700; -fx-font-size: 22px; -fx-font-weight: bold;");
         opponentsBox.getChildren().add(turnInfo);
@@ -213,29 +209,22 @@ public class BoardView extends BorderPane {
         otherPlayersContainer.setAlignment(Pos.CENTER);
 
         for (Player p : game.getPlayerList()) {
-            // Se il giocatore nel ciclo è quello di turno, lo saltiamo perché sta già in basso
             if (p == currentPlayer) continue;
 
-            // VBox per ogni singolo avversario in attesa
             VBox opponentBox = new VBox(5);
             opponentBox.setAlignment(Pos.CENTER);
 
-            // Nome e numero carte
             int cardCount = p.getHand().getAllCardsCopy().size();
             Label opponentName = new Label(p.getPlayerName() + " (" + cardCount + " carte)");
             opponentName.setStyle("-fx-text-fill: white; -fx-font-size: 14px; -fx-font-weight: bold;");
 
-            // HBox per le carte (sovrapposte)
             HBox opponentCards = new HBox(-50); 
             opponentCards.setAlignment(Pos.CENTER);
 
             for (Card card : p.getHand().getAllCardsCopy()) {
-                // Tutti i giocatori in attesa hanno le carte di dorso (isFaceUp = false)
                 CardView backCard = new CardView(card, false);
-                
                 backCard.setScaleX(0.6);
                 backCard.setScaleY(0.6);
-                
                 opponentCards.getChildren().add(backCard);
             }
 
@@ -244,5 +233,118 @@ public class BoardView extends BorderPane {
         }
         
         opponentsBox.getChildren().add(otherPlayersContainer);
+    }
+
+    // ==========================================
+    // NUOVO: FASE DI CONTESTAZIONE (PUNIZIONE)
+    // ==========================================
+
+    private void checkAndSpawnCallOutButton() {
+        // Controllo se esiste almeno un giocatore "unsafe"
+        boolean isSomeoneUnsafe = false;
+        
+        for (Player p : game.getPlayerList()) {
+            if (p.getHand().getAllCardsCopy().size() == 1 && p.getUnoState() == UNOState.Unsafe) {
+                isSomeoneUnsafe = true;
+                break;
+            }
+        }
+
+        // Se qualcuno è da punire, mostriamo il bottone sulla SINISTRA
+        if (isSomeoneUnsafe) {
+            Button callOutBtn = new Button("CONTESTA!");
+            callOutBtn.setStyle("-fx-background-color: #ff8800; -fx-text-fill: white; -fx-font-size: 28px; -fx-font-weight: bold; -fx-background-radius: 15; -fx-border-color: white; -fx-border-width: 3; -fx-border-radius: 15; -fx-padding: 15 20; -fx-cursor: hand;");
+            callOutBtn.setEffect(new DropShadow(15, Color.BLACK));
+            
+            VBox leftSideBox = new VBox(callOutBtn);
+            leftSideBox.setAlignment(Pos.CENTER);
+            leftSideBox.setPadding(new Insets(0, 0, 0, 50)); // Margine di 50px da sinistra
+            
+            this.setLeft(leftSideBox); // Lo piazziamo fisso a sinistra
+
+            PauseTransition pt = new PauseTransition(Duration.seconds(3));
+            
+            callOutBtn.setOnAction(e -> {
+                pt.stop();
+                this.setLeft(null); // Rimuove il bottone
+                System.out.println("Qualcuno è stato punito per non aver detto UNO!");
+                
+                game.punishUnsafePlayers();
+                
+                refreshBoard(); // Aggiorna per mostrare le nuove carte in mano al giocatore punito
+            });
+
+            pt.setOnFinished(e -> {
+                System.out.println("Finestra di contestazione scaduta.");
+                this.setLeft(null); // Rimuove il bottone
+                
+                //imposta lo stato di tutti i giocatori a Safe se finisce la finestra di tempo per contestargli la mancata dichiarazione.
+                for (Player p : game.getPlayerList()) {
+                	game.setSafeUnoState(p);
+                }
+            });
+            
+            pt.play();
+        }
+    }
+
+    // ==========================================
+    // FASE DI EMERGENZA "UNO"
+    // ==========================================
+
+    /**
+     * Mette in pausa il gioco per 1 secondo, aspettando che il giocatore clicchi il bottone.
+     */
+    private void triggerUnoPhase(HumanPlayer humanPlayer) {
+        // Disabilita temporaneamente i contenitori per evitare che l'utente clicchi altre carte/bottoni
+        centerAreaBox.setDisable(true);
+        playerHandBox.setDisable(true);
+
+        Button unoBtn = new Button("DICHIARA UNO!!");
+        unoBtn.setStyle("-fx-background-color: #ff0000; -fx-text-fill: white; -fx-font-size: 32px; -fx-font-weight: bold; -fx-background-radius: 15; -fx-border-color: white; -fx-border-width: 3; -fx-border-radius: 15; -fx-padding: 15 30; -fx-cursor: hand;");
+        unoBtn.setEffect(new DropShadow(20, Color.BLACK));
+        
+        // Creiamo un box dedicato per centrare il bottone verticalmente sul lato destro dello schermo
+        VBox rightSideBox = new VBox(unoBtn);
+        rightSideBox.setAlignment(Pos.CENTER);
+        rightSideBox.setPadding(new Insets(0, 50, 0, 0)); // Diamo 50px di margine dal bordo destro dello schermo
+        
+        // Piazziamo il box nella zona DESTRA (vuota) del BorderPane. Niente coordinate, posizione fissa!
+        this.setRight(rightSideBox);
+
+        // Avviamo il timer di emergenza
+        PauseTransition pt = new PauseTransition(Duration.seconds(1));
+        
+        // Se il giocatore clicca in tempo
+        unoBtn.setOnAction(e -> {
+            pt.stop(); // Ferma il countdown del timer
+            System.out.println("L'UTENTE HA DICHIARATO UNO IN TEMPO!");
+            concludeUnoPhase();
+        });
+
+        // Se il timer scade
+        pt.setOnFinished(e -> {
+            System.out.println("Tempo scaduto! L'utente NON ha dichiarato UNO.");
+            // (Model) Segna l'utente come UNSAFE
+            game.setUnsafeUnoState(humanPlayer);
+            concludeUnoPhase();
+        });
+        
+        pt.play();
+    }
+
+    /**
+     * Rimuove il bottone, sblocca la UI e fa ripartire il normale loop del gioco.
+     */
+    private void concludeUnoPhase() {
+        // Svuotiamo la zona destra del BorderPane, facendo sparire il bottone
+        this.setRight(null);
+        
+        // Sblocchiamo il tavolo e la mano
+        centerAreaBox.setDisable(false);
+        playerHandBox.setDisable(false);
+        
+        // Aggiorniamo la grafica per il turno successivo
+        refreshBoard(); 
     }
 }

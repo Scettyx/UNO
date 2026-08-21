@@ -12,6 +12,7 @@ import it.uniroma1.mdp.uno.model.deck.DiscardPile;
 import it.uniroma1.mdp.uno.model.player.HumanPlayer;
 import it.uniroma1.mdp.uno.model.player.Player;
 import it.uniroma1.mdp.uno.model.player.Player.PlayerType;
+import it.uniroma1.mdp.uno.model.player.Player.UNOState;
 import it.uniroma1.mdp.uno.model.rules.RuleSet;
 
 /**
@@ -259,16 +260,38 @@ public class GameEngine {
 	}
 
 	/**
-	 * Controlla lo stato della dichiarazione di UNO del giocatore.
+	 * Imposta lo stato della dichiarazione UNO a Unsafe (nel BoardView).
 	 * 
-	 * @param current
 	 */
-	public void checkUnoDeclaration(Player current) {
-		if (current.getHand().getNumCards() == 1 && current.getUnoState() != Player.UNOState.Called) {
-			current.setUnoState(Player.UNOState.Unsafe, deck, current); // aggiungi poi un modo per cambiare l'UNOState
-																		// a Called quando un altro giocatore richiama.
+	public void setUnsafeUnoState(Player player) {
+		player.setUnoState(Player.UNOState.Unsafe, deck, player); 
+	}
+	
+	/**
+	 * Imposta lo stato della dichiarazione UNO a Safe (nel BoardView).
+	 * 
+	 */
+	public void setSafeUnoState(Player player) {
+		player.setUnoState(Player.UNOState.Safe, deck, player); 
+	}
+	
+	/**
+	 * Imposta lo stato della dichiarazione UNO a Called (nel BoardView).
+	 * 
+	 */
+	public void setCalledUnoState(Player player) {
+		player.setUnoState(Player.UNOState.Called, deck, player); 
+	}
+	
+	/**
+	 * Metodo per far pescare le carte ai giocatori a cui è stata contestata la mancata dichiarazione di UNO.
+	 */
+	public void punishUnsafePlayers() {
+		for (Player p: playerList) {
+			setCalledUnoState(p);
 		}
 	}
+	
 
 	/**
 	 * le condizioni di vittoria di un ROUND in base alla modalità
@@ -395,13 +418,9 @@ public class GameEngine {
 				playAction.addCardInvolved(playedCard);
 
 				// meccaniche dichiarazione UNO
-				checkUnoDeclaration(current);
 				if (current.getUnoState() == Player.UNOState.Safe && current.getHand().getNumCards() == 1) {
 					playAction.setUnoCalled(true);
 				}
-
-				discardPile.addCard(playedCard);
-				current.getHand().getAllCards().remove(playedCard);
 
 				// effetti legati a carte speciali
 				switch (playedCard.getType()) {

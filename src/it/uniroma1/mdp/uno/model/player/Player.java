@@ -36,11 +36,11 @@ public abstract class Player {
 
 	/**
 	 * Safe: al giocatore non è richiesto dover dichiarare UNO
-	 * Called: il giocatore non ha dichiarato UNO e deve pescare due carte.
 	 * Unsafe: al giocatore è richiesto dover dichiarare UNO e non l'ha ancora fatto
+	 * Called: al giocatore è stata contestata la mancata dichiarazione di UNO.
 	 */
 	public enum UNOState {
-		Safe, Called, Unsafe
+		Safe, Unsafe, Called
 	}
 
 	/** Lo stato corrente della dichiarazione "UNO" per il giocatore */
