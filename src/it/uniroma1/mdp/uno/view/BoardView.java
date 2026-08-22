@@ -382,26 +382,36 @@ public class BoardView extends BorderPane {
         opponentsBox.getChildren().add(otherPlayersContainer);
 
         // --- CREAZIONE STORICO IN ALTO A SINISTRA ---
-        VBox historyBox = new VBox(3);
-        historyBox.setPadding(new Insets(10));
-        historyBox.setStyle("-fx-background-color: rgba(0,0,0,0.6); -fx-background-radius: 10;");
+        VBox historyContent = new VBox(3);
+        historyContent.setPadding(new Insets(10));
+        historyContent.setStyle("-fx-background-color: rgba(0,0,0,0.6);");
+        
         Label histTitle = new Label(" STORICO MOSSE:");
-        histTitle.setStyle("-fx-text-fill: white; -fx-font-weight: bold;");
-        historyBox.getChildren().add(histTitle);
+        histTitle.setStyle("-fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 14px;");
+        historyContent.getChildren().add(histTitle);
 
         List<GameAction> actions = game.getGameHistory().getAllActions();
-        int start = Math.max(0, actions.size() - 5); // Mostra solo le ultime 5 mosse per non ingombrare
-        for (int i = start; i < actions.size(); i++) {
-            Label move = new Label("- " + actions.get(i).setActionDescription());
-            move.setStyle("-fx-text-fill: lightgray; -fx-font-size: 13px;");
-            historyBox.getChildren().add(move);
+        // Mostriamo TUTTE le mosse dall'inizio della partita
+        for (int i = 0; i < actions.size(); i++) {
+            Label move = new Label((i + 1) + ". " + actions.get(i).setActionDescription());
+            move.setStyle("-fx-text-fill: lightgray; -fx-font-size: 12px;");
+            historyContent.getChildren().add(move);
         }
+
+        // Avvolgiamo la VBox in una ScrollPane
+        javafx.scene.control.ScrollPane historyScroll = new javafx.scene.control.ScrollPane(historyContent);
+        historyScroll.setPrefSize(250, 150); // Fissiamo dimensione
+        historyScroll.setHbarPolicy(javafx.scene.control.ScrollPane.ScrollBarPolicy.NEVER);
+        historyScroll.setVbarPolicy(javafx.scene.control.ScrollPane.ScrollBarPolicy.AS_NEEDED);
+        historyScroll.setStyle("-fx-background-color: transparent; -fx-background: transparent;");
+        // Scroll automatico verso il basso ad ogni aggiornamento
+        historyScroll.setVvalue(1.0); 
 
         // Impacchettiamo gli avversari (al centro) e lo storico (a sinistra) in una
         // TopBar
         BorderPane topBar = new BorderPane();
         topBar.setCenter(opponentsBox);
-        topBar.setLeft(historyBox);
+        topBar.setLeft(historyScroll);
 
         // --- CLASSIFICA IN ALTO A DESTRA (Solo per le partite a punti) ---
         if (game.getGameMode().getPointMatch()) {
@@ -658,6 +668,30 @@ public class BoardView extends BorderPane {
                 victoryBox.getChildren().add(pScore);
             }
         }
+        Button historyBtn = new Button("Visualizza Storico Completo");
+        historyBtn.setStyle("-fx-font-size: 18px; -fx-padding: 10 20; -fx-cursor: hand; -fx-background-color: #2196F3; -fx-text-fill: white;");
+        historyBtn.setOnAction(e -> {
+            VBox historyContent = new VBox(3);
+            historyContent.setPadding(new Insets(10));
+            historyContent.setStyle("-fx-background-color: #333;");
+            
+            List<GameAction> actions = game.getGameHistory().getAllActions();
+            for (int i = 0; i < actions.size(); i++) {
+                Label move = new Label((i + 1) + ". " + actions.get(i).setActionDescription());
+                move.setStyle("-fx-text-fill: white; -fx-font-size: 14px;");
+                historyContent.getChildren().add(move);
+            }
+
+            javafx.scene.control.ScrollPane historyScroll = new javafx.scene.control.ScrollPane(historyContent);
+            historyScroll.setFitToWidth(true);
+
+            javafx.scene.Scene historyScene = new javafx.scene.Scene(historyScroll, 400, 500);
+            javafx.stage.Stage historyStage = new javafx.stage.Stage();
+            historyStage.setTitle("Storico Mosse della Partita");
+            historyStage.setScene(historyScene);
+            historyStage.show();
+        });
+
         Button exitBtn = new Button("Chiudi Gioco");
         exitBtn.setStyle("-fx-font-size: 20px; -fx-padding: 10 20; -fx-cursor: hand;");
         exitBtn.setOnAction(e -> {
@@ -666,8 +700,9 @@ public class BoardView extends BorderPane {
             System.exit(0); 
         });
         
-        VBox.setMargin(exitBtn, new Insets(40, 0, 0, 0)); // Spazio sopra al bottone
-        victoryBox.getChildren().add(exitBtn);
+        VBox.setMargin(historyBtn, new Insets(30, 0, 0, 0));
+        VBox.setMargin(exitBtn, new Insets(10, 0, 0, 0)); // Spazio sopra al bottone
+        victoryBox.getChildren().addAll(historyBtn, exitBtn);
         this.setCenter(victoryBox);
     }
 }
