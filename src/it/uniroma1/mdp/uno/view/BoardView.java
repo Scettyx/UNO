@@ -97,6 +97,11 @@ public class BoardView extends BorderPane {
                         canStack = true;
                 }
             }
+                        // CASO 0: Challenge del Wild Draw Four
+            if (game.getPendingDrawPenalty() >= 4 && topDiscard.getType() == it.uniroma1.mdp.uno.model.card.CardType.WILD_DRAW_FOUR && !currentPlayer.getIsChallenged()) {
+                triggerChallengePhase((HumanPlayer) currentPlayer);
+                return; // Ferma il caricamento della grafica del turno finche non risponde!
+            }
             // CASO 1: L'umano riceve una penalità (+2 o +4) e non può difendersi.
             if (game.getPendingDrawPenalty() > 0 && !canStack) {
                 centerAreaBox.setDisable(true);
@@ -105,7 +110,7 @@ public class BoardView extends BorderPane {
                 pt.setOnFinished(e -> {
                     // Inviamo una lista vuota: il GameEngine capirà che deve applicare la penalità!
                     game.processTurn(currentPlayer, new ArrayList<>());
-                    finishHumanTurnAndRefresh();
+                    finishHumanTurnAndRefresh(currentPlayer);
                 });
                 pt.play();
             }
@@ -158,7 +163,7 @@ public class BoardView extends BorderPane {
 
                 // Processa il turno ed evoca la funzione in ricorsione per passare al prossimo
                 game.processTurn(currentPlayer, botPlay);
-                finishHumanTurnAndRefresh();
+                finishHumanTurnAndRefresh(currentPlayer);
             });
             botTimer.play();
         }
@@ -216,7 +221,7 @@ public class BoardView extends BorderPane {
                     triggerUnoPhase(currentHumanPlayer);
                 } else {
                     // 4. Procedi normalmente al turno successivo
-                    finishHumanTurnAndRefresh();
+                    finishHumanTurnAndRefresh(currentPlayer);
                 }
             }
         });
@@ -235,17 +240,49 @@ public class BoardView extends BorderPane {
                 System.out.println("Il giocatore ha deciso di saltare il turno");
                 List<Card> EmptyList = new ArrayList<>();
                 game.processTurn(currentPlayer, EmptyList);
-                finishHumanTurnAndRefresh();
+                finishHumanTurnAndRefresh(currentPlayer);
             }
         });
+
+        // --- INFO DI GIOCO (Colore e Verso) ---
+        VBox infoBox = new VBox(2); // Spazio tra i testi ridotto
+        infoBox.setAlignment(Pos.CENTER);
+        infoBox.setPadding(new Insets(2));
+        infoBox.setPrefSize(90, 90);
+        infoBox.setMaxSize(90, 90);
+        infoBox.setMinSize(90, 90);
+        infoBox.setStyle("-fx-background-color: rgba(0,0,0,0.6); -fx-background-radius: 36; -fx-border-color: white; -fx-border-radius: 36; -fx-border-width: 1;");
+
+        String colorName = game.getCurrentColor() != null ? game.getCurrentColor().name() : "N/A";
+        String colorHex = "white";
+        if (game.getCurrentColor() != null) {
+            switch(game.getCurrentColor()) {
+                case RED: colorHex = "#ff5555"; break;
+                case BLUE: colorHex = "#5555ff"; break;
+                case GREEN: colorHex = "#55ff55"; break;
+                case YELLOW: colorHex = "#ffff55"; break;
+                default: break;
+            }
+        }
+        
+        Label colorLabel = new Label("Colore:\n" + colorName);
+        colorLabel.setAlignment(Pos.CENTER);
+        colorLabel.setTextAlignment(javafx.scene.text.TextAlignment.CENTER);
+        colorLabel.setStyle("-fx-text-fill: " + colorHex + "; -fx-font-size: 11px; -fx-font-weight: bold;");
+        
+        String dirText = game.getDirection() ? "Orario \u21BB" : "Anti \u21BA";
+        Label dirLabel = new Label(dirText);
+        dirLabel.setStyle("-fx-text-fill: white; -fx-font-size: 10px; -fx-font-weight: bold;");
+
+        infoBox.getChildren().addAll(colorLabel, dirLabel);
 
         // Layout Centrale
         Card topDiscard = game.getDiscardPile().getTopCard();
         if (topDiscard != null) {
             CardView discardView = new CardView(topDiscard, true);
-            centerAreaBox.getChildren().addAll(drawPile, playCardsBtn, discardView, passTurnBtn);
+            centerAreaBox.getChildren().addAll(drawPile, playCardsBtn, discardView, passTurnBtn, infoBox);
         } else {
-            centerAreaBox.getChildren().addAll(drawPile, playCardsBtn, passTurnBtn);
+            centerAreaBox.getChildren().addAll(drawPile, playCardsBtn, passTurnBtn, infoBox);
         }
 
         // --- DISEGNA CARTE GIOCATORE ---
@@ -473,7 +510,7 @@ public class BoardView extends BorderPane {
         unoBtn.setOnAction(e -> {
             pt.stop(); // Ferma il countdown del timer
             System.out.println("L'UTENTE HA DICHIARATO UNO IN TEMPO!");
-            concludeUnoPhase();
+            concludeUnoPhase(humanPlayer);
         });
 
         // Se il timer scade
@@ -481,7 +518,7 @@ public class BoardView extends BorderPane {
             System.out.println("Tempo scaduto! L'utente NON ha dichiarato UNO.");
             // (Model) Segna l'utente come UNSAFE
             game.setUnsafeUnoState(humanPlayer);
-            concludeUnoPhase();
+            concludeUnoPhase(humanPlayer);
         });
 
         pt.play();
@@ -490,7 +527,7 @@ public class BoardView extends BorderPane {
     /**
      * Rimuove il bottone, sblocca la UI e fa ripartire il normale loop del gioco.
      */
-    private void concludeUnoPhase() {
+    private void concludeUnoPhase(Player previousPlayer) {
         // Svuotiamo la zona destra del BorderPane, facendo sparire il bottone
         this.setRight(null);
 
@@ -499,16 +536,71 @@ public class BoardView extends BorderPane {
         playerHandBox.setDisable(false);
 
         // Aggiorniamo la grafica per il turno successivo
-        finishHumanTurnAndRefresh();
+        finishHumanTurnAndRefresh(previousPlayer);
     }
 
     /**
      * Gestisce la transizione visiva (Hotseat) per evitare che i giocatori umani
      * sbircino le carte l'uno dell'altro scambiandosi il posto al computer.
      */
-    private void finishHumanTurnAndRefresh() {
-        // Se il prossimo a giocare è di nuovo un umano, oscura il tavolo per 2 secondi
-        if (game.getCurrentPlayer().getPlayerType() == PlayerType.HUMAN) {
+        private void triggerChallengePhase(HumanPlayer humanPlayer) {
+        centerAreaBox.setDisable(true);
+        playerHandBox.setDisable(true);
+
+        VBox challengeBox = new VBox(10);
+        challengeBox.setAlignment(Pos.CENTER);
+        challengeBox.setStyle("-fx-background-color: rgba(0,0,0,0.9); -fx-padding: 20; -fx-background-radius: 15; -fx-border-color: #ff0000; -fx-border-width: 3; -fx-border-radius: 15;");
+
+        Label msg = new Label("Ti hanno tirato un +4!\nVuoi sfidare il giocatore precedente?");
+        msg.setStyle("-fx-text-fill: white; -fx-font-size: 20px; -fx-font-weight: bold; -fx-text-alignment: center;");
+
+        Button challengeBtn = new Button("SFIDA!");
+        challengeBtn.setStyle("-fx-background-color: #ff0000; -fx-text-fill: white; -fx-font-size: 20px; -fx-font-weight: bold; -fx-cursor: hand;");
+        
+        Button acceptBtn = new Button("Accetta (Pesca/Impila)");
+        acceptBtn.setStyle("-fx-background-color: #555555; -fx-text-fill: white; -fx-font-size: 16px; -fx-cursor: hand;");
+
+        challengeBtn.setOnAction(e -> {
+            humanPlayer.setIsChallenged(true); // Segna come scelta effettuata
+            
+            Player prev = game.getPreviousPlayer();
+            boolean wasLegal = true;
+            for (Card c : prev.getHand().getAllCardsCopy()) {
+                // Se aveva il colore attivo PRIMA che giocasse il +4, allora la giocata era illegale
+                if (c.getOriginalColor() == game.getPreviousColor() && c.getOriginalColor() != it.uniroma1.mdp.uno.model.card.CardColor.NONE) {
+                    wasLegal = false;
+                    break;
+                }
+            }
+
+            if (!wasLegal) {
+                System.out.println("Sfida VINTA! " + prev.getPlayerName() + " pesca 4 carte.");
+                game.getDeck().drawCardRandom(prev.getHand(), 4);
+                // Cancella la penalita per noi
+                game.setPendingDrawPenalty(game.getPendingDrawPenalty() - 4);
+            } else {
+                System.out.println("Sfida PERSA! Peschi 6 carte!");
+                game.setPendingDrawPenalty(game.getPendingDrawPenalty() + 2); // 4 normali + 2 di penalita extra
+            }
+            this.setRight(null); // Chiude il menu
+            refreshBoard();
+        });
+
+        acceptBtn.setOnAction(e -> {
+            humanPlayer.setIsChallenged(true);
+            this.setRight(null);
+            refreshBoard();
+        });
+
+        challengeBox.getChildren().addAll(msg, challengeBtn, acceptBtn);
+        this.setRight(challengeBox);
+    }
+
+    private void finishHumanTurnAndRefresh(Player previousPlayer) {
+        // Se il passaggio è tra DUE giocatori UMANI, oscura il tavolo
+        if (previousPlayer != null && previousPlayer.getPlayerType() == PlayerType.HUMAN 
+            && game.getCurrentPlayer().getPlayerType() == PlayerType.HUMAN) {
+            
             playerHandBox.getChildren().clear();
             centerAreaBox.getChildren().clear();
             
@@ -520,7 +612,7 @@ public class BoardView extends BorderPane {
             pt.setOnFinished(e -> refreshBoard());
             pt.play();
         } else {
-            // Se tocca a un bot, aggiorna subito (il bot aspetterà già 2 secondi da solo)
+            // Nessuna transizione se c'è di mezzo un bot
             refreshBoard();
         }
     }

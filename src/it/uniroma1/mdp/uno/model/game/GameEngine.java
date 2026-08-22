@@ -27,6 +27,7 @@ public class GameEngine {
 	private GameMode gameMode;
 	private RuleSet ruleSet;
 	private CardColor currentColor;
+	private CardColor previousColor;
 	private int currentPlayer;
 	private Player[] playerList;
 	private Deck deck;
@@ -35,15 +36,16 @@ public class GameEngine {
 	private GameHistory gameHistory;
 	boolean direction;
 
-	public GameEngine(Player[] plist, GameMode gameMode, RuleSet ruleSet) {
-		this.ruleSet = ruleSet;
+	public GameEngine(Player[] playerList, GameMode gameMode, RuleSet ruleSet) {
+		this.playerList = playerList;
 		this.gameMode = gameMode;
+		this.ruleSet = ruleSet;
 		currentPlayer = 0;
-		playerList = plist;
 		deck = new Deck();
 		discardPile = new DiscardPile();
 		direction = true;
 		currentColor = null;
+		previousColor = null;
 		this.gameHistory = new GameHistory();
 	}
 
@@ -110,6 +112,29 @@ public class GameEngine {
 	}
 
 	/**
+	 * Ritorna il colore precedente.
+	 * 
+	 * @return il CardColor precedente
+	 */
+	public CardColor getPreviousColor() {
+		return previousColor;
+	}
+
+	/**
+	 * Ritorna il Player precedente.
+	 * 
+	 * @return il Player precedente
+	 */
+	public Player getPreviousPlayer() {
+		int prev = direction ? currentPlayer - 1 : currentPlayer + 1;
+		if (prev < 0)
+			prev = playerList.length - 1;
+		if (prev >= playerList.length)
+			prev = 0;
+		return playerList[prev];
+	}
+
+	/**
 	 * Ritorna il colore attivo in questo momento.
 	 * 
 	 * @return il CardColor corrente
@@ -161,6 +186,15 @@ public class GameEngine {
 	 */
 	public void setDirection(boolean direction) {
 		this.direction = direction;
+	}
+
+	/**
+	 * Imposta il numero di carte da pescare per le Challenge.
+	 * 
+	 * @param pendingDrawPenalty il numero di carte da pescare
+	 */
+	public void setPendingDrawPenalty(int pendingDrawPenalty) {
+		this.pendingDrawPenalty = pendingDrawPenalty;
 	}
 
 	/**
@@ -224,11 +258,7 @@ public class GameEngine {
 	 * @param winner il giocatore che ha vinto il round
 	 */
 	public void addPointsToWinner(Player winner) {
-		for (Player i : playerList) {
-			winner.setCurrentRoundScore(i.getHand().getHandScore());
-		}
-		winner.setTotalScore(winner.getCurrentRoundScore());
-		winner.resetCurrentRoundScore();
+		winner.setTotalScore(100);
 	}
 
 	/**
@@ -428,6 +458,7 @@ public class GameEngine {
 
 			for (Card playedCard : playedCards) {
 				current.getHand().playCard(playedCard, discardPile);
+				previousColor = currentColor;
 				currentColor = playedCard.getActiveColor();
 				playAction.addCardInvolved(playedCard);
 
@@ -455,24 +486,19 @@ public class GameEngine {
 						if (playedCard.getActiveColor() == CardColor.NONE || playedCard.getActiveColor() == null) {
 							playedCard.setChosenColor(CardColor.getRandomColor());
 						}
+						previousColor = currentColor;
 						currentColor = playedCard.getActiveColor(); // implementa che il giocatore dovrà scegliere il
 																	// colore attivo
 						break;
 
 					case WILD_DRAW_FOUR:
-						// controlla se il giocatore è stato sfidato dopo il lancio del Wild Draw Four
-						if (current.getIsChallenged()) {
-							WildDrawFourChallenge(playedCard, current);
-						} else {
-							pendingDrawPenalty += 4;
-						}
+						pendingDrawPenalty += 4;
 
-						// Si prende un colore casuale se non si sceglie
 						if (playedCard.getActiveColor() == CardColor.NONE || playedCard.getActiveColor() == null) {
 							playedCard.setChosenColor(CardColor.getRandomColor());
 						}
-						currentColor = playedCard.getActiveColor(); // implementa che il giocatore dovrà scegliere il
-																	// colore attivo
+						previousColor = currentColor;
+						currentColor = playedCard.getActiveColor();
 						break;
 
 					case NUMBER:
