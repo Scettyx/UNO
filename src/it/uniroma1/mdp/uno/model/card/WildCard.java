@@ -7,8 +7,8 @@ package it.uniroma1.mdp.uno.model.card;
  * @author Cosmin Florea (M.2241398)
  */
 public class WildCard extends Card {
-	public static final int POINTS_VALUE = 50; // Massimo assicurati che i punti sono giusti che io ho messo gli stessi
-												// tua
+	public static final int POINTS_VALUE = 50; // Massimo assicurati che i punti sono giusti che io ho messo gli stessi tua
+												
 
 	/**
 	 * Costruisce la carta

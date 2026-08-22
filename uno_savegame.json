@@ -1,0 +1,83 @@
+{
+  "pointMatch": false,
+  "winThreshold": 500,
+  "stackDrawCards": false,
+  "numberRush": false,
+  "currentPlayerIndex": 0,
+  "direction": false,
+  "currentColor": "YELLOW",
+  "pendingDrawPenalty": 0,
+  "players": [
+    {
+      "name": "Giocatore 1",
+      "id": 0,
+      "playerType": "HUMAN",
+      "totalScore": 0,
+      "hand": [
+        {
+          "type": "SKIP",
+          "originalColor": "GREEN",
+          "numericValue": 0
+        },
+        {
+          "type": "NUMBER",
+          "originalColor": "GREEN",
+          "numericValue": 8
+        },
+        {
+          "type": "SKIP",
+          "originalColor": "GREEN",
+          "numericValue": 0
+        },
+        {
+          "type": "NUMBER",
+          "originalColor": "BLUE",
+          "numericValue": 2
+        },
+        {
+          "type": "SKIP",
+          "originalColor": "RED",
+          "numericValue": 0
+        },
+        {
+          "type": "NUMBER",
+          "originalColor": "GREEN",
+          "numericValue": 7
+        }
+      ]
+    },
+    {
+      "name": "Giocatore 2",
+      "id": 1,
+      "playerType": "HUMAN",
+      "totalScore": 0,
+      "hand": [
+        {
+          "type": "NUMBER",
+          "originalColor": "YELLOW",
+          "numericValue": 9
+        },
+        {
+          "type": "NUMBER",
+          "originalColor": "RED",
+          "numericValue": 8
+        },
+        {
+          "type": "NUMBER",
+          "originalColor": "YELLOW",
+          "numericValue": 5
+        },
+        {
+          "type": "NUMBER",
+          "originalColor": "RED",
+          "numericValue": 7
+        },
+        {
+          "type": "DRAW_TWO",
+          "originalColor": "BLUE",
+          "numericValue": 0
+        }
+      ]
+    }
+  ]
+}

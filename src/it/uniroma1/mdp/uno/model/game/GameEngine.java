@@ -492,23 +492,12 @@ public class GameEngine {
 						break;
 
 					case WILD:
-						// Si prende un colore casuale se non si sceglie
-						if (playedCard.getActiveColor() == CardColor.NONE || playedCard.getActiveColor() == null) {
-							playedCard.setChosenColor(CardColor.getRandomColor());
-						}
-						previousColor = currentColor;
-						currentColor = playedCard.getActiveColor(); // implementa che il giocatore dovrà scegliere il
-																	// colore attivo
+						
 						break;
 
 					case WILD_DRAW_FOUR:
 						pendingDrawPenalty += 4;
-
-						if (playedCard.getActiveColor() == CardColor.NONE || playedCard.getActiveColor() == null) {
-							playedCard.setChosenColor(CardColor.getRandomColor());
-						}
-						previousColor = currentColor;
-						currentColor = playedCard.getActiveColor();
+						
 						break;
 
 					case NUMBER:

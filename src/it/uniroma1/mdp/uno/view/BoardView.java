@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import it.uniroma1.mdp.uno.model.card.Card;
+import it.uniroma1.mdp.uno.model.card.CardColor;
 import it.uniroma1.mdp.uno.model.card.CardType;
 import it.uniroma1.mdp.uno.model.deck.DiscardPile;
 import it.uniroma1.mdp.uno.model.player.HumanPlayer;
@@ -22,8 +23,11 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
-
+import javafx.scene.shape.Rectangle;
+import javafx.animation.FadeTransition;
+import javafx.animation.FillTransition;
 import javafx.animation.PauseTransition;
+import javafx.animation.TranslateTransition;
 import javafx.util.Duration;
 
 /**
@@ -98,7 +102,7 @@ public class BoardView extends BorderPane {
                 }
             }
                         // CASO 0: Challenge del Wild Draw Four
-            if (game.getPendingDrawPenalty() >= 4 && topDiscard.getType() == it.uniroma1.mdp.uno.model.card.CardType.WILD_DRAW_FOUR && !currentPlayer.getIsChallenged()) {
+            if (game.getPendingDrawPenalty() >= 4 && topDiscard.getType() == CardType.WILD_DRAW_FOUR && !currentPlayer.getIsChallenged()) {
                 triggerChallengePhase((HumanPlayer) currentPlayer);
                 return; // Ferma il caricamento della grafica del turno finche non risponde!
             }
@@ -110,21 +114,11 @@ public class BoardView extends BorderPane {
                 pt.setOnFinished(e -> {
                     // Inviamo una lista vuota: il GameEngine capirà che deve applicare la penalità!
                     game.processTurn(currentPlayer, new ArrayList<>());
-                    finishHumanTurnAndRefresh(currentPlayer);
+                    finishTurnAndRefresh(currentPlayer);
                 });
                 pt.play();
             }
-            // CASO 2: L'umano inizia il turno ma ha zero carte giocabili. Pesca da solo!
-            else if (game.getPendingDrawPenalty() == 0 && !hasPlayable && !currentPlayer.getHasDrawn()) {
-                centerAreaBox.setDisable(true);
-                playerHandBox.setDisable(true);
-                PauseTransition pt = new PauseTransition(Duration.seconds(2));
-                pt.setOnFinished(e -> {
-                    game.drawIfNotPlayed(currentPlayer);
-                    refreshBoard(); // Si sbloccherà dandogli la possibilità di giocare o passare
-                });
-                pt.play();
-            }
+            
         }
 
         if (currentPlayer.getPlayerType() == PlayerType.BOT) {
@@ -137,7 +131,7 @@ public class BoardView extends BorderPane {
             playerHandBox.setDisable(true);
             // Timer di 1.5 secondi per dare "l'illusione" che stia pensando e far capire di
             // chi è il turno
-            PauseTransition botTimer = new PauseTransition(Duration.seconds(1.5));
+            PauseTransition botTimer = new PauseTransition(Duration.seconds(3));
             botTimer.setOnFinished(e -> {
                 List<Card> botPlay = currentPlayer.playTurn(game.getDiscardPile().getTopCard());
                 // Se il bot non ha trovato nulla da giocare, deve pescare
@@ -163,7 +157,7 @@ public class BoardView extends BorderPane {
 
                 // Processa il turno ed evoca la funzione in ricorsione per passare al prossimo
                 game.processTurn(currentPlayer, botPlay);
-                finishHumanTurnAndRefresh(currentPlayer);
+                finishTurnAndRefresh(currentPlayer);
             });
             botTimer.play();
         }
@@ -173,6 +167,30 @@ public class BoardView extends BorderPane {
         if (currentPlayer.getUnoState() != UNOState.Unsafe && currentPlayer.getPlayerType() == PlayerType.HUMAN) {
             checkAndSpawnCallOutButton();
         }
+        
+        
+     // --- BOTTONE SALTA TURNO ---
+        Button passTurnBtn = new Button("Passa");
+        passTurnBtn.getStyleClass().add("menu-button");
+        passTurnBtn.setPrefSize(90, 90);
+        passTurnBtn.setStyle("-fx-font-size: 15px; -fx-font-weight: bold; -fx-background-radius: 36; -fx-padding: 5");
+
+        if (currentPlayer.getPlayerType() != PlayerType.HUMAN) {
+            passTurnBtn.setDisable(true);
+        }
+        
+        if (currentPlayer.getHasDrawn() == false) {
+        	passTurnBtn.setDisable(true);
+        }
+
+        passTurnBtn.setOnAction(event -> {
+            if (currentPlayer.getPlayerType() == PlayerType.HUMAN && currentPlayer.getHasDrawn() == true) {
+                System.out.println("Il giocatore ha deciso di saltare il turno");
+                List<Card> EmptyList = new ArrayList<>();
+                game.processTurn(currentPlayer, EmptyList);
+                finishTurnAndRefresh(currentPlayer);
+            }
+        });
 
         // --- BOTTONE PESCA ---
         Button drawPile = new Button("Pesca");
@@ -188,8 +206,9 @@ public class BoardView extends BorderPane {
             if (!drawPile.isDisabled()) {
                 System.out.println("Il giocatore ha pescato una carta");
                 HumanPlayer currentHumanPlayer = (HumanPlayer) currentPlayer;
-                currentHumanPlayer.drawOnTurn(game);
-                refreshBoard();
+                currentHumanPlayer.drawOnTurn(game);         
+                passTurnBtn.setDisable(false);
+                refreshBoard();         
             }
         });
 
@@ -220,29 +239,13 @@ public class BoardView extends BorderPane {
                     // 3. Avvia la fase di emergenza (1 secondo), bloccando il passaggio del turno
                     triggerUnoPhase(currentHumanPlayer);
                 } else {
-                    // 4. Procedi normalmente al turno successivo
-                    finishHumanTurnAndRefresh(currentPlayer);
+                	//CASO: Carta wild
+                    
+                    finishTurnAndRefresh(currentPlayer);
                 }
             }
         });
-        // --- BOTTONE SALTA TURNO ---
-        Button passTurnBtn = new Button("Passa");
-        passTurnBtn.getStyleClass().add("menu-button");
-        passTurnBtn.setPrefSize(90, 90);
-        passTurnBtn.setStyle("-fx-font-size: 15px; -fx-font-weight: bold; -fx-background-radius: 36; -fx-padding: 5");
-
-        if (currentPlayer.getPlayerType() != PlayerType.HUMAN) {
-            passTurnBtn.setDisable(true);
-        }
-
-        passTurnBtn.setOnAction(event -> {
-            if (currentPlayer.getPlayerType() == PlayerType.HUMAN) {
-                System.out.println("Il giocatore ha deciso di saltare il turno");
-                List<Card> EmptyList = new ArrayList<>();
-                game.processTurn(currentPlayer, EmptyList);
-                finishHumanTurnAndRefresh(currentPlayer);
-            }
-        });
+        
 
         // --- INFO DI GIOCO (Colore e Verso) ---
         VBox infoBox = new VBox(2); // Spazio tra i testi ridotto
@@ -323,9 +326,13 @@ public class BoardView extends BorderPane {
                     HumanPlayer currentHumanPlayer = (HumanPlayer) currentPlayer;
                     if (!cardView.isDisabled()) {
                         if (!cardView.getSelected()) {
-                            if (currentHumanPlayer.getSelectedCardsFromUI().isEmpty()) {
+                            if (currentHumanPlayer.getSelectedCardsFromUI().isEmpty()) {                            	
                                 currentHumanPlayer.getSelectedCardsFromUI().add(card);
                                 cardView.setSelectedEffect(true);
+                                if(currentHumanPlayer.getSelectedCardsFromUI().getFirst().getType() == CardType.WILD 
+                                    	|| currentHumanPlayer.getSelectedCardsFromUI().getFirst().getType() == CardType.WILD_DRAW_FOUR) {
+                                    		chooseColorWild(currentHumanPlayer.getSelectedCardsFromUI().getFirst());
+                                    	}
                             }
 
                             if (game.getRuleSet().getNumberRush()) {
@@ -557,14 +564,73 @@ public class BoardView extends BorderPane {
         playerHandBox.setDisable(false);
 
         // Aggiorniamo la grafica per il turno successivo
-        finishHumanTurnAndRefresh(previousPlayer);
+        finishTurnAndRefresh(previousPlayer);
     }
 
+	private void chooseColorWild(Card card) {
+		centerAreaBox.setDisable(true);
+        playerHandBox.setDisable(true);
+
+        VBox challengeBox = new VBox(10);
+        challengeBox.setAlignment(Pos.CENTER);
+        challengeBox.setStyle("-fx-background-color: rgba(0,0,0,0.9); -fx-padding: 20; -fx-background-radius: 15; -fx-border-color: #ff0000; -fx-border-width: 3; -fx-border-radius: 15;");
+
+        Label msg = new Label("Scegli il prossimo colore.");
+        msg.setStyle("-fx-text-fill: white; -fx-font-size: 20px; -fx-font-weight: bold; -fx-text-alignment: center;");
+
+        Button greenBtn = new Button();
+        greenBtn.setPrefSize(100, 100);
+        greenBtn.setStyle("-fx-background-color: #00ff00; -fx-cursor: hand;");
+
+        Button yellowBtn = new Button();
+        yellowBtn.setPrefSize(100, 100);
+        yellowBtn.setStyle("-fx-background-color: #ffff00; -fx-cursor: hand;");
+
+        Button redBtn = new Button();
+        redBtn.setPrefSize(100, 100);
+        redBtn.setStyle("-fx-background-color: #ff0000; -fx-cursor: hand;");
+
+        Button blueBtn = new Button();
+        blueBtn.setPrefSize(100, 100);
+        blueBtn.setStyle("-fx-background-color: #0000ff; -fx-cursor: hand;");
+        
+        greenBtn.setOnAction(e -> {
+        	card.setChosenColor(CardColor.GREEN);
+        	this.setRight(null);
+        	centerAreaBox.setDisable(false);
+            playerHandBox.setDisable(false);
+        });
+        
+        yellowBtn.setOnAction(e -> {
+        	card.setChosenColor(CardColor.YELLOW);
+        	this.setRight(null);
+        	centerAreaBox.setDisable(false);
+            playerHandBox.setDisable(false);
+        });
+        
+        redBtn.setOnAction(e -> {
+        	card.setChosenColor(CardColor.RED);
+        	this.setRight(null);
+        	centerAreaBox.setDisable(false);
+            playerHandBox.setDisable(false);
+        });
+        
+        blueBtn.setOnAction(e -> {
+        	card.setChosenColor(CardColor.BLUE);
+        	this.setRight(null);
+        	centerAreaBox.setDisable(false);
+            playerHandBox.setDisable(false);
+        });
+                
+        
+        challengeBox.getChildren().addAll(msg, greenBtn, yellowBtn, redBtn, blueBtn);
+        this.setRight(challengeBox);
+        
+	}
     /**
-     * Gestisce la transizione visiva (Hotseat) per evitare che i giocatori umani
-     * sbircino le carte l'uno dell'altro scambiandosi il posto al computer.
+     * challenge del wild draw four
      */
-        private void triggerChallengePhase(HumanPlayer humanPlayer) {
+	private void triggerChallengePhase(HumanPlayer humanPlayer) {
         centerAreaBox.setDisable(true);
         playerHandBox.setDisable(true);
 
@@ -617,21 +683,102 @@ public class BoardView extends BorderPane {
         this.setRight(challengeBox);
     }
 
-    private void finishHumanTurnAndRefresh(Player previousPlayer) {
-        // Se il passaggio è tra DUE giocatori UMANI, oscura il tavolo
-        if (previousPlayer != null && previousPlayer.getPlayerType() == PlayerType.HUMAN 
-            && game.getCurrentPlayer().getPlayerType() == PlayerType.HUMAN) {
+    private void finishTurnAndRefresh(Player previousPlayer) {
+        
+        if (previousPlayer != null) {
             
-            playerHandBox.getChildren().clear();
-            centerAreaBox.getChildren().clear();
-            
-            Label passLabel = new Label("Cambio Turno...");
-            passLabel.setStyle("-fx-text-fill: orange; -fx-font-size: 35px; -fx-font-weight: bold;");
-            centerAreaBox.getChildren().add(passLabel);
+            try {
+                // 1. Capiamo a quale indice si trova il giocatore a cui sta per toccare nella UI in alto
+                int targetUiIndex = 0;
+                for (Player p : game.getPlayerList()) {
+                    if (p == previousPlayer) continue; 
+                    if (p == game.getCurrentPlayer()) break;
+                    targetUiIndex++;
+                }
 
-            PauseTransition pt = new PauseTransition(Duration.seconds(2));
-            pt.setOnFinished(e -> refreshBoard());
-            pt.play();
+                // 2. Entriamo nei box in alto per prendere l'HBox con le carte di quel giocatore
+                HBox otherPlayersContainer = (HBox) opponentsBox.getChildren().get(1);
+                VBox targetOpponentBox = (VBox) otherPlayersContainer.getChildren().get(targetUiIndex);
+                HBox originalCards = (HBox) targetOpponentBox.getChildren().get(1);
+
+                // 3. Calcoliamo le coordinate assolute (su schermo) prima di cancellare l'UI
+                javafx.geometry.Point2D startCoords = originalCards.localToScene(
+                        originalCards.getBoundsInLocal().getWidth() / 2, 
+                        originalCards.getBoundsInLocal().getHeight() / 2);
+                
+                javafx.geometry.Point2D centerCoords = centerAreaBox.localToScene(
+                        centerAreaBox.getWidth() / 2, 
+                        centerAreaBox.getHeight() / 2);
+                
+                javafx.geometry.Point2D endCoords = playerHandBox.localToScene(
+                        playerHandBox.getWidth() / 2, 
+                        playerHandBox.getHeight() / 2);
+
+                // 4. Invece di usare .clear(), nascondiamo le zone. Questo impedisce al 
+                // layout di "collassare" sballando le coordinate del centro.
+                opponentsBox.setVisible(false);
+                playerHandBox.setVisible(false);
+                centerAreaBox.getChildren().clear();
+
+                // 5. Creiamo la scritta e il mazzetto "fantasma" che andrà ad animarsi
+                Label passLabel = new Label("Cambio Turno...");
+                passLabel.setStyle("-fx-text-fill: orange; -fx-font-size: 35px; -fx-font-weight: bold;");
+
+                HBox nextPlayerCards = new HBox(-50);
+                nextPlayerCards.setAlignment(Pos.CENTER);
+                for (Card card : game.getCurrentPlayer().getHand().getAllCardsCopy()) {
+                    CardView backCard = new CardView(card, false);
+                    backCard.setScaleX(0.6);
+                    backCard.setScaleY(0.6);
+                    nextPlayerCards.getChildren().add(backCard);
+                }
+
+                // Uno StackPane per tenere testo e carte sovrapposti al centro perfetto
+                javafx.scene.layout.StackPane transitionPane = new javafx.scene.layout.StackPane();
+                transitionPane.getChildren().addAll(passLabel, nextPlayerCards);
+                centerAreaBox.getChildren().add(transitionPane);
+
+                // 6. Calcoliamo la distanza dal centro allo start in alto, e dal centro alla fine in basso
+                double startX = startCoords.getX() - centerCoords.getX();
+                double startY = startCoords.getY() - centerCoords.getY();
+                
+                double endX = endCoords.getX() - centerCoords.getX();
+                double endY = endCoords.getY() - centerCoords.getY();
+
+                // 7. Impostiamo l'animazione di movimento (partenza da in alto, arrivo in basso)
+                TranslateTransition tt = new TranslateTransition(Duration.millis(300), nextPlayerCards);
+                tt.setFromX(startX);
+                tt.setFromY(startY);
+                tt.setToX(endX);
+                tt.setToY(endY);
+                tt.setCycleCount(1);
+                
+                // Extra: mentre le carte scendono in diagonale, le facciamo "ingrandire" dalla 
+                // dimensione piccola (0.6) a dimensione normale (1.0)
+                javafx.animation.ScaleTransition st = new javafx.animation.ScaleTransition(Duration.millis(400), nextPlayerCards);
+                st.setFromX(1.0);
+                st.setFromY(1.0);
+                st.setToX(1.66); // 1.66 circa compensa il 0.6 nativo delle carte degli avversari
+                st.setToY(1.66);
+
+                // Facciamo partire movimento e scala assieme
+                javafx.animation.ParallelTransition pt = new javafx.animation.ParallelTransition(tt, st);
+                
+                pt.setOnFinished(e -> {
+                    // Rendiamo di nuovo visibili i pannelli prima di ricostruire l'UI!
+                    opponentsBox.setVisible(true);
+                    playerHandBox.setVisible(true);
+                    refreshBoard();
+                });
+                
+                pt.play();
+
+            } catch (Exception ex) {
+                // Paracadute di sicurezza: se la finestra è appena aperta e l'UI non è 
+                // ancora renderizzata (le coordinate falliscono), salta l'animazione.
+                refreshBoard();
+            }
+            
         } else {
             // Nessuna transizione se c'è di mezzo un bot
             refreshBoard();
