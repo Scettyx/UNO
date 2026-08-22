@@ -404,6 +404,16 @@ public class GameEngine {
 	}
 
 	/**
+	 * Usato SOLO per ricaricare una partita salvata.
+	 * Reinizializza il mazzo senza cancellare le carte dei giocatori,
+	 * che sono già state ripristinate dal SaveManager.
+	 */
+	public void initializeDeckOnly() {
+		this.deck = new Deck();
+		firstDiscardCard();
+	}
+
+	/**
 	 * Gestisce la logica dei Round nella partita.
 	 */
 	public void processTurn(Player current, List<Card> playedCards) {
