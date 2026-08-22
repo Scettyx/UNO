@@ -277,12 +277,23 @@ public class BoardView extends BorderPane {
         infoBox.getChildren().addAll(colorLabel, dirLabel);
 
         // Layout Centrale
+        Button saveBtn = new Button("Salva");
+        saveBtn.getStyleClass().add("menu-button");
+        saveBtn.setPrefSize(90, 90);
+        saveBtn.setStyle("-fx-font-size: 15px; -fx-font-weight: bold; -fx-background-radius: 36; -fx-padding: 5; -fx-background-color: #ff9900;");
+        saveBtn.setOnAction(e -> {
+            it.uniroma1.mdp.uno.save.SaveManager manager = new it.uniroma1.mdp.uno.save.SaveManager();
+            if (manager.saveGame(game)) {
+                saveBtn.setText("Fatto!");
+            }
+        });
+
         Card topDiscard = game.getDiscardPile().getTopCard();
         if (topDiscard != null) {
             CardView discardView = new CardView(topDiscard, true);
-            centerAreaBox.getChildren().addAll(drawPile, playCardsBtn, discardView, passTurnBtn, infoBox);
+            centerAreaBox.getChildren().addAll(drawPile, playCardsBtn, discardView, passTurnBtn, saveBtn, infoBox);
         } else {
-            centerAreaBox.getChildren().addAll(drawPile, playCardsBtn, passTurnBtn, infoBox);
+            centerAreaBox.getChildren().addAll(drawPile, playCardsBtn, passTurnBtn, saveBtn, infoBox);
         }
 
         // --- DISEGNA CARTE GIOCATORE ---

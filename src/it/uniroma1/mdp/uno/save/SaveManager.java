@@ -1,12 +1,13 @@
 package it.uniroma1.mdp.uno.save;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
+import com.google.gson.*;
+import java.lang.reflect.Type;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 
 import it.uniroma1.mdp.uno.model.game.GameEngine;
+import it.uniroma1.mdp.uno.model.player.*;
 
 /**
  * Gestisce il caricamento ed il salvataggio della partita
@@ -18,7 +19,10 @@ public class SaveManager {
     private final String saveFilePath = "uno_savegame.json";
 
     public SaveManager() {
-        this.gson = new GsonBuilder().setPrettyPrinting().create();
+        this.gson = new GsonBuilder()
+        .registerTypeAdapter(Player.class, new PlayerDeserializer())
+        .setPrettyPrinting()
+        .create();
     }
 
     /**
@@ -36,8 +40,6 @@ public class SaveManager {
         try {
             FileWriter writer = new FileWriter(saveFilePath);
             gson.toJson(engine, writer);
-            writer.flush();
-            writer.close();
             return true;
 
         } catch (IOException e) {
@@ -53,16 +55,35 @@ public class SaveManager {
      * @return GameEngine o null
      */
     public GameEngine loadGame() {
-        try {
-            FileReader reader = new FileReader(saveFilePath);
-            GameEngine loadedEngine = gson.fromJson(reader, GameEngine.class);
-            reader.close();
-            return loadedEngine;
+        try (FileReader reader = new FileReader(saveFilePath);) {
+            return gson.fromJson(reader, GameEngine.class);
 
         } catch (IOException e) {
             System.out.println("Errore di lettura");
-            e.printStackTrace();
             return null;
+        }
+    }
+
+    public static class PlayerDeserializer implements JsonDeserializer<Player> {
+        @Override
+        public Player deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
+            JsonObject jsonObject = json.getAsJsonObject();
+            String playerType = jsonObject.has("playerType") ? jsonObject.get("botProfile").getAsString() : "RANDOM";
+
+            if (playerType.equals("HUMAN")) {
+                return context.deserialize(json, HumanPlayer.class);
+            } else {
+                String botProfile = jsonObject.has("botProfile") ? jsonObject.get("botProfile").getAsString() : "RANDOM";
+
+                switch (botProfile) {
+                    case "CONSERVATIVE":
+                        return context.deserialize(json, ConservativeBot.class);
+                    case "AGGRESIVE":
+                        return context.deserialize(json, AggressiveBot.class);
+                    default:
+                        return context.deserialize(json, RandomBot.class);
+                }
+            }
         }
     }
 }

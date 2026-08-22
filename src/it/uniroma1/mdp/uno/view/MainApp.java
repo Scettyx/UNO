@@ -73,7 +73,22 @@ public class MainApp extends Application {
         // Al click, passa al menu di configurazione
         startButton.setOnAction(e -> showMenuConfig());
 
-        menuCard.getChildren().addAll(titleLabel, startButton);
+        Button loadButton = new Button("CARICA PARTITA");
+        loadButton.getStyleClass().addAll("menu-button");
+        loadButton.setOnAction(e -> {
+            it.uniroma1.mdp.uno.save.SaveManager saveManager = new it.uniroma1.mdp.uno.save.SaveManager();
+            GameEngine loadedGame = saveManager.loadGame();
+            if (loadedGame != null) {
+                System.out.println("Partita ricaricata con successo!");
+                BoardView board = new BoardView(loadedGame);
+                root.getChildren().clear();
+                root.getChildren().add(board);
+            } else {
+                System.out.println("Nessun salvataggio trovato.");
+            }
+        });
+
+        menuCard.getChildren().addAll(titleLabel, startButton, loadButton);
         
         // Aggiorna la root
         root.getChildren().clear();
