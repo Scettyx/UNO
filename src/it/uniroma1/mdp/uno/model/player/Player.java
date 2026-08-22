@@ -4,8 +4,10 @@ import java.util.List;
 
 import it.uniroma1.mdp.uno.model.card.Card;
 import it.uniroma1.mdp.uno.model.card.CardColor;
+import it.uniroma1.mdp.uno.model.card.CardType;
 import it.uniroma1.mdp.uno.model.deck.Deck;
 import it.uniroma1.mdp.uno.model.deck.Hand;
+import it.uniroma1.mdp.uno.model.game.GameEngine;
 
 /**
  * Rappresenta un giocatore generico (Umano o Bot) all'interno della partita.
@@ -21,7 +23,6 @@ public abstract class Player {
 	private int totalScore;
 	private int currentRoundScore;
 	private boolean wonRound;
-	private boolean isChallenged;
 	private boolean hasDrawn;
 
 	/**
@@ -65,7 +66,6 @@ public abstract class Player {
 		totalScore = currentRoundScore = 0;
 		wonRound = false;
 		unoState = UNOState.Safe;
-		isChallenged = false;
 		hasDrawn = false;
 	}
 
@@ -85,31 +85,14 @@ public abstract class Player {
 	 * @param card la carta su cui verrà giocato il wild draw four
 	 * @return true se è legale giocare il wild draw four, false se è illegale
 	 */
-	public boolean WildDrawFourLegal(Card card) {
+	public boolean WildDrawFourLegal(GameEngine game) {
 		boolean legal = true;
-		for (Card i : this.getHand().getAllCards()) {
-			if (i.getOriginalColor() != card.getActiveColor() || i.getOriginalColor() != CardColor.NONE) {
+		for (Card card : this.getHand().getAllCards()) {
+			if (card.getType() != CardType.WILD_DRAW_FOUR && card.getOriginalColor() == game.getCurrentColor()) {
 				legal = false;
 			}
 		}
 		return legal;
-	}
-
-	/**
-	 * 
-	 * @return ritorna true se il giocatore è stato sfidato dopo un Wild Draw Four
-	 */
-	public boolean getIsChallenged() {
-		return isChallenged;
-	}
-
-	/**
-	 * 
-	 * @param value true se il giocatore è stato sfidato dopo un Wild Draw Four,
-	 *              false se altrimenti
-	 */
-	public void setIsChallenged(boolean value) {
-		isChallenged = value;
 	}
 
 	/**

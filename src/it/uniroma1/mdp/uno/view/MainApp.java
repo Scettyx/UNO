@@ -1,6 +1,8 @@
 package it.uniroma1.mdp.uno.view;
 
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 
 import it.uniroma1.mdp.uno.model.game.GameEngine;
 import it.uniroma1.mdp.uno.model.game.GameMode;
@@ -187,14 +189,19 @@ public class MainApp extends Application {
             });
             
             SimulationEngine simulation = buildSimulationEngine(namesBox, playersCombo.getValue(), stackCheck, rushCheck);
+            simulation.initializeRound();
+            
+            BoardView board = new BoardView(simulation);
+            root.getChildren().clear();
+            root.getChildren().add(board);
         });
 
         container.getChildren().addAll(stackCheck, rushCheck, playersBox, namesBox, startSimButton);
     }
     
     private SimulationEngine buildSimulationEngine(VBox names, int numPlayers, CheckBox stackWild, CheckBox numberRush) {
-        java.util.List<String> playerNames = new java.util.ArrayList<>();
-        java.util.List<String> botCategories = new java.util.ArrayList<>();
+        List<String> playerNames = new ArrayList<>();
+        List<String> botCategories = new ArrayList<>();
         BotPlayer[] playerList = new BotPlayer[numPlayers];
         
         names.getChildren().forEach(node -> {
@@ -332,9 +339,9 @@ public class MainApp extends Application {
      */
     private GameEngine buildGameEngine(VBox names, int numPlayers, ComboBox<String> mode, VBox valueThreshold, CheckBox stackWild, CheckBox numberRush) {
         // crea la lista di giocatori
-        java.util.List<String> playerNames = new java.util.ArrayList<>();
-        java.util.List<String> playerTypes = new java.util.ArrayList<>();
-        java.util.List<String> botCategories = new java.util.ArrayList<>();
+        List<String> playerNames = new ArrayList<>();
+        List<String> playerTypes = new ArrayList<>();
+        List<String> botCategories = new ArrayList<>();
         
         names.getChildren().forEach(node -> {
             if(node instanceof HBox) {

@@ -7,6 +7,7 @@ import it.uniroma1.mdp.uno.model.card.Card;
 import it.uniroma1.mdp.uno.model.card.CardColor;
 import it.uniroma1.mdp.uno.model.card.CardType;
 import it.uniroma1.mdp.uno.model.card.NumberCard;
+import it.uniroma1.mdp.uno.model.card.WildCard;
 import it.uniroma1.mdp.uno.model.deck.Deck;
 import it.uniroma1.mdp.uno.model.deck.DiscardPile;
 import it.uniroma1.mdp.uno.model.player.HumanPlayer;
@@ -272,16 +273,20 @@ public class GameEngine {
 	 * giocare la carta, pesca quattro carte. Se poteva giocare la carta, lo
 	 * sfidante pesca 6 carte.
 	 * 
-	 * @param playedCard è la carta sulla cima del discardPile
 	 * @param current    è il giocatore che ha giocato la carta WildDrawFour
 	 */
-	public void WildDrawFourChallenge(Card playedCard, Player current) {
-		if (!current.WildDrawFourLegal(playedCard)) {
-			deck.drawCardRandom(getPlayerList()[currentPlayer].getHand(), 4);
+	public void WildDrawFourChallenge(Player current) {
+		
+		if (!current.WildDrawFourLegal(this)) {
+			deck.drawCardRandom(getPreviousPlayer().getHand(), 4);
+			setPendingDrawPenalty(getPendingDrawPenalty() - 4);
+			System.out.println("Sfida VINTA! il giocatore che ha lanciato il Wild Draw Four pesca 4 carte.");
+			
 			return;
 		}
-		nextTurn();
-		deck.drawCardRandom(getPlayerList()[currentPlayer].getHand(), 6);
+		setPendingDrawPenalty(getPendingDrawPenalty() + 2);
+		System.out.println("Sfida PERSA! Peschi 6 carte!");
+
 		return;
 	}
 

@@ -84,9 +84,7 @@ public abstract class Card {
         if (!type.isWild()) {
             throw new IllegalArgumentException("Solo le carte normali hanno un colore");
         }
-        if (color == null || !color.isRealColor()) {
-            throw new IllegalArgumentException("Va scelto un colore");
-        }
+        
         this.chosenColor = color;
     }
 

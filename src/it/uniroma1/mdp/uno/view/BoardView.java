@@ -9,11 +9,13 @@ import java.util.List;
 import it.uniroma1.mdp.uno.model.card.Card;
 import it.uniroma1.mdp.uno.model.card.CardColor;
 import it.uniroma1.mdp.uno.model.card.CardType;
+import it.uniroma1.mdp.uno.model.card.WildCard;
 import it.uniroma1.mdp.uno.model.deck.DiscardPile;
 import it.uniroma1.mdp.uno.model.player.HumanPlayer;
 import it.uniroma1.mdp.uno.model.player.Player;
 import it.uniroma1.mdp.uno.model.player.Player.PlayerType;
 import it.uniroma1.mdp.uno.model.player.Player.UNOState;
+import it.uniroma1.mdp.uno.model.simulation.SimulationEngine;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
@@ -101,10 +103,13 @@ public class BoardView extends BorderPane {
                         canStack = true;
                 }
             }
-                        // CASO 0: Challenge del Wild Draw Four
-            if (game.getPendingDrawPenalty() >= 4 && topDiscard.getType() == CardType.WILD_DRAW_FOUR && !currentPlayer.getIsChallenged()) {
-                triggerChallengePhase((HumanPlayer) currentPlayer);
-                return; // Ferma il caricamento della grafica del turno finche non risponde!
+            // CASO 0: Challenge del Wild Draw Four
+            if (game.getPendingDrawPenalty() >= 4 && topDiscard.getType() == CardType.WILD_DRAW_FOUR) {
+            	WildCard topDiscardWild = (WildCard) this.game.getDiscardPile().getTopCard();
+            	if (topDiscardWild.getCanCauseChallenge() == true) {
+	                triggerChallengePhase((HumanPlayer) currentPlayer);
+	                return; // Ferma il caricamento della grafica del turno finche non risponde!
+            	}
             }
             // CASO 1: L'umano riceve una penalità (+2 o +4) e non può difendersi.
             if (game.getPendingDrawPenalty() > 0 && !canStack) {
@@ -301,7 +306,10 @@ public class BoardView extends BorderPane {
         // --- DISEGNA CARTE GIOCATORE ---
         if (currentPlayer != null) {
             for (Card card : currentPlayer.getHand().getAllCardsCopy()) {
-                CardView cardView = new CardView(card, currentPlayer.getPlayerType() == PlayerType.HUMAN);
+            	boolean humanView = (currentPlayer.getPlayerType() == PlayerType.HUMAN && game instanceof GameEngine) 
+                        || (currentPlayer.getPlayerType() == PlayerType.BOT && game instanceof SimulationEngine);
+            	CardView cardView = new CardView(card, humanView);
+                
 
                 if (currentPlayer.getHasDrawn() && !cardView.getCard().getDrawn()) {
                     cardView.setDisable(true);
@@ -326,15 +334,16 @@ public class BoardView extends BorderPane {
                     if (!cardView.getSelected()) {
                         if (game.getRuleSet().getNumberRush() == false) {
                         	if (currentHumanPlayer.getSelectedCardsFromUI().isEmpty()) {
-                        		currentHumanPlayer.getSelectedCardsFromUI().add(card);
-                                cardView.setSelectedEffect(true);
-                                System.out.println("Carta selezionata");
-                                if(cardView.getCard().getType()  == CardType.WILD || cardView.getCard().getType()  == CardType.WILD_DRAW_FOUR) {
-                                    		currentHumanPlayer.getSelectedCardsFromUI().add(card);
-                                            cardView.setSelectedEffect(true);
-                                            chooseColorWild(cardView.getCard());
-                                            System.out.println("Carta selezionata (carta wild)");
-                                }
+                        		if(cardView.getCard().getType()  == CardType.WILD || cardView.getCard().getType()  == CardType.WILD_DRAW_FOUR) {
+                            		currentHumanPlayer.getSelectedCardsFromUI().add(card);
+                                    cardView.setSelectedEffect(true);
+                                    chooseColorWild(card);
+                                    System.out.println("Carta selezionata (carta wild)");
+                        		} else {	
+	                        		currentHumanPlayer.getSelectedCardsFromUI().add(card);
+	                                cardView.setSelectedEffect(true);
+	                                System.out.println("Carta selezionata");
+                        		}
                             }
                         } 
                     	else if (game.getRuleSet().getNumberRush() == true) {
@@ -354,20 +363,26 @@ public class BoardView extends BorderPane {
                                 cardView.setSelectedEffect(true);
                                 System.out.println("Carta selezionata (number rush usato)");
                             }
-                    		else if(cardView.getCard().getType() == CardType.WILD || cardView.getCard().getType()  == CardType.WILD_DRAW_FOUR) {
+                    		else if(cardView.getCard().getType() == CardType.WILD || cardView.getCard().getType() == CardType.WILD_DRAW_FOUR) {
                     			if (currentHumanPlayer.getSelectedCardsFromUI().isEmpty()) {
                                 		currentHumanPlayer.getSelectedCardsFromUI().add(card);
                                         cardView.setSelectedEffect(true);
-                                        chooseColorWild(cardView.getCard());
+                                        chooseColorWild(card);
                                         System.out.println("Carta selezionata (carta wild)");
                                 }
                             }
                     	}
                                                          
                     } else {
-                        currentHumanPlayer.getSelectedCardsFromUI().remove(card);
+                        if (currentHumanPlayer.getSelectedCardsFromUI().remove(card)) {
+                        	System.out.println("Carta deselezionata");
+                        	//se viene deselezionata una carta Wild o Wild draw four, gli si toglie il colore selezionato.
+                        	if(card.getType() == CardType.WILD || card.getType() == CardType.WILD_DRAW_FOUR) {
+                        		card.setChosenColor(CardColor.NONE);
+                        	}
+                        }
                         cardView.setSelectedEffect(false);
-                        System.out.println("Carta deselezionata");
+                        
                         
                     } 
                 });
@@ -648,63 +663,47 @@ public class BoardView extends BorderPane {
         
         challengeBox.getChildren().addAll(msg, greenBtn, yellowBtn, redBtn, blueBtn);
         this.setRight(challengeBox);
-        
 	}
-    /**
+
+	/**
      * challenge del wild draw four
      */
 	private void triggerChallengePhase(HumanPlayer humanPlayer) {
-        centerAreaBox.setDisable(true);
-        playerHandBox.setDisable(true);
+		centerAreaBox.setDisable(true);
+		playerHandBox.setDisable(true);
+		VBox challengeBox = new VBox(10);
+		challengeBox.setAlignment(Pos.CENTER);
+		challengeBox.setStyle(
+				"-fx-background-color: rgba(0,0,0,0.9); -fx-padding: 20; -fx-background-radius: 15; -fx-border-color: #ff0000; -fx-border-width: 3; -fx-border-radius: 15;");
+		Label msg = new Label("Ti hanno tirato un +4!\nVuoi sfidare il giocatore precedente?");
+		msg.setStyle(
+				"-fx-text-fill: white; -fx-font-size: 20px; -fx-font-weight: bold; -fx-text-alignment: center;");
+		Button challengeBtn = new Button("SFIDA!");
+		challengeBtn.setStyle(
+				"-fx-background-color: #ff0000; -fx-text-fill: white; -fx-font-size: 20px; -fx-font-weight: bold; -fx-cursor: hand;");
+		Button acceptBtn = new Button("Accetta (Pesca/Impila)");
+		acceptBtn.setStyle(
+				"-fx-background-color: #555555; -fx-text-fill: white; -fx-font-size: 16px; -fx-cursor: hand;");
+		challengeBtn.setOnAction(e -> {
 
-        VBox challengeBox = new VBox(10);
-        challengeBox.setAlignment(Pos.CENTER);
-        challengeBox.setStyle("-fx-background-color: rgba(0,0,0,0.9); -fx-padding: 20; -fx-background-radius: 15; -fx-border-color: #ff0000; -fx-border-width: 3; -fx-border-radius: 15;");
+			game.WildDrawFourChallenge(humanPlayer);
+			this.setRight(null); // Chiude il menu
+			WildCard topDiscard = (WildCard) this.game.getDiscardPile().getTopCard();
+			topDiscard.setCanCauseChallenge(false);
+			
+			refreshBoard();
+		});
+		acceptBtn.setOnAction(e -> {
+			this.setRight(null);
+			WildCard topDiscard = (WildCard) this.game.getDiscardPile().getTopCard();
+			topDiscard.setCanCauseChallenge(false);
 
-        Label msg = new Label("Ti hanno tirato un +4!\nVuoi sfidare il giocatore precedente?");
-        msg.setStyle("-fx-text-fill: white; -fx-font-size: 20px; -fx-font-weight: bold; -fx-text-alignment: center;");
-
-        Button challengeBtn = new Button("SFIDA!");
-        challengeBtn.setStyle("-fx-background-color: #ff0000; -fx-text-fill: white; -fx-font-size: 20px; -fx-font-weight: bold; -fx-cursor: hand;");
+			refreshBoard();
+		});
+		challengeBox.getChildren().addAll(msg, challengeBtn, acceptBtn);
+		this.setRight(challengeBox);
+	}
         
-        Button acceptBtn = new Button("Accetta (Pesca/Impila)");
-        acceptBtn.setStyle("-fx-background-color: #555555; -fx-text-fill: white; -fx-font-size: 16px; -fx-cursor: hand;");
-
-        challengeBtn.setOnAction(e -> {
-            humanPlayer.setIsChallenged(true); // Segna come scelta effettuata
-            
-            Player prev = game.getPreviousPlayer();
-            boolean wasLegal = true;
-            for (Card c : prev.getHand().getAllCardsCopy()) {
-                // Se aveva il colore attivo PRIMA che giocasse il +4, allora la giocata era illegale
-                if (c.getOriginalColor() == game.getPreviousColor() && c.getOriginalColor() != it.uniroma1.mdp.uno.model.card.CardColor.NONE) {
-                    wasLegal = false;
-                    break;
-                }
-            }
-
-            if (!wasLegal) {
-                System.out.println("Sfida VINTA! " + prev.getPlayerName() + " pesca 4 carte.");
-                game.getDeck().drawCardRandom(prev.getHand(), 4);
-                // Cancella la penalita per noi
-                game.setPendingDrawPenalty(game.getPendingDrawPenalty() - 4);
-            } else {
-                System.out.println("Sfida PERSA! Peschi 6 carte!");
-                game.setPendingDrawPenalty(game.getPendingDrawPenalty() + 2); // 4 normali + 2 di penalita extra
-            }
-            this.setRight(null); // Chiude il menu
-            refreshBoard();
-        });
-
-        acceptBtn.setOnAction(e -> {
-            humanPlayer.setIsChallenged(true);
-            this.setRight(null);
-            refreshBoard();
-        });
-
-        challengeBox.getChildren().addAll(msg, challengeBtn, acceptBtn);
-        this.setRight(challengeBox);
-    }
 
     private void finishTurnAndRefresh(Player previousPlayer) {
         
