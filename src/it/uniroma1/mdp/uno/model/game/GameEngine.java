@@ -258,7 +258,13 @@ public class GameEngine {
 	 * @param winner il giocatore che ha vinto il round
 	 */
 	public void addPointsToWinner(Player winner) {
-		winner.setTotalScore(100);
+		int scoreToAdd = 0;
+		for (Player p : playerList) {
+			for (Card c : p.getHand().getAllCardsCopy()) {
+				scoreToAdd += c.getPointsValue();
+			}
+		}
+		winner.setTotalScore(scoreToAdd);
 	}
 
 	/**
@@ -339,16 +345,14 @@ public class GameEngine {
 	 * @param current
 	 * @param roundOver
 	 */
-	public void roundWinConditions(Player current) {
-		current.setWon(true);
-		addPointsToWinner(current);
+	public void roundWinConditions(Player current) { 
+		//CONTROLLARE SE ASSEGNA BENE I PUNTI!!!
 		if (gameMode.getPointMatch() == true) {
-			current.setWon(false);
-			gameMode.setGameOver(true);
+			addPointsToWinner(current);
+			gameWinConditions();
 		} else if (gameMode.getPointMatch() == false) {
-			for (Player player : getPlayerList()) {
-				player.resetScore();
-			}
+			current.setWon(true);
+			gameMode.setGameOver(true);		
 		}
 	}
 
@@ -356,17 +360,20 @@ public class GameEngine {
 	 * Se la modalità è a punti, controlla se alla fine di un round c'è un giocatore
 	 * che ha raggiunto la soglia di vittoria; se non c'è, gioca un nuovo round
 	 */
-	public void gameWinConditions() {
-		boolean winnerPresent = false;
-		for (Player player : getPlayerList()) {
-			if (player.getTotalScore() >= gameMode.getPointGoal()) {
-				player.setWon(true);
-				winnerPresent = true;
-				gameMode.setGameOver(true);
+	public void gameWinConditions() {	
+		if (gameMode.getPointMatch() == true) {
+			boolean winnerPresent = false;
+			for (Player player : getPlayerList()) {
+				if (player.getTotalScore() >= gameMode.getPointGoal()) {
+					player.setWon(true);
+					winnerPresent = true;
+					gameMode.setGameOver(true);
+				}
 			}
-		}
-		if (winnerPresent == false) {
-			initializeRound();
+			
+			if (winnerPresent == false) {
+				initializeRound();
+			}
 		}
 	}
 
@@ -519,14 +526,12 @@ public class GameEngine {
 
 		// condizioni di fine round. Se la partita è a round singolo invece che a punti,
 		// il gioco può anche finire quì se un giocatore ha un mazzo vuoto.
+		// se la partita è a punti, il gioco non finisce nel singolo round ma controlla
+		// se è necessario giocarne uno nuovo
 		if (current.getHand().isEmpty()) {
 			roundWinConditions(current);
-			// se la partita è a punti, il gioco non finisce nel singolo round ma controlla
-			// se è necessario giocarne uno nuovo
-			if (gameMode.getPointMatch() == true) {
-				gameWinConditions();
-			}
-			return;
+			gameWinConditions();
+			return; 
 		}
 
 		nextTurn();

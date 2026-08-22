@@ -54,4 +54,5 @@ public class GameMode {
 	public void setGameOver(boolean value) {
 		gameOver = value;
 	}
+	
 }

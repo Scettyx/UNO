@@ -4,8 +4,7 @@
   "stackDrawCards": false,
   "numberRush": false,
   "currentPlayerIndex": 0,
-  "direction": false,
-  "currentColor": "YELLOW",
+  "direction": true,
   "pendingDrawPenalty": 0,
   "players": [
     {
@@ -15,24 +14,19 @@
       "totalScore": 0,
       "hand": [
         {
-          "type": "SKIP",
-          "originalColor": "GREEN",
-          "numericValue": 0
-        },
-        {
-          "type": "NUMBER",
-          "originalColor": "GREEN",
-          "numericValue": 8
-        },
-        {
-          "type": "SKIP",
-          "originalColor": "GREEN",
-          "numericValue": 0
-        },
-        {
           "type": "NUMBER",
           "originalColor": "BLUE",
-          "numericValue": 2
+          "numericValue": 1
+        },
+        {
+          "type": "NUMBER",
+          "originalColor": "YELLOW",
+          "numericValue": 4
+        },
+        {
+          "type": "NUMBER",
+          "originalColor": "RED",
+          "numericValue": 5
         },
         {
           "type": "SKIP",
@@ -41,8 +35,23 @@
         },
         {
           "type": "NUMBER",
+          "originalColor": "RED",
+          "numericValue": 1
+        },
+        {
+          "type": "NUMBER",
+          "originalColor": "YELLOW",
+          "numericValue": 8
+        },
+        {
+          "type": "NUMBER",
+          "originalColor": "RED",
+          "numericValue": 2
+        },
+        {
+          "type": "DRAW_TWO",
           "originalColor": "GREEN",
-          "numericValue": 7
+          "numericValue": 0
         }
       ]
     },
@@ -54,28 +63,38 @@
       "hand": [
         {
           "type": "NUMBER",
-          "originalColor": "YELLOW",
-          "numericValue": 9
-        },
-        {
-          "type": "NUMBER",
           "originalColor": "RED",
           "numericValue": 8
         },
         {
+          "type": "WILD_DRAW_FOUR",
+          "originalColor": "NONE",
+          "numericValue": 0
+        },
+        {
           "type": "NUMBER",
-          "originalColor": "YELLOW",
-          "numericValue": 5
+          "originalColor": "GREEN",
+          "numericValue": 3
         },
         {
           "type": "NUMBER",
           "originalColor": "RED",
-          "numericValue": 7
+          "numericValue": 9
         },
         {
           "type": "DRAW_TWO",
-          "originalColor": "BLUE",
+          "originalColor": "RED",
           "numericValue": 0
+        },
+        {
+          "type": "SKIP",
+          "originalColor": "GREEN",
+          "numericValue": 0
+        },
+        {
+          "type": "NUMBER",
+          "originalColor": "RED",
+          "numericValue": 6
         }
       ]
     }

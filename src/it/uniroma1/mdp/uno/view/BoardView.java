@@ -131,7 +131,7 @@ public class BoardView extends BorderPane {
             playerHandBox.setDisable(true);
             // Timer di 1.5 secondi per dare "l'illusione" che stia pensando e far capire di
             // chi è il turno
-            PauseTransition botTimer = new PauseTransition(Duration.seconds(3));
+            PauseTransition botTimer = new PauseTransition(Duration.seconds(1.5));
             botTimer.setOnFinished(e -> {
                 List<Card> botPlay = currentPlayer.playTurn(game.getDiscardPile().getTopCard());
                 // Se il bot non ha trovato nulla da giocare, deve pescare
@@ -167,8 +167,7 @@ public class BoardView extends BorderPane {
         if (currentPlayer.getUnoState() != UNOState.Unsafe && currentPlayer.getPlayerType() == PlayerType.HUMAN) {
             checkAndSpawnCallOutButton();
         }
-        
-        
+                
      // --- BOTTONE SALTA TURNO ---
         Button passTurnBtn = new Button("Passa");
         passTurnBtn.getStyleClass().add("menu-button");
@@ -324,35 +323,59 @@ public class BoardView extends BorderPane {
 
                 cardView.setOnMouseClicked(e -> {
                     HumanPlayer currentHumanPlayer = (HumanPlayer) currentPlayer;
-                    if (!cardView.isDisabled()) {
-                        if (!cardView.getSelected()) {
-                            if (currentHumanPlayer.getSelectedCardsFromUI().isEmpty()) {                            	
-                                currentHumanPlayer.getSelectedCardsFromUI().add(card);
+                    if (!cardView.getSelected()) {
+                        if (game.getRuleSet().getNumberRush() == false) {
+                        	if (currentHumanPlayer.getSelectedCardsFromUI().isEmpty()) {
+                        		currentHumanPlayer.getSelectedCardsFromUI().add(card);
                                 cardView.setSelectedEffect(true);
-                                if(currentHumanPlayer.getSelectedCardsFromUI().getFirst().getType() == CardType.WILD 
-                                    	|| currentHumanPlayer.getSelectedCardsFromUI().getFirst().getType() == CardType.WILD_DRAW_FOUR) {
-                                    		chooseColorWild(currentHumanPlayer.getSelectedCardsFromUI().getFirst());
-                                    	}
-                            }
-
-                            if (game.getRuleSet().getNumberRush()) {
-                                if (cardView.getCard().getType() == CardType.NUMBER
-                                        && currentHumanPlayer.isSelectedCardsOnlyNumbers()) {
-                                    currentHumanPlayer.getSelectedCardsFromUI().add(card);
-                                    cardView.setSelectedEffect(true);
+                                System.out.println("Carta selezionata");
+                                if(cardView.getCard().getType()  == CardType.WILD || cardView.getCard().getType()  == CardType.WILD_DRAW_FOUR) {
+                                    		currentHumanPlayer.getSelectedCardsFromUI().add(card);
+                                            cardView.setSelectedEffect(true);
+                                            chooseColorWild(cardView.getCard());
+                                            System.out.println("Carta selezionata (carta wild)");
                                 }
                             }
-                        } else {
-                            currentHumanPlayer.getSelectedCardsFromUI().remove(card);
-                            cardView.setSelectedEffect(false);
-                        }
-                    }
+                        } 
+                    	else if (game.getRuleSet().getNumberRush() == true) {
+                    		if (
+                    				cardView.getCard().getType() != CardType.NUMBER && 
+                    				cardView.getCard().getType() != CardType.WILD && 
+                    				cardView.getCard().getType() != CardType.WILD_DRAW_FOUR) 
+                    		{
+                    			if (currentHumanPlayer.getSelectedCardsFromUI().isEmpty()) {
+	                    			currentHumanPlayer.getSelectedCardsFromUI().add(card);
+	                                cardView.setSelectedEffect(true);
+	                                System.out.println("Carta selezionata");
+                                }
+                    		}
+                    		else if (cardView.getCard().getType() == CardType.NUMBER && currentHumanPlayer.isSelectedCardsOnlyNumbers()) {
+                                currentHumanPlayer.getSelectedCardsFromUI().add(card);
+                                cardView.setSelectedEffect(true);
+                                System.out.println("Carta selezionata (number rush usato)");
+                            }
+                    		else if(cardView.getCard().getType() == CardType.WILD || cardView.getCard().getType()  == CardType.WILD_DRAW_FOUR) {
+                    			if (currentHumanPlayer.getSelectedCardsFromUI().isEmpty()) {
+                                		currentHumanPlayer.getSelectedCardsFromUI().add(card);
+                                        cardView.setSelectedEffect(true);
+                                        chooseColorWild(cardView.getCard());
+                                        System.out.println("Carta selezionata (carta wild)");
+                                }
+                            }
+                    	}
+                                                         
+                    } else {
+                        currentHumanPlayer.getSelectedCardsFromUI().remove(card);
+                        cardView.setSelectedEffect(false);
+                        System.out.println("Carta deselezionata");
+                        
+                    } 
                 });
 
                 playerHandBox.getChildren().add(cardView);
             }
         }
-
+        
         // --- DISEGNA AVVERSARI ---
         Label turnInfo = new Label("Turno di: " + (currentPlayer != null ? currentPlayer.getPlayerName() : ""));
         turnInfo.setStyle("-fx-text-fill: #ffd700; -fx-font-size: 22px; -fx-font-weight: bold;");
@@ -385,9 +408,9 @@ public class BoardView extends BorderPane {
             opponentBox.getChildren().addAll(opponentName, opponentCards);
             otherPlayersContainer.getChildren().add(opponentBox);
         }
-
+    
         opponentsBox.getChildren().add(otherPlayersContainer);
-
+        
         // --- CREAZIONE STORICO IN ALTO A SINISTRA ---
         VBox historyContent = new VBox(3);
         historyContent.setPadding(new Insets(10));
@@ -843,7 +866,6 @@ public class BoardView extends BorderPane {
         exitBtn.setStyle("-fx-font-size: 20px; -fx-padding: 10 20; -fx-cursor: hand;");
         exitBtn.setOnAction(e -> {
             System.out.println("Partita Terminata. Chiusura gioco...");
-            // Classica mossa da studente: brutale exit(0) invece di tornare al menu principale
             System.exit(0); 
         });
         
