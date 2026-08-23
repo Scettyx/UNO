@@ -101,21 +101,38 @@ public class GameAction {
         if (actionType.equals("DRAW")) {
             return playerName + " ha pescato una carta.";
         }
+
         if (actionType.equals("DRAW_PENALTY")) {
             return playerName + " ha pescato le carte di penalità.";
         }
+
         if (actionType.equals("UNO_CONTEST")) {
             return "Sistema: " + playerName + " punito per non aver detto UNO!";
         }
+
+        if (actionType.equals("PASS")) {
+            return playerName + " ha saltato il turno.";
+        }
+
+        if (actionType.equals("CHALLENGE")) {
+            if (challengeSucceded) {
+                return playerName + " lancia una sfida e VINCE (+4 revocato).";
+            } else {
+                return playerName + " lancia una sfida, PERDE e pesca 6 carte.";
+            }
+        }
+
         String description = playerName + " gioca ";
         if (!cardsInvolved.isEmpty()) {
             for (Card c : cardsInvolved) {
                 description += "[" + c.toString() + "] ";
             }
         }
+
         if (unoCalled) {
             description += " e grida UNO!";
         }
+
         return description;
     }
 }

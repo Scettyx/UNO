@@ -88,7 +88,8 @@ public abstract class Player {
 	public boolean WildDrawFourLegal(GameEngine game) {
 		boolean legal = true;
 		for (Card card : this.getHand().getAllCards()) {
-			if (card.getType() != CardType.WILD_DRAW_FOUR && card.getOriginalColor() == game.getCurrentColor()) {
+			// BUG CORRETTO: Controlla se avevi carte del PREVIOUS_COLOR, non del colore appena scelto!
+			if (card.getType() != CardType.WILD_DRAW_FOUR && card.getOriginalColor() == game.getPreviousColor()) {
 				legal = false;
 			}
 		}

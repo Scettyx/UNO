@@ -276,17 +276,24 @@ public class GameEngine {
 	 * @param current    è il giocatore che ha giocato la carta WildDrawFour
 	 */
 	public void WildDrawFourChallenge(Player current) {
-		
-		if (!current.WildDrawFourLegal(this)) {
+		GameAction challengeAction = new GameAction(current.getPlayerName(), "CHALLENGE");
+
+		// BUG CORRETTO: Si controllano le carte del colpevole (getPreviousPlayer), NON della vittima (current)
+		if (!getPreviousPlayer().WildDrawFourLegal(this)) {
 			deck.drawCardRandom(getPreviousPlayer().getHand(), 4);
 			setPendingDrawPenalty(getPendingDrawPenalty() - 4);
 			System.out.println("Sfida VINTA! il giocatore che ha lanciato il Wild Draw Four pesca 4 carte.");
 			
+			challengeAction.setChallenge(true, true);
+			gameHistory.addGameAction(challengeAction);
 			return;
 		}
+		
 		setPendingDrawPenalty(getPendingDrawPenalty() + 2);
 		System.out.println("Sfida PERSA! Peschi 6 carte!");
 
+		challengeAction.setChallenge(true, false);
+		gameHistory.addGameAction(challengeAction);
 		return;
 	}
 
@@ -521,6 +528,10 @@ public class GameEngine {
 			}
 
 			gameHistory.addGameAction(playAction);
+		} else {
+			// NUOVO: Aggiunge la mossa PASS allo storico
+			GameAction passAction = new GameAction(current.getPlayerName(), "PASS");
+			gameHistory.addGameAction(passAction);
 		}
 
 		// Se il deck da cui si pescano le carte rimane vuoto, questo metodo sposta

@@ -12,8 +12,8 @@ L'unica libreria "esterna" utilizzata è stata Gson.
 
 # Instructions
 Per l'avvio del progetto esistono due Classi principali da eseguire:
-- "src.it.uniroma1.mdp.uno.view.MainApp" da Eclipse.
-- "src.it.uniroma1.mdp.uno.view.Launcher" da VSCode/VSCodespace.
+- "src.it.uniroma1.mdp.uno.view.MainApp"    da Eclipse.
+- "src.it.uniroma1.mdp.uno.view.Launcher"   da VSCode/VSCodespace.
 
 Per avviare una PARTITA NORMALE bisogna:
 - Avviare la Classe Principale.
