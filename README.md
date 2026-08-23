@@ -38,7 +38,7 @@ Per avviare una SIMULAZIONE TRA BOT bisogna:
 - Cliccare "INIZIA PARTITA".
 - Selezionare "Simulazione".
 - Configurare manualmente regole, tipi di bot ed eventuali nomi.
-- Cliccare "AVVIA SIMULAZIONE".
+- Cliccare "AVVIA SIMULAZIONE" tra le due modalità disponibili.
 - Guardare.
 
 

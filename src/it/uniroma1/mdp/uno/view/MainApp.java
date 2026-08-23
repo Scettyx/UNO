@@ -173,7 +173,7 @@ public class MainApp extends Application {
         // Listener per aggiungere/rimuovere i campi in base al numero di bot scelto
         playersCombo.setOnAction(e -> updateSimulationFields(namesBox, playersCombo.getValue()));
 
-        Button startSimButton = new Button("AVVIA SIMULAZIONE");
+        Button startSimButton = new Button("AVVIA SIMULAZIONE (Con Grafica)");
         startSimButton.getStyleClass().add("menu-button");
         startSimButton.setOnAction(e -> {
             System.out.println("Avvio Simulazione con " + playersCombo.getValue() + " bot.");
@@ -196,7 +196,75 @@ public class MainApp extends Application {
             root.getChildren().add(board);
         });
 
-        container.getChildren().addAll(stackCheck, rushCheck, playersBox, namesBox, startSimButton);
+        Button fastSimButton = new Button("SIMULAZIONE VELOCE (50 Partite)");
+        fastSimButton.getStyleClass().add("menu-button");
+        fastSimButton.setOnAction(e -> {
+            System.out.println("Avvio Simulazione Veloce 50 partite in corso...");
+
+            // Usiamo un Thread separato per non congelare l'interfaccia grafica
+            new Thread(() -> {
+                it.uniroma1.mdp.uno.model.simulation.SimulationStats stats = new it.uniroma1.mdp.uno.model.simulation.SimulationStats();
+                int numPartite = 50;
+
+                for (int i = 0; i < numPartite; i++) {
+                    SimulationEngine simulation = buildSimulationEngine(namesBox, playersCombo.getValue(), stackCheck, rushCheck);
+                    simulation.initializeRound();
+
+                    int passaggiConsecutivi = 0;
+
+                    // Loop di gioco senza interfaccia grafica
+                    while (!simulation.getGameMode().getGameOver()) {
+                        Player currentPlayer = simulation.getCurrentPlayer();
+                        simulation.punishUnsafePlayers();
+
+                        // Sicurezza: se la discard pile è vuota (es. dopo moveToDeck),
+                        // saltiamo il turno per evitare NullPointerException
+                        it.uniroma1.mdp.uno.model.card.Card topCard = simulation.getDiscardPile().getTopCard();
+                        if (topCard == null) {
+                            simulation.nextTurn();
+                            continue;
+                        }
+
+                        java.util.List<it.uniroma1.mdp.uno.model.card.Card> botPlay = currentPlayer.playTurn(topCard);
+
+                        if (botPlay.isEmpty()) {
+                            it.uniroma1.mdp.uno.model.card.Card drawn = simulation.drawIfNotPlayed(currentPlayer);
+                            // Rileggiamo topCard perché il deck potrebbe essere cambiato
+                            it.uniroma1.mdp.uno.model.card.Card topCardAggiornata = simulation.getDiscardPile().getTopCard();
+                            if (drawn != null && topCardAggiornata != null && drawn.isPlayableOn(topCardAggiornata)) {
+                                if (drawn.getType().isWild()) {
+                                    drawn.setChosenColor(it.uniroma1.mdp.uno.model.card.CardColor.getRandomColor());
+                                }
+                                botPlay.add(drawn);
+                            }
+                        }
+
+                        if (botPlay.isEmpty()) {
+                            passaggiConsecutivi++;
+                        } else {
+                            passaggiConsecutivi = 0;
+                        }
+
+                        if (passaggiConsecutivi > simulation.getPlayerList().length * 3) {
+                            break;
+                        }
+
+                        simulation.processTurn(currentPlayer, botPlay);
+                    }
+
+                    stats.updateStats(simulation.getPlayerList(), simulation.getGameHistory());
+                }
+
+                // Stampa anche in console per debug
+                stats.stampStats();
+
+                // Torniamo sul thread grafico JavaFX per aprire la finestra delle statistiche
+                javafx.application.Platform.runLater(() -> mostraStatisticheGrafiche(stats, numPartite));
+
+            }).start();
+        });
+
+        container.getChildren().addAll(stackCheck, rushCheck, playersBox, namesBox, startSimButton, fastSimButton);
     }
     
     private SimulationEngine buildSimulationEngine(VBox names, int numPlayers, CheckBox stackWild, CheckBox numberRush) {
@@ -463,6 +531,115 @@ public class MainApp extends Application {
             row.getChildren().addAll(label, typeCombo, nameField, categoryCombo);
             container.getChildren().add(row);
         }
+    }
+
+    /**
+     * Apre una nuova finestra JavaFX con le statistiche finali della simulazione.
+     * 
+     * @param stats     l'oggetto SimulationStats con i dati raccolti
+     * @param numPartite il numero totale di partite simulate
+     */
+    private void mostraStatisticheGrafiche(it.uniroma1.mdp.uno.model.simulation.SimulationStats stats, int numPartite) {
+        // --- CONTENITORE PRINCIPALE ---
+        VBox mainBox = new VBox(18);
+        mainBox.setAlignment(Pos.CENTER);
+        mainBox.setStyle("-fx-background-color: #1a472a; -fx-padding: 30;"); // sfondo verde scuro
+
+        // --- TITOLO ---
+        Label title = new Label("STATISTICHE SIMULAZIONE");
+        title.setStyle("-fx-text-fill: gold; -fx-font-size: 36px; -fx-font-weight: bold; -fx-effect: dropshadow(gaussian, black, 10, 0, 0, 0);");
+
+        Label subtitle = new Label("Partite giocate: " + numPartite);
+        subtitle.setStyle("-fx-text-fill: white; -fx-font-size: 18px;");
+
+        mainBox.getChildren().addAll(title, subtitle);
+
+        // Aggiornamo il sottotitolo per mostrare anche gli stalli
+        if (stats.getNoWin() > 0) {
+            Label stalliLabel = new Label("(di cui " + stats.getNoWin() + " finite in pareggio/stallo)");
+            stalliLabel.setStyle("-fx-text-fill: #ffaa44; -fx-font-size: 14px;");
+            mainBox.getChildren().add(stalliLabel);
+        }
+
+        // --- RIGA DI INTESTAZIONE TABELLA ---
+        HBox headerRow = new HBox(0);
+        headerRow.setStyle("-fx-background-color: rgba(0,0,0,0.5); -fx-padding: 8; -fx-background-radius: 8;");
+        headerRow.setAlignment(Pos.CENTER);
+
+        String[] headers = { "Bot", "Vittorie (%)", "Pt. Medio (su vittorie)", "Carte Pescate", "Challenge", "Challenge Vinte" };
+        int[] colWidths = { 140, 110, 195, 130, 105, 130 };
+        for (int h = 0; h < headers.length; h++) {
+            Label lbl = new Label(headers[h]);
+            lbl.setPrefWidth(colWidths[h]);
+            lbl.setAlignment(Pos.CENTER);
+            lbl.setStyle("-fx-text-fill: gold; -fx-font-weight: bold; -fx-font-size: 13px;");
+            headerRow.getChildren().add(lbl);
+        }
+        mainBox.getChildren().add(headerRow);
+
+        // --- RIGHE CON I DATI DI OGNI BOT ---
+        // Troviamo il bot con più vittorie per colorarlo di verde
+        String nomeMigliore = "";
+        int vittorieMassime = -1;
+        for (java.util.Map.Entry<String, it.uniroma1.mdp.uno.model.simulation.SimulationStats.BotStats> entry : stats.getStatsMap().entrySet()) {
+            if (entry.getValue().wins > vittorieMassime) {
+                vittorieMassime = entry.getValue().wins;
+                nomeMigliore = entry.getKey();
+            }
+        }
+
+        for (java.util.Map.Entry<String, it.uniroma1.mdp.uno.model.simulation.SimulationStats.BotStats> entry : stats.getStatsMap().entrySet()) {
+            String profilo = entry.getKey();
+            it.uniroma1.mdp.uno.model.simulation.SimulationStats.BotStats s = entry.getValue();
+
+            // % vittorie su partite totali
+            double percVittorie = s.gamesPlayed > 0 ? (double) s.wins / s.gamesPlayed * 100.0 : 0;
+
+            // Punteggio medio calcolato SOLO sulle partite vinte (più significativo)
+            double mediaPunti = s.wins > 0 ? (double) s.points / s.wins : 0;
+
+            boolean isBest = profilo.equals(nomeMigliore);
+            String coloreRiga = isBest ? "rgba(0, 200, 50, 0.25)" : "rgba(0,0,0,0.3)";
+            String coloreTesto = isBest ? "lightgreen" : "white";
+
+            HBox dataRow = new HBox(0);
+            dataRow.setAlignment(Pos.CENTER);
+            dataRow.setStyle("-fx-background-color: " + coloreRiga + "; -fx-padding: 8; -fx-background-radius: 8;");
+
+            String[] valori = {
+                profilo,
+                s.wins + " (" + String.format("%.1f", percVittorie) + "%)",
+                String.format("%.1f", mediaPunti),
+                String.valueOf(s.cardsDrawed),
+                String.valueOf(s.challengeCalled),
+                String.valueOf(s.challengeSucceded)
+            };
+
+            for (int c = 0; c < valori.length; c++) {
+                Label cell = new Label(valori[c]);
+                cell.setPrefWidth(colWidths[c]);
+                cell.setAlignment(Pos.CENTER);
+                cell.setStyle("-fx-text-fill: " + coloreTesto + "; -fx-font-size: 14px;");
+                dataRow.getChildren().add(cell);
+            }
+
+            mainBox.getChildren().add(dataRow);
+        }
+
+        // --- BOTTONE CHIUDI ---
+        Button closeBtn = new Button("Chiudi");
+        closeBtn.setStyle("-fx-font-size: 16px; -fx-padding: 10 30; -fx-cursor: hand; -fx-background-color: #c0392b; -fx-text-fill: white; -fx-background-radius: 8;");
+
+        mainBox.getChildren().add(closeBtn);
+
+        // --- APRI LA FINESTRA ---
+        javafx.scene.Scene statsScene = new javafx.scene.Scene(mainBox, 800, 500);
+        javafx.stage.Stage statsStage = new javafx.stage.Stage();
+        statsStage.setTitle("Statistiche Finali Simulazione");
+        statsStage.setScene(statsScene);
+        statsStage.show();
+
+        closeBtn.setOnAction(ev -> statsStage.close());
     }
 
     public static void main(String[] args) {
