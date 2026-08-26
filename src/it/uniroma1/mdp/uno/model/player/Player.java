@@ -24,6 +24,7 @@ public abstract class Player {
 	private int currentRoundScore;
 	private boolean wonRound;
 	private boolean hasDrawn;
+	private boolean canStack;
 
 	/**
 	 * Definisce se il giocatore è umano o controllato dal computer.
@@ -67,18 +68,25 @@ public abstract class Player {
 		wonRound = false;
 		unoState = UNOState.Safe;
 		hasDrawn = false;
+		canStack = false;
+	}
+	
+	/**
+	 * Stabilisce qualora il giocatore abbia delle carte pesca da mettere in risposta ad altre carte pesca nel caso in cui
+	 * la regola opzionale dello stacking sia abilitata
+	 * @param game la partita corrente
+	 * @return true se il giocatore ha carte pesca da mettere, false altrimenti
+	 */
+	public boolean getCanStack(GameEngine game) {
+		if (game.getPendingDrawPenalty() > 0 && game.getRuleSet().getStackDrawCards()) {
+            for (Card c : getHand().getAllCardsCopy()) {
+                if (c.getType() == CardType.DRAW_TWO || c.getType() == CardType.WILD_DRAW_FOUR)
+                    canStack = true;
+            }
+        }
+		return canStack;
 	}
 
-	/**
-	 * il giocatore pesca due carte se non ha dichiarato UNO e un altro giocatore lo
-	 * richiama
-	 * 
-	 * @param current
-	 * @param deck
-	 */
-	public void notDeclared(Player current, Deck deck) {
-		deck.drawCardRandom(current.getHand(), 2);
-	}
 
 	/**
 	 * 
