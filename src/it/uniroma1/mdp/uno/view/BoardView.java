@@ -41,7 +41,6 @@ import javafx.util.Duration;
 public class BoardView extends BorderPane {
 
     private final GameEngine game;
-    private final Map<Player, HBox> opponentCardsMap = new HashMap<>();
 
     private HBox playerHandBox;
     private HBox centerAreaBox;
@@ -97,6 +96,7 @@ public class BoardView extends BorderPane {
         Card topDiscard = game.getDiscardPile().getTopCard();
         
         processHumanTurn(currentPlayer);
+        processBotTurn(currentPlayer);
 
         // check per vedere se c'è qualcuno da punire per la mancata dichiarazione di
         // UNO
@@ -414,7 +414,6 @@ public class BoardView extends BorderPane {
     }
      
     public void drawOpponentStartingCards(Player currentPlayer) {
-    	opponentCardsMap.clear();
     	
         Label turnInfo = new Label("Turno di: " + (currentPlayer != null ? currentPlayer.getPlayerName() : ""));
         turnInfo.setStyle("-fx-text-fill: #ffd700; -fx-font-size: 22px; -fx-font-weight: bold;");
@@ -443,8 +442,7 @@ public class BoardView extends BorderPane {
                 backCard.setScaleY(0.6);
                 opponentCards.getChildren().add(backCard);
             }
-            
-            opponentCardsMap.put(currentPlayer, opponentCards);
+           
 
             opponentBox.getChildren().addAll(opponentName, opponentCards);
             otherPlayersContainer.getChildren().add(opponentBox);
@@ -453,51 +451,39 @@ public class BoardView extends BorderPane {
         opponentsBox.getChildren().add(otherPlayersContainer);
     }
     
-    /**
-     * Metodo per aggiornare graficamente le carte degli avversari quando ottengono nuove carte
-     * @param playerToUpdate
-     * @param cardsToAdd
-     */
-    public void updateAddOpponentCards(Player playerToUpdate, List<Card> cardsToAdd) {
-    	HBox playerCards = opponentCardsMap.get(playerToUpdate);
-    	for (Card card : cardsToAdd) {
-    		CardView backCard = new CardView(card, false);
-    		playerCards.getChildren().add(backCard); 
-    	}    	 
-    }
     
     public void historyScoreboard(Player currentPlayer) {
-    	// --- CREAZIONE STORICO IN ALTO A SINISTRA ---
+        // --- CREAZIONE STORICO (SPOSTATO AL CENTRO-SINISTRA) ---
         VBox historyContent = new VBox(3);
         historyContent.setPadding(new Insets(10));
-        historyContent.setStyle("-fx-background-color: rgba(0,0,0,0.6);");
+        historyContent.setStyle("-fx-background-color: rgba(0,0,0,0.6); -fx-background-radius: 0 10 10 0;");
         
         Label histTitle = new Label(" STORICO MOSSE:");
         histTitle.setStyle("-fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 14px;");
         historyContent.getChildren().add(histTitle);
 
         List<GameAction> actions = game.getGameHistory().getAllActions();
-        // Mostriamo TUTTE le mosse dall'inizio della partita
         for (int i = 0; i < actions.size(); i++) {
             Label move = new Label((i + 1) + ". " + actions.get(i).setActionDescription());
             move.setStyle("-fx-text-fill: lightgray; -fx-font-size: 12px;");
             historyContent.getChildren().add(move);
         }
 
-        // Avvolgiamo la VBox in una ScrollPane
         javafx.scene.control.ScrollPane historyScroll = new javafx.scene.control.ScrollPane(historyContent);
-        historyScroll.setPrefSize(250, 150); // Fissiamo dimensione
+        historyScroll.setPrefSize(250, 250); // Aumentato leggermente in altezza visto che sta al centro
         historyScroll.setHbarPolicy(javafx.scene.control.ScrollPane.ScrollBarPolicy.NEVER);
         historyScroll.setVbarPolicy(javafx.scene.control.ScrollPane.ScrollBarPolicy.AS_NEEDED);
         historyScroll.setStyle("-fx-background-color: transparent; -fx-background: transparent;");
-        // Scroll automatico verso il basso ad ogni aggiornamento
         historyScroll.setVvalue(1.0); 
 
-        // Impacchettiamo gli avversari (al centro) e lo storico (a sinistra) in una
-        // TopBar
+        // Inseriamo lo storico nel lato sinistro del tavolo principale
+        this.setLeft(historyScroll);
+        // Centriamo verticalmente lo storico
+        BorderPane.setAlignment(historyScroll, Pos.CENTER_LEFT);
+
+        // --- TOP BAR: AVVERSARI E CLASSIFICA ---
         BorderPane topBar = new BorderPane();
-        topBar.setCenter(opponentsBox);
-        topBar.setLeft(historyScroll);
+        topBar.setCenter(opponentsBox); // Avversari normali, senza ScrollPane
         
         // --- CLASSIFICA IN ALTO A DESTRA (Solo per le partite a punti) ---
         if (game.getGameMode().getPointMatch()) {
@@ -505,13 +491,16 @@ public class BoardView extends BorderPane {
             scoreBox.setPadding(new Insets(10));
             scoreBox.setStyle("-fx-background-color: rgba(0,0,0,0.6); -fx-background-radius: 10;");
             
+            // Fissiamo la larghezza della classifica
+            scoreBox.setPrefWidth(250);
+            scoreBox.setMinWidth(250);
+            
             Label scoreTitle = new Label(" PUNTI (Goal: " + game.getGameMode().getPointGoal() + "):");
             scoreTitle.setStyle("-fx-text-fill: gold; -fx-font-weight: bold;");
             scoreBox.getChildren().add(scoreTitle);
             
             for (Player p : game.getPlayerList()) {
                 Label pScore = new Label("- " + p.getPlayerName() + ": " + p.getTotalScore() + " pt");
-                // Mettiamo in grassetto il giocatore a cui tocca
                 if (p == currentPlayer) {
                     pScore.setStyle("-fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 14px;");
                 } else {
@@ -521,6 +510,13 @@ public class BoardView extends BorderPane {
             }
             
             topBar.setRight(scoreBox);
+            
+            // BILANCIAMENTO: Aggiungiamo un contrappeso vuoto a sinistra della topBar
+            // per mantenere gli avversari sempre perfettamente al centro
+            javafx.scene.layout.Region spacer = new javafx.scene.layout.Region();
+            spacer.setPrefWidth(250);
+            spacer.setMinWidth(250);
+            topBar.setLeft(spacer);
         }
         
         this.setTop(topBar); // Inserisce la barra in alto nel tavolo verde
@@ -634,14 +630,11 @@ public class BoardView extends BorderPane {
      * Rimuove il bottone, sblocca la UI e fa ripartire il normale loop del gioco.
      */
     private void concludeUnoPhase(Player previousPlayer) {
-        // Svuotiamo la zona destra del BorderPane, facendo sparire il bottone
         this.setRight(null);
 
-        // Sblocchiamo il tavolo e la mano
         centerAreaBox.setDisable(false);
         playerHandBox.setDisable(false);
 
-        // Aggiorniamo la grafica per il turno successivo
         finishTurnAndRefresh(previousPlayer);
     }
 
