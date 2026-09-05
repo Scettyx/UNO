@@ -34,9 +34,7 @@ public class SaveManager {
             .create();
     }
 
-    // ===================================================================
-    // DTO: Oggetto leggero che rappresenta lo stato salvabile della partita
-    // ===================================================================
+    //il DTO è un oggetto leggero che rappresenta i dati salvabili della partita. 
 
     /**
      * Contiene solo i dati essenziali per ripristinare una partita.
@@ -58,22 +56,19 @@ public class SaveManager {
     private static class PlayerDTO {
         String name;
         int id;
-        String playerType;    // "HUMAN", "BOT"
-        String botProfile;    // "RANDOM", "CONSERVATIVE", "AGGRESSIVE" (solo per BOT)
+        String playerType;    // HUMAN, BOT
+        String botProfile;    // RANDOM, CONSERVATIVE, AGGRESSIVE (solo per BOT)
         int totalScore;
         CardDTO[] hand;
     }
 
     /** Rappresenta una carta salvata */
     private static class CardDTO {
-        String type;          // es. "NUMBER", "DRAW_TWO", "WILD", "WILD_DRAW_FOUR"
-        String originalColor; // es. "RED", "BLUE", "NONE"
+        String type;          
+        String originalColor; 
         int numericValue;     // usato solo per NumberCard
     }
 
-    // ===================================================================
-    // Metodi principali
-    // ===================================================================
 
     /**
      * Salva lo stato essenziale della partita su file JSON.
@@ -115,9 +110,6 @@ public class SaveManager {
         }
     }
 
-    // ===================================================================
-    // Conversioni DTO <-> GameEngine
-    // ===================================================================
 
     /** Converte il GameEngine in un DTO leggero */
     private SaveDTO toDTO(GameEngine engine) {
@@ -228,9 +220,6 @@ public class SaveManager {
         }
     }
 
-    // ===================================================================
-    // Deserializer GSON custom (usati solo se usi il polimorfismo via JSON puro)
-    // ===================================================================
 
     /** Deserializer per le sottoclassi di Card */
     private static class CardDeserializer implements JsonDeserializer<Card> {

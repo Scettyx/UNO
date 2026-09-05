@@ -3,7 +3,7 @@ package it.uniroma1.mdp.uno.model.deck;
 import it.uniroma1.mdp.uno.model.card.Card;
 
 /**
- * 
+ * Rappresenta la mano del giocatore. 
  * 
  * @author Massimo Giorgini (M.2234123)
  */

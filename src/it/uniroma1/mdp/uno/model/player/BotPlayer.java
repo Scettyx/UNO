@@ -1,14 +1,5 @@
 package it.uniroma1.mdp.uno.model.player;
 
-import it.uniroma1.mdp.uno.model.card.Card;
-import it.uniroma1.mdp.uno.model.card.CardColor;
-import it.uniroma1.mdp.uno.model.card.CardType;
-import it.uniroma1.mdp.uno.model.card.NumberCard;
-import it.uniroma1.mdp.uno.model.deck.Hand;
-
-import java.util.ArrayList;
-import java.util.List;
-
 /**
  * Classe astratta per i Bot.
  * 

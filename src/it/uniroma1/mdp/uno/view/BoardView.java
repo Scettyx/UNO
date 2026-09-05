@@ -19,12 +19,14 @@ import it.uniroma1.mdp.uno.model.player.Player.PlayerType;
 import it.uniroma1.mdp.uno.model.player.Player.UNOState;
 import it.uniroma1.mdp.uno.model.simulation.SimulationEngine;
 import javafx.geometry.Insets;
+import javafx.geometry.Point2D;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.effect.DropShadow;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
@@ -58,6 +60,9 @@ public class BoardView extends BorderPane {
     
     
 
+    /**
+     * Imposta il layout iniziale, creando gli spazi in cui verranno inseriti il mazzo del giocatore corrente, i mazzi degli avversari e le carte al centro (discarPile).
+     */
     private void setupLayout() {
         playerHandBox = new HBox(-20);
         playerHandBox.setAlignment(Pos.CENTER);
@@ -74,6 +79,9 @@ public class BoardView extends BorderPane {
         setTop(opponentsBox);
     }
 
+    /**
+     * Aggiorna l'UI per riflettere ciò che è stato cambiato di turno in turno. 
+     */
     public void refreshBoard() {
 
         //controllo della vittoria. se la partita è finita, manda alla schermata di vittoria.
@@ -125,12 +133,16 @@ public class BoardView extends BorderPane {
 
         drawPlayerCards(topDiscard, currentPlayer);
         
-        drawOpponentStartingCards(currentPlayer);
+        drawOpponentCards(currentPlayer);
         
         historyScoreboard(currentPlayer);
         
     }
     
+    /**
+     * Un piccolo box di testo che contiene informazioni sul colore corrente e sulla direzione dei turni. 
+     * @param infoBox
+     */
     public void infoBoxSetup(VBox infoBox) {
     	infoBox.setAlignment(Pos.CENTER);
         infoBox.setPadding(new Insets(2));
@@ -163,6 +175,14 @@ public class BoardView extends BorderPane {
         infoBox.getChildren().addAll(colorLabel, dirLabel);
     }
     
+    /**
+     * Gestisce il funzionamento dei vari bottoni nell'interfaccia.
+     * @param passTurnBtn
+     * @param drawPile
+     * @param playCardsBtn
+     * @param saveBtn
+     * @param currentPlayer
+     */
     public void buttonsSetup(Button passTurnBtn, Button drawPile, Button playCardsBtn, Button saveBtn, Player currentPlayer) {
     	//Bottone salta turno
         passTurnBtn.getStyleClass().add("menu-button");
@@ -223,17 +243,16 @@ public class BoardView extends BorderPane {
             if (currentPlayer.getPlayerType() == PlayerType.HUMAN
                     && currentHumanPlayer.getSelectedCardsFromUI().size() > 0) {
                 System.out.println("Il giocatore ha deciso di giocare le carte selezionate");
-                // 1. Processa la mossa nel Model
+                //rocessa la mossa nel Model
                 game.processTurn(currentHumanPlayer, currentHumanPlayer.playTurn(game.getDiscardPile().getTopCard()));
 
-                // 2. Controlla quante carte sono rimaste
+                //Controlla quante carte sono rimaste
                 int remainingCards = currentHumanPlayer.getHand().getAllCardsCopy().size();
 
                 if (remainingCards == 1) {
-                    // 3. Avvia la fase di emergenza (1 secondo), bloccando il passaggio del turno
+                    //Per 1 secondo blocca il passaggio del turno per far partire la fase d'emergenza per dare al giocatore la possibilità di dichiarare UNO. 
                     triggerUnoPhase(currentHumanPlayer);
                 } else {
-                	//CASO: Carta wild
                     
                     finishTurnAndRefresh(currentPlayer);
                 }
@@ -251,17 +270,18 @@ public class BoardView extends BorderPane {
         });
     }
     
+    /**
+     * Gestisce il funzionamento dei turni dei giocatori bot. 
+     * @param currentPlayer
+     */
     public void processBotTurn(Player currentPlayer) {
     	if (currentPlayer.getPlayerType() == PlayerType.BOT) {
 
             game.punishUnsafePlayers();
 
-            // Evita che il giocatore umano clicchi cose in preda al panico mentre il bot
-            // pensa
             centerAreaBox.setDisable(true);
             playerHandBox.setDisable(true);
-            // Timer di 1.5 secondi per dare "l'illusione" che stia pensando e far capire di
-            // chi è il turno
+            // Timer di 1.5 secondi per dare "l'illusione" che stia pensando e far capire di chi è il turno
             PauseTransition botTimer = new PauseTransition(Duration.seconds(1.5));
             botTimer.setOnFinished(e -> {
                 List<Card> botPlay = currentPlayer.playTurn(game.getDiscardPile().getTopCard());
@@ -269,11 +289,10 @@ public class BoardView extends BorderPane {
                 if (botPlay.isEmpty()) {
                     System.out.println(currentPlayer.getPlayerName() + " non ha carte. Pesca!");
                     Card drawn = game.drawIfNotPlayed(currentPlayer);
-                    // Controlla se la carta appena pescata si può giocare come salvataggio in
-                    // corner
+                    // Controlla se la carta appena pescata si può giocare come salvataggio in corner                    
                     if (drawn != null && drawn.isPlayableOn(game.getDiscardPile().getTopCard())) {
                         System.out.println(
-                                "Fortuna! " + currentPlayer.getPlayerName() + " gioca la carta appena pescata.");
+                                "fortuna; " + currentPlayer.getPlayerName() + " gioca la carta appena pescata.");
                         if (drawn.getType().isWild()) {
                             drawn.setChosenColor(it.uniroma1.mdp.uno.model.card.CardColor.getRandomColor());
                         }
@@ -294,17 +313,20 @@ public class BoardView extends BorderPane {
         }
     }
         
+    /**
+     * Gestisce il funzionamento dei turni dei giocatori umani. 
+     * @param currentPlayer
+     */
     public void processHumanTurn(Player currentPlayer) {
-    	// --- AZIONI AUTOMATICHE PER L'UMANO (DELAY 2 SECONDI) ---
         if (currentPlayer.getPlayerType() == PlayerType.HUMAN) {
             Card topDiscard = game.getDiscardPile().getTopCard();
         
-            //Logica grafica della challenge del WildDrawFour
+            //logica grafica della challenge del WildDrawFour
             if (game.getPendingDrawPenalty() >= 4 && topDiscard.getType() == CardType.WILD_DRAW_FOUR) {
             	WildCard topDiscardWild = (WildCard) this.game.getDiscardPile().getTopCard();
             	if (topDiscardWild.getCanCauseChallenge() == true) {
 	                triggerChallengePhase((HumanPlayer) currentPlayer);
-	                return; // Ferma il caricamento della grafica del turno finche non risponde!
+	                return; 
             	}
             }
             //L'umano riceve una penalità (+2 o +4) e non può difendersi.
@@ -313,7 +335,7 @@ public class BoardView extends BorderPane {
                 playerHandBox.setDisable(true);
                 PauseTransition pt = new PauseTransition(Duration.seconds(2));
                 pt.setOnFinished(e -> {
-                    // Inviamo una lista vuota: il GameEngine capirà che deve applicare la penalità!
+                    //se mettiamo come parametro una lista vuota allora il gameEngine capisce che deve assegnare la penalità 
                     game.processTurn(currentPlayer, new ArrayList<>());
                     finishTurnAndRefresh(currentPlayer);
                 });
@@ -323,8 +345,12 @@ public class BoardView extends BorderPane {
         }
     }
         
+    /**
+     * Disegna le carte del giocatore corrente in basso al centro e ne gestisce il funzionamento.
+     * @param topDiscard
+     * @param currentPlayer
+     */
     public void drawPlayerCards(Card topDiscard, Player currentPlayer) {
-    	//Disegna carte giocatore
         if (currentPlayer != null) {
             for (Card card : currentPlayer.getHand().getAllCardsCopy()) {
             	boolean humanView = (currentPlayer.getPlayerType() == PlayerType.HUMAN && game instanceof GameEngine) 
@@ -413,7 +439,11 @@ public class BoardView extends BorderPane {
         }
     }
      
-    public void drawOpponentStartingCards(Player currentPlayer) {
+    /**
+     * Disegna le carte degli avversari in alto e ne gestisce il funzionamento.
+     * @param currentPlayer
+     */
+    public void drawOpponentCards(Player currentPlayer) {
     	
         Label turnInfo = new Label("Turno di: " + (currentPlayer != null ? currentPlayer.getPlayerName() : ""));
         turnInfo.setStyle("-fx-text-fill: #ffd700; -fx-font-size: 22px; -fx-font-weight: bold;");
@@ -451,9 +481,11 @@ public class BoardView extends BorderPane {
         opponentsBox.getChildren().add(otherPlayersContainer);
     }
     
-    
+    /**
+     * Crea lo storico delle mosse nella parte sinistra dell'UI.
+     * @param currentPlayer
+     */
     public void historyScoreboard(Player currentPlayer) {
-        // --- CREAZIONE STORICO (SPOSTATO AL CENTRO-SINISTRA) ---
         VBox historyContent = new VBox(3);
         historyContent.setPadding(new Insets(10));
         historyContent.setStyle("-fx-background-color: rgba(0,0,0,0.6); -fx-background-radius: 0 10 10 0;");
@@ -470,28 +502,27 @@ public class BoardView extends BorderPane {
         }
 
         javafx.scene.control.ScrollPane historyScroll = new javafx.scene.control.ScrollPane(historyContent);
-        historyScroll.setPrefSize(250, 250); // Aumentato leggermente in altezza visto che sta al centro
+        historyScroll.setPrefSize(250, 250); 
         historyScroll.setHbarPolicy(javafx.scene.control.ScrollPane.ScrollBarPolicy.NEVER);
         historyScroll.setVbarPolicy(javafx.scene.control.ScrollPane.ScrollBarPolicy.AS_NEEDED);
         historyScroll.setStyle("-fx-background-color: transparent; -fx-background: transparent;");
         historyScroll.setVvalue(1.0); 
 
-        // Inseriamo lo storico nel lato sinistro del tavolo principale
+   
         this.setLeft(historyScroll);
-        // Centriamo verticalmente lo storico
+       
         BorderPane.setAlignment(historyScroll, Pos.CENTER_LEFT);
 
-        // --- TOP BAR: AVVERSARI E CLASSIFICA ---
+       
         BorderPane topBar = new BorderPane();
-        topBar.setCenter(opponentsBox); // Avversari normali, senza ScrollPane
+        topBar.setCenter(opponentsBox); 
         
-        // --- CLASSIFICA IN ALTO A DESTRA (Solo per le partite a punti) ---
+        //Se la partita è a punti, disegna anche la classifica in alto a destra
         if (game.getGameMode().getPointMatch()) {
             VBox scoreBox = new VBox(3);
             scoreBox.setPadding(new Insets(10));
             scoreBox.setStyle("-fx-background-color: rgba(0,0,0,0.6); -fx-background-radius: 10;");
-            
-            // Fissiamo la larghezza della classifica
+                       
             scoreBox.setPrefWidth(250);
             scoreBox.setMinWidth(250);
             
@@ -511,15 +542,14 @@ public class BoardView extends BorderPane {
             
             topBar.setRight(scoreBox);
             
-            // BILANCIAMENTO: Aggiungiamo un contrappeso vuoto a sinistra della topBar
-            // per mantenere gli avversari sempre perfettamente al centro
-            javafx.scene.layout.Region spacer = new javafx.scene.layout.Region();
+            //questo serve a mantenere gli avversari sempre al centro
+            Region spacer = new Region();
             spacer.setPrefWidth(250);
             spacer.setMinWidth(250);
             topBar.setLeft(spacer);
         }
         
-        this.setTop(topBar); // Inserisce la barra in alto nel tavolo verde
+        this.setTop(topBar);
     }
     
     
@@ -539,7 +569,7 @@ public class BoardView extends BorderPane {
             }
         }
 
-        // Se qualcuno è da punire, mostriamo il bottone sulla SINISTRA
+        // Se qualcuno è da punire, mostriamo il bottone sulla sinistra
         if (isSomeoneUnsafe) {
             Button callOutBtn = new Button("CONTESTA!");
             callOutBtn.setStyle(
@@ -548,9 +578,9 @@ public class BoardView extends BorderPane {
 
             VBox leftSideBox = new VBox(callOutBtn);
             leftSideBox.setAlignment(Pos.CENTER);
-            leftSideBox.setPadding(new Insets(0, 0, 0, 50)); // Margine di 50px da sinistra
+            leftSideBox.setPadding(new Insets(0, 0, 0, 50)); 
 
-            this.setLeft(leftSideBox); // Lo piazziamo fisso a sinistra
+            this.setLeft(leftSideBox); 
 
             PauseTransition pt = new PauseTransition(Duration.seconds(3));
 
@@ -595,17 +625,12 @@ public class BoardView extends BorderPane {
                 "-fx-background-color: #ff0000; -fx-text-fill: white; -fx-font-size: 32px; -fx-font-weight: bold; -fx-background-radius: 15; -fx-border-color: white; -fx-border-width: 3; -fx-border-radius: 15; -fx-padding: 15 30; -fx-cursor: hand;");
         unoBtn.setEffect(new DropShadow(20, Color.BLACK));
 
-        // Creiamo un box dedicato per centrare il bottone verticalmente sul lato destro
-        // dello schermo
         VBox rightSideBox = new VBox(unoBtn);
         rightSideBox.setAlignment(Pos.CENTER);
         rightSideBox.setPadding(new Insets(0, 50, 0, 0)); // Diamo 50px di margine dal bordo destro dello schermo
 
-        // Piazziamo il box nella zona DESTRA (vuota) del BorderPane. Niente coordinate,
-        // posizione fissa!
         this.setRight(rightSideBox);
 
-        // Avviamo il timer di emergenza
         PauseTransition pt = new PauseTransition(Duration.seconds(1));
 
         // Se il giocatore clicca in tempo
@@ -737,13 +762,17 @@ public class BoardView extends BorderPane {
 		this.setRight(challengeBox);
 	}
         
-
+	/**
+	 * Gestisce la grafica del cambio dei turni tra i vari giocatori
+	 * @param previousPlayer
+	 */
     private void finishTurnAndRefresh(Player previousPlayer) {
         
         if (previousPlayer != null) {
             
+        	//questo serve a gestire l'animazione della transizione da un turno all'altro
             try {
-                // 1. Capiamo a quale indice si trova il giocatore a cui sta per toccare nella UI in alto
+                //targetUiIndex è l'indice del prossimo giocatore
                 int targetUiIndex = 0;
                 for (Player p : game.getPlayerList()) {
                     if (p == previousPlayer) continue; 
@@ -751,34 +780,34 @@ public class BoardView extends BorderPane {
                     targetUiIndex++;
                 }
 
-                // 2. Entriamo nei box in alto per prendere l'HBox con le carte di quel giocatore
+                //OriginalCards sono le carte nell'UI del prossimo giocatore
                 HBox otherPlayersContainer = (HBox) opponentsBox.getChildren().get(1);
                 VBox targetOpponentBox = (VBox) otherPlayersContainer.getChildren().get(targetUiIndex);
                 HBox originalCards = (HBox) targetOpponentBox.getChildren().get(1);
 
-                // 3. Calcoliamo le coordinate assolute (su schermo) prima di cancellare l'UI
-                javafx.geometry.Point2D startCoords = originalCards.localToScene(
+                //startCoords sono le coordinate dello schermo in cui si trovano le carte del prossimo giocatore prima dell'animazione del cambio turno
+                Point2D startCoords = originalCards.localToScene(
                         originalCards.getBoundsInLocal().getWidth() / 2, 
                         originalCards.getBoundsInLocal().getHeight() / 2);
                 
-                javafx.geometry.Point2D centerCoords = centerAreaBox.localToScene(
+                Point2D centerCoords = centerAreaBox.localToScene(
                         centerAreaBox.getWidth() / 2, 
                         centerAreaBox.getHeight() / 2);
                 
-                javafx.geometry.Point2D endCoords = playerHandBox.localToScene(
+                Point2D endCoords = playerHandBox.localToScene(
                         playerHandBox.getWidth() / 2, 
                         playerHandBox.getHeight() / 2);
 
-                // 4. Invece di usare .clear(), nascondiamo le zone. Questo impedisce al 
-                // layout di "collassare" sballando le coordinate del centro.
+               
                 opponentsBox.setVisible(false);
                 playerHandBox.setVisible(false);
                 centerAreaBox.getChildren().clear();
 
-                // 5. Creiamo la scritta e il mazzetto "fantasma" che andrà ad animarsi
+                
                 Label passLabel = new Label("Cambio Turno...");
                 passLabel.setStyle("-fx-text-fill: orange; -fx-font-size: 35px; -fx-font-weight: bold;");
-
+                
+                //si crea una copia delle carte del prossimo giocatore; queste saranno le carte ad essere animate durante il cambio turno. 
                 HBox nextPlayerCards = new HBox(-50);
                 nextPlayerCards.setAlignment(Pos.CENTER);
                 for (Card card : game.getCurrentPlayer().getHand().getAllCardsCopy()) {
@@ -788,39 +817,35 @@ public class BoardView extends BorderPane {
                     nextPlayerCards.getChildren().add(backCard);
                 }
 
-                // Uno StackPane per tenere testo e carte sovrapposti al centro perfetto
+                
                 javafx.scene.layout.StackPane transitionPane = new javafx.scene.layout.StackPane();
                 transitionPane.getChildren().addAll(passLabel, nextPlayerCards);
                 centerAreaBox.getChildren().add(transitionPane);
 
-                // 6. Calcoliamo la distanza dal centro allo start in alto, e dal centro alla fine in basso
+                
                 double startX = startCoords.getX() - centerCoords.getX();
                 double startY = startCoords.getY() - centerCoords.getY();
                 
                 double endX = endCoords.getX() - centerCoords.getX();
                 double endY = endCoords.getY() - centerCoords.getY();
 
-                // 7. Impostiamo l'animazione di movimento (partenza da in alto, arrivo in basso)
+                //l'animazione di movimento e scala delle carte
                 TranslateTransition tt = new TranslateTransition(Duration.millis(300), nextPlayerCards);
                 tt.setFromX(startX);
                 tt.setFromY(startY);
                 tt.setToX(endX);
                 tt.setToY(endY);
                 tt.setCycleCount(1);
-                
-                // Extra: mentre le carte scendono in diagonale, le facciamo "ingrandire" dalla 
-                // dimensione piccola (0.6) a dimensione normale (1.0)
                 javafx.animation.ScaleTransition st = new javafx.animation.ScaleTransition(Duration.millis(400), nextPlayerCards);
                 st.setFromX(1.0);
                 st.setFromY(1.0);
-                st.setToX(1.66); // 1.66 circa compensa il 0.6 nativo delle carte degli avversari
+                st.setToX(1.66); 
                 st.setToY(1.66);
 
-                // Facciamo partire movimento e scala assieme
+                //Serve a far partire le animazioni contemporaneamente
                 javafx.animation.ParallelTransition pt = new javafx.animation.ParallelTransition(tt, st);
                 
                 pt.setOnFinished(e -> {
-                    // Rendiamo di nuovo visibili i pannelli prima di ricostruire l'UI!
                     opponentsBox.setVisible(true);
                     playerHandBox.setVisible(true);
                     refreshBoard();
@@ -829,19 +854,19 @@ public class BoardView extends BorderPane {
                 pt.play();
 
             } catch (Exception ex) {
-                // Paracadute di sicurezza: se la finestra è appena aperta e l'UI non è 
-                // ancora renderizzata (le coordinate falliscono), salta l'animazione.
                 refreshBoard();
             }
             
         } else {
-            // Nessuna transizione se c'è di mezzo un bot
             refreshBoard();
         }
     }
 
+    /**
+     * Mostra la schermata di vittoria alla fine di una partita
+     */
     private void showVictoryScreen() {
-        // Pulisce tutto il BorderPane
+
         this.getChildren().clear(); 
         Player winner = null;
         for (Player p : game.getPlayerList()) {
@@ -857,7 +882,7 @@ public class BoardView extends BorderPane {
         Label subtitle = new Label(winner != null ? "Vince: " + winner.getPlayerName() + "!" : "Parità?");
         subtitle.setStyle("-fx-text-fill: white; -fx-font-size: 35px;");
         victoryBox.getChildren().addAll(title, subtitle);
-        // Se è una partita a punti, stampiamo la Leaderboard!
+        //Viene stampata anche la leaderboard se è una partita a punti
         if (game.getGameMode().getPointMatch()) {
             Label scoreTitle = new Label("--- CLASSIFICA FINALE ---");
             scoreTitle.setStyle("-fx-text-fill: yellow; -fx-font-size: 25px; -fx-padding: 20 0 5 0;");
@@ -865,7 +890,7 @@ public class BoardView extends BorderPane {
             
             for (Player p : game.getPlayerList()) {
                 Label pScore = new Label(p.getPlayerName() + ": " + p.getTotalScore() + " pt");
-                // Il vincitore ha il testo verde, gli altri bianco
+
                 pScore.setStyle("-fx-text-fill: " + (p.getWonRound() ? "lightgreen" : "white") + "; -fx-font-size: 22px;");
                 victoryBox.getChildren().add(pScore);
             }

@@ -3,7 +3,7 @@ package it.uniroma1.mdp.uno.model.deck;
 import it.uniroma1.mdp.uno.model.card.Card;
 
 /**
- * 
+ * Rappresenta la pila di carte scartate o giocate sul tavolo. 
  * 
  * @author Massimo Giorgini (M.2234123)
  */

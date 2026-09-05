@@ -7,17 +7,15 @@ import it.uniroma1.mdp.uno.model.card.Card;
 import it.uniroma1.mdp.uno.model.card.CardColor;
 import it.uniroma1.mdp.uno.model.card.CardType;
 import it.uniroma1.mdp.uno.model.card.NumberCard;
-import it.uniroma1.mdp.uno.model.card.WildCard;
 import it.uniroma1.mdp.uno.model.deck.Deck;
 import it.uniroma1.mdp.uno.model.deck.DiscardPile;
 import it.uniroma1.mdp.uno.model.player.HumanPlayer;
 import it.uniroma1.mdp.uno.model.player.Player;
 import it.uniroma1.mdp.uno.model.player.Player.PlayerType;
-import it.uniroma1.mdp.uno.model.player.Player.UNOState;
 import it.uniroma1.mdp.uno.model.rules.RuleSet;
 
 /**
- * 
+ * Questa classe gestisce i parametri e l'andamento del gioco. 
  * 
  * @author Massimo Giorgini (M.2234123)
  * @author Cosmin Florea (M.2241398)
@@ -278,7 +276,6 @@ public class GameEngine {
 	public void WildDrawFourChallenge(Player current) {
 		GameAction challengeAction = new GameAction(current.getPlayerName(), "CHALLENGE");
 
-		// BUG CORRETTO: Si controllano le carte del colpevole (getPreviousPlayer), NON della vittima (current)
 		if (!getPreviousPlayer().WildDrawFourLegal(this)) {
 			deck.drawCardRandom(getPreviousPlayer().getHand(), 4);
 			setPendingDrawPenalty(getPendingDrawPenalty() - 4);
@@ -358,7 +355,6 @@ public class GameEngine {
 	 * @param roundOver
 	 */
 	public void roundWinConditions(Player current) { 
-		//CONTROLLARE SE ASSEGNA BENE I PUNTI!!!
 		if (gameMode.getPointMatch() == true) {
 			addPointsToWinner(current);
 			gameWinConditions();
@@ -529,7 +525,6 @@ public class GameEngine {
 
 			gameHistory.addGameAction(playAction);
 		} else {
-			// NUOVO: Aggiunge la mossa PASS allo storico
 			GameAction passAction = new GameAction(current.getPlayerName(), "PASS");
 			gameHistory.addGameAction(passAction);
 		}

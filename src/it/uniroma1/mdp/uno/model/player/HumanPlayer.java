@@ -19,10 +19,18 @@ public class HumanPlayer extends Player {
 		super(playerName, playerID, PlayerType.HUMAN);
 	}
 
+	/**
+	 * Imposta quali sono le carte selezionate dal giocatore sull'UI.
+	 * @param cards
+	 */
 	public void setSelectedCardsFromUI(List<Card> cards) {
 		this.selectedCardsFromUI = cards;
 	}
 
+	/**
+	 * Ritorna le carte selezionate dal giocatore sull'UI.
+	 * @return
+	 */
 	public List<Card> getSelectedCardsFromUI() {
 		return selectedCardsFromUI;
 	}

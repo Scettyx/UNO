@@ -13,6 +13,8 @@ import javafx.scene.paint.Color;
 import java.net.URL;
 
 /**
+ * Determina come deve essere disegnata una singola carta nell'UI.
+ * 
  * @author Massimo Giorgini (M.2234123)
  */
 public class CardView extends StackPane {
@@ -39,6 +41,9 @@ public class CardView extends StackPane {
     	return isSelected;
     }
 
+    /**
+     * Crea una carta visibile nell'UI. 
+     */
     private void render() {
         getChildren().clear();
         
@@ -68,7 +73,6 @@ public class CardView extends StackPane {
             return "/resources/images/carte_uno/Back.png"; 
         }
         
-        // Estrae il nome dell'Enum
         String colorName = card.getOriginalColor().name(); 
         String valueName = "";
         if(card.getType() == CardType.NUMBER) {
@@ -77,32 +81,39 @@ public class CardView extends StackPane {
         	valueName = card.getType().name();
         }
         
-        // Restituisce la stringa formattata, es: "/images/carte_uno/RED_9.png"
         return "/resources/images/carte_uno/" + colorName + "_" + valueName + ".jpg";
     }
 
+    /**
+     * Determina come la carta deve apparire se è disabilitata e non ci si può interagire
+     * @param disabled true se la carta è disabilitata, false se non lo è
+     */
     public void setDisabledEffect(boolean disabled) {
         if (disabled) {
             ColorAdjust darkEffect = new ColorAdjust();
-            darkEffect.setBrightness(-0.5); // Oscura l'immagine del 50%
-            darkEffect.setSaturation(-0.5); // Desatura leggermente per dare un look "spento"
+            darkEffect.setBrightness(-0.5); 
+            darkEffect.setSaturation(-0.5); 
             this.setEffect(darkEffect);
         } else {
-            this.setEffect(null); // Rimuove l'effetto
+            this.setEffect(null); 
         }
     }
     
+    /**
+     * Determina come la carta deve apparire se è stata selezionata dal giocatore corrente
+     * @param selected true se la carta è selezionata, false se non lo è
+     */
     public void setSelectedEffect(boolean selected) {
         if (selected) {
         	DropShadow shadow = new DropShadow();
-            shadow.setColor(Color.YELLOW); // Colore dell'alone
-            shadow.setRadius(15);         // Diffusione dell'alone
-            shadow.setSpread(0.3);        // Intensità dell'alone
+            shadow.setColor(Color.YELLOW); 
+            shadow.setRadius(15);         
+            shadow.setSpread(0.3);        
             this.setEffect(shadow);
             this.isSelected = true;
         } else {
             this.setEffect(null);
-            this.isSelected = false; // Rimuove l'effetto
+            this.isSelected = false; 
         }
     }
     
