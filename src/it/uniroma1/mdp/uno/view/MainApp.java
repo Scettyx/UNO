@@ -40,9 +40,9 @@ public class MainApp extends Application {
     @Override
     public void start(Stage primaryStage) {
         root = new StackPane();
-        root.getStyleClass().add("menu-bg"); // Applica lo sfondo in panno verde stile casinò
+        root.getStyleClass().add("menu-bg"); 
 
-        // mostra il menu iniziale con il bottone "Inizia Partita"
+        // mostra il menu iniziale con il bottone inizia partita
         showMainMenu();
 
         Scene scene = new Scene(root, 1024, 768);
@@ -170,7 +170,6 @@ public class MainApp extends Application {
         namesBox.setAlignment(Pos.CENTER);
         updateSimulationFields(namesBox, 2); // Inizializza con 2 campi di testo
 
-        // Listener per aggiungere/rimuovere i campi in base al numero di bot scelto
         playersCombo.setOnAction(e -> updateSimulationFields(namesBox, playersCombo.getValue()));
 
         Button startSimButton = new Button("AVVIA SIMULAZIONE (Con Grafica)");
@@ -200,8 +199,7 @@ public class MainApp extends Application {
         fastSimButton.getStyleClass().add("menu-button");
         fastSimButton.setOnAction(e -> {
             System.out.println("Avvio Simulazione Veloce 50 partite in corso...");
-
-            // Usiamo un Thread separato per non congelare l'interfaccia grafica
+           
             new Thread(() -> {
                 it.uniroma1.mdp.uno.model.simulation.SimulationStats stats = new it.uniroma1.mdp.uno.model.simulation.SimulationStats();
                 int numPartite = 50;
@@ -217,8 +215,7 @@ public class MainApp extends Application {
                         Player currentPlayer = simulation.getCurrentPlayer();
                         simulation.punishUnsafePlayers();
 
-                        // Sicurezza: se la discard pile è vuota (es. dopo moveToDeck),
-                        // saltiamo il turno per evitare NullPointerException
+                        // saltiamo il turno per evitare nullpointerexception
                         it.uniroma1.mdp.uno.model.card.Card topCard = simulation.getDiscardPile().getTopCard();
                         if (topCard == null) {
                             simulation.nextTurn();
@@ -540,12 +537,12 @@ public class MainApp extends Application {
      * @param numPartite il numero totale di partite simulate
      */
     private void mostraStatisticheGrafiche(it.uniroma1.mdp.uno.model.simulation.SimulationStats stats, int numPartite) {
-        // --- CONTENITORE PRINCIPALE ---
+
         VBox mainBox = new VBox(18);
         mainBox.setAlignment(Pos.CENTER);
         mainBox.setStyle("-fx-background-color: #1a472a; -fx-padding: 30;"); // sfondo verde scuro
 
-        // --- TITOLO ---
+
         Label title = new Label("STATISTICHE SIMULAZIONE");
         title.setStyle("-fx-text-fill: gold; -fx-font-size: 36px; -fx-font-weight: bold; -fx-effect: dropshadow(gaussian, black, 10, 0, 0, 0);");
 
@@ -561,7 +558,6 @@ public class MainApp extends Application {
             mainBox.getChildren().add(stalliLabel);
         }
 
-        // --- RIGA DI INTESTAZIONE TABELLA ---
         HBox headerRow = new HBox(0);
         headerRow.setStyle("-fx-background-color: rgba(0,0,0,0.5); -fx-padding: 8; -fx-background-radius: 8;");
         headerRow.setAlignment(Pos.CENTER);
@@ -577,7 +573,6 @@ public class MainApp extends Application {
         }
         mainBox.getChildren().add(headerRow);
 
-        // --- RIGHE CON I DATI DI OGNI BOT ---
         // Troviamo il bot con più vittorie per colorarlo di verde
         String nomeMigliore = "";
         int vittorieMassime = -1;
@@ -626,13 +621,12 @@ public class MainApp extends Application {
             mainBox.getChildren().add(dataRow);
         }
 
-        // --- BOTTONE CHIUDI ---
         Button closeBtn = new Button("Chiudi");
         closeBtn.setStyle("-fx-font-size: 16px; -fx-padding: 10 30; -fx-cursor: hand; -fx-background-color: #c0392b; -fx-text-fill: white; -fx-background-radius: 8;");
 
         mainBox.getChildren().add(closeBtn);
 
-        // --- APRI LA FINESTRA ---
+       
         javafx.scene.Scene statsScene = new javafx.scene.Scene(mainBox, 800, 500);
         javafx.stage.Stage statsStage = new javafx.stage.Stage();
         statsStage.setTitle("Statistiche Finali Simulazione");
